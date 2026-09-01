@@ -1,0 +1,393 @@
+# BookGallery — Angular Interview Preparation Questions
+
+## 1. Angular Fundamentals
+
+1. [Angular CLI] How would you create the BookGallery application using Angular CLI?
+2. [Project Structure] How would you organize the BookGallery Angular project?
+3. [Standalone Components] Why would you use standalone components in BookGallery?
+4. [Bootstrap] How does Angular bootstrap the BookGallery application?
+5. [Components] How would you divide BookGallery into reusable components?
+6. [Templates] How would you display a list of books?
+7. [Interpolation] How would you display a book's title and author?
+8. [Property Binding] How would you bind a book cover URL to an image?
+9. [Event Binding] How would you implement an Add to Cart button?
+10. [Two-way Binding] How would you implement a search input using two-way binding?
+11. [Template Reference Variable] How would you access a search input using a template reference variable?
+
+## 2. Component Lifecycle
+
+12. [constructor] What should the BookListComponent constructor contain?
+13. [ngOnChanges] How would you detect when the selected book changes?
+14. [SimpleChanges] How would you determine the previous and current book?
+15. [ngOnInit] Where would you load books from the API?
+16. [ngDoCheck] When would you need custom change detection for a Book component?
+17. [ngAfterContentInit] When would this be useful in a reusable Book component?
+18. [ngAfterContentChecked] Why should you avoid expensive operations here?
+19. [ngAfterViewInit] When can you safely access a BookTable using @ViewChild?
+20. [ngAfterViewChecked] Why can this affect BookGallery performance?
+21. [ngOnDestroy] What cleanup should happen when leaving BookList?
+22. [DestroyRef] How would you use DestroyRef in BookGallery?
+23. [takeUntilDestroyed] How would you automatically clean up RxJS subscriptions?
+24. [Lifecycle Order] In what order do the lifecycle hooks execute?
+25. [Parent/Child Lifecycle] What happens to lifecycle hooks when BookList contains BookCard?
+26. [ExpressionChangedAfterItHasBeenCheckedError] How could this error occur in BookDetails?
+
+## 3. Components and Communication
+
+27. [@Input] How would BookList pass a Book to BookCard?
+28. [input()] How would you implement the same using modern Angular?
+29. [@Output] How would BookCard notify BookList that the user clicked Delete?
+30. [output()] How would you implement this using modern Angular?
+31. [EventEmitter] How would you emit a book-related event?
+32. [Parent to Child] How would you pass Book information to BookCard?
+33. [Child to Parent] How would BookCard send an event back?
+34. [Sibling Communication] How would BookFilter communicate with BookList?
+35. [Shared Service] When would you use a service instead of @Input/@Output?
+36. [Content Projection] How would you create a reusable Book Dialog?
+37. [ng-content] How would you project custom content into a BookCard?
+38. [ViewChild] How would you access a child Book component?
+39. [ViewChildren] How would you access multiple BookCards?
+40. [ContentChild] When would you need to access projected content?
+
+## 4. Templates and Control Flow
+
+41. [@if] How would you show "Out of Stock" when a book is unavailable?
+42. [@for] How would you render all books?
+43. [track] Why should you use track when rendering BookCards?
+44. [@empty] How would you display "No books found"?
+45. [@switch] How would you show different UI for different book statuses?
+46. [ng-template] When would you use a template instead of a component?
+47. [ng-container] When would you use ng-container in BookGallery?
+48. [ngTemplateOutlet] How could you create a reusable Book template?
+
+## 5. Directives
+
+49. [Attribute Directive] How would you highlight books costing more than ₹1,000?
+50. [Custom Directive] How would you create BookHighlightDirective?
+51. [HostBinding] How would your directive dynamically change BookCard styling?
+52. [HostListener] How would your directive react to mouse events?
+53. [ElementRef] When would you use ElementRef?
+54. [Renderer2] Why might you prefer Renderer2 over directly modifying the DOM?
+55. [Directive Composition] How could multiple behaviors be combined into a BookCard?
+
+## 6. Pipes
+
+56. [Built-in Pipes] How would you format book prices and published dates?
+57. [Custom Pipe] How would you create a BookStatusPipe?
+58. [Pure Pipe] What happens when a Book object changes?
+59. [Impure Pipe] Why can an impure pipe make BookList slow?
+60. [AsyncPipe] How would you display books returned as an Observable?
+
+## 7. Dependency Injection
+
+61. [Dependency Injection] How does Angular inject BookService into BookList?
+62. [providedIn: root] What does it mean for BookService?
+63. [Component Provider] What happens if BookService is provided at BookCard level?
+64. [Hierarchical Injector] Which BookService instance will Angular select?
+65. [Route-level Provider] When would you provide BookService at route level?
+66. [inject()] How would you inject BookService using inject()?
+67. [InjectionToken] Where could an InjectionToken be useful in BookGallery?
+68. [useClass] When would you use useClass?
+69. [useValue] How would you provide BookGallery configuration?
+70. [useFactory] When would you need a factory provider?
+71. [useExisting] What problem does useExisting solve?
+72. [Multi Provider] Where could a multi provider be useful?
+
+## 8. Services
+
+73. [Service] How would you design BookService?
+74. [Service State] Should BookService maintain the Book list?
+75. [Singleton Service] Why would BookService be a singleton?
+76. [Facade Pattern] How could BookFacade simplify BookList?
+77. [Service Communication] How would CartService communicate with multiple components?
+
+## 9. Forms
+
+78. [Template-driven Forms] How would you create Add Book using template-driven forms?
+79. [Reactive Forms] How would you implement Add/Edit Book using Reactive Forms?
+80. [FormControl] How would you create a Book title control?
+81. [FormGroup] How would you model the complete Book form?
+82. [FormArray] How would you allow multiple authors?
+83. [FormBuilder] How would you simplify form creation?
+84. [Validators] How would you validate title, price and ISBN?
+85. [Custom Validator] How would you validate ISBN?
+86. [Async Validator] How would you check ISBN uniqueness through the backend?
+87. [Cross-field Validation] How would you validate related fields?
+88. [Dynamic Forms] How would you dynamically add Book fields?
+89. [Form State] What are dirty, pristine, touched and untouched?
+90. [ControlValueAccessor] How would you create a reusable Book Rating control?
+91. [Custom Form Control] How would your Rating component integrate with Reactive Forms?
+92. [Unsaved Changes] How would you prevent leaving Edit Book when changes haven't been saved?
+
+## 10. Routing
+
+93. [Angular Router] How would you design BookGallery routes?
+94. [Route Parameters] How would you implement /books/:id?
+95. [Query Parameters] How would you implement /books?category=java?
+96. [Multiple Query Parameters] How would you represent search, filter and sorting in the URL?
+97. [Child Routes] When would Book Details need child routes?
+98. [Lazy Loading] How would you lazy-load the Book feature?
+99. [CanActivate] How would you protect Add/Edit Book?
+100. [CanActivateChild] When would you use it for Admin routes?
+101. [CanDeactivate] How would you prevent losing unsaved Book changes?
+102. [CanMatch] When would you use it instead of CanActivate?
+103. [Route Resolver] When would you resolve Book Details before navigation?
+104. [Route Data] How would you pass metadata to Admin routes?
+105. [Route-level Providers] Why might BookGallery need them?
+106. [Router Events] How would you track navigation/loading?
+107. [Preloading] When would you preload the Books feature?
+
+## 11. HTTP and REST
+
+108. [HttpClient] How would BookService communicate with Spring Boot?
+109. [GET] How would you retrieve books?
+110. [POST] How would you create a book?
+111. [PUT/PATCH] How would you update a book?
+112. [DELETE] How would you delete a book?
+113. [HttpParams] How would you send search/filter parameters?
+114. [HTTP Headers] How would you send authentication information?
+115. [Typed HTTP Response] How would you type the Book API response?
+116. [HTTP Error Handling] How would you handle 404 and 500 errors?
+117. [Request Cancellation] How would you cancel an ongoing search request?
+118. [Timeout] How would you handle an API that takes too long?
+119. [Retry] When should a Book API request be retried?
+
+## 12. HTTP Interceptors
+
+120. [HTTP Interceptor] What is an interceptor?
+121. [Auth Interceptor] How would you attach the JWT?
+122. [Error Interceptor] How would you handle 401 globally?
+123. [Loading Interceptor] How would you implement a global loading indicator?
+124. [Logging Interceptor] How would you log API requests?
+125. [Token Refresh] How would you refresh an expired token?
+126. [Concurrent 401s] What happens if 10 requests receive 401 simultaneously?
+127. [Interceptor Ordering] How does Angular execute multiple interceptors?
+
+## 13. RxJS
+
+128. [Observable] Why would BookService return Observables?
+129. [Observable vs Promise] Which would you choose for Book Search and why?
+130. [Subscription] What happens when BookList subscribes?
+131. [Cold vs Hot Observable] Give an example from BookGallery.
+132. [Subject] Where could a Subject be useful?
+133. [BehaviorSubject] How could it represent the selected Book?
+134. [ReplaySubject] Where could it be useful?
+135. [map] How would you transform Book API data?
+136. [filter] How would you filter books?
+137. [tap] Where would you perform side effects?
+138. [debounceTime] How would you debounce Book Search?
+139. [distinctUntilChanged] Why use it with search?
+140. [switchMap] Why is it suitable for Book Search?
+141. [mergeMap] When would it be appropriate?
+142. [concatMap] When would sequential Book operations be useful?
+143. [exhaustMap] Where could it prevent duplicate actions?
+144. [switchMap vs mergeMap] What happens if search uses mergeMap?
+145. [forkJoin] How would you load Book, Author and Category APIs?
+146. [combineLatest] How would you combine search/filter/sort streams?
+147. [withLatestFrom] Where could it be useful in Checkout?
+148. [catchError] How would you handle Book API errors?
+149. [retry] How would you retry transient failures?
+150. [finalize] How would you stop a loading spinner?
+151. [shareReplay] How would you avoid duplicate Book API calls?
+152. [Memory Leaks] How could BookGallery leak subscriptions?
+153. [takeUntilDestroyed] How would you solve subscription cleanup?
+
+## 14. Signals
+
+154. [signal()] How would you store the Book list using Signals?
+155. [Writable Signal] How would you add or remove a Book?
+156. [computed()] How would you create filtered Books?
+157. [effect()] Where would an effect make sense?
+158. [effect() misuse] When should you avoid using effect?
+159. [Signal Input] How would BookCard receive a Book using input()?
+160. [Signal Output] How would BookCard emit an event using output()?
+161. [Model Input] Where could two-way component binding be useful?
+162. [toSignal()] How would you convert a Book API Observable to a Signal?
+163. [toObservable()] When would you convert a Signal back to an Observable?
+164. [Signals vs RxJS] Which should manage Book Search?
+165. [Signals vs NgRx] Which should manage Cart state?
+166. [Signals + Change Detection] How do Signals update the UI?
+
+## 15. Change Detection
+
+167. [Change Detection] How does Angular change detection work?
+168. [Change Detection Tree] What is the change detection tree?
+169. [Default Strategy] How does default change detection work?
+170. [OnPush] Why would you use OnPush for BookCard?
+171. [OnPush Triggers] What triggers an OnPush component to update?
+172. [Reference Equality] What happens if you mutate a Book object?
+173. [markForCheck()] When would you use it?
+174. [detectChanges()] When would you use it?
+175. [markForCheck vs detectChanges] What is the difference?
+176. [detach()] When could detaching a Book List help?
+177. [reattach()] When would you reattach it?
+178. [Signals + OnPush] How do they work together?
+179. [Zone.js] What role does Zone.js play?
+180. [Zoneless Angular] What changes when Angular runs without Zone.js?
+181. [ExpressionChanged Error] Why does it occur and how would you fix it?
+182. [Performance] How would you identify unnecessary change detection?
+
+## 16. State Management
+
+183. [Component State] What state belongs inside BookList?
+184. [Service State] What state could BookStore maintain?
+185. [UI State vs Server State] What is the difference?
+186. [Signal Store] How would you design a BookStore using Signals?
+187. [State Location] When should state be kept in a component?
+188. [Shared State] When should state be shared through a service?
+189. [NgRx Store] When would you introduce NgRx?
+190. [NgRx Actions] What actions would BookGallery need?
+191. [NgRx Reducers] What would the Book reducer do?
+192. [NgRx Selectors] How would you select filtered Books?
+193. [NgRx Effects] How would you handle Book API calls?
+194. [NgRx Entity] Why could it help with thousands of Books?
+195. [NgRx Facade] How could a BookFacade hide NgRx complexity?
+196. [NgRx vs Signals] Which would you choose for this application and why?
+
+## 17. Performance
+
+197. [Large Lists] How would you render 100,000 books efficiently?
+198. [track] How does track improve rendering?
+199. [OnPush] How would it improve BookCard performance?
+200. [Virtual Scrolling] When would you use it?
+201. [Lazy Loading] How would you reduce the initial bundle?
+202. [@defer] Which BookGallery components could be deferred?
+203. [Memoization] How would you avoid expensive calculations?
+204. [API Caching] How would you cache frequently requested books?
+205. [Image Optimization] How would you optimize thousands of book covers?
+206. [Performance Debugging] How would you identify why BookGallery is slow?
+207. [Bundle Optimization] How would you reduce the initial JavaScript bundle?
+208. [Network Optimization] How would you reduce unnecessary API requests?
+
+## 18. Dynamic Components and Templates
+
+209. [TemplateRef] How would you create a reusable Book dialog template?
+210. [ViewContainerRef] How would you dynamically insert a component?
+211. [Dynamic Components] How would you dynamically create a confirmation dialog?
+212. [createComponent] When would you use it?
+213. [Embedded Views] How do they differ from components?
+214. [Dynamic Destruction] How would you clean up dynamically created components?
+215. [Reusable Dialog] How would you design a reusable Dialog system?
+
+## 19. Authentication and Authorization
+
+216. [Authentication] How would you implement Login?
+217. [Authorization] What is the difference between authentication and authorization?
+218. [JWT] How would Angular use the JWT?
+219. [Auth Guard] How would you protect /admin?
+220. [Role-based Access] How would ADMIN, LIBRARIAN and CUSTOMER have different permissions?
+221. [Token Expiration] What happens when the JWT expires?
+222. [Refresh Token] How would you implement refresh-token handling?
+223. [Authentication State] Where should authentication state live?
+
+## 20. Testing
+
+224. [Unit Testing] How would you unit test BookService?
+225. [TestBed] How would you configure a BookList test?
+226. [HTTP Testing] How would you mock Spring Boot API calls?
+227. [Component Testing] How would you test BookCard?
+228. [Input Testing] How would you test BookCard's input?
+229. [Output Testing] How would you test Add-to-Cart events?
+230. [Form Testing] How would you test Add Book validation?
+231. [Signal Testing] How would you test computed Book state?
+232. [Router Testing] How would you test Book Details navigation?
+233. [Guard Testing] How would you test AuthGuard?
+234. [Interceptor Testing] How would you test JWT injection?
+235. [Integration Testing] Which BookGallery flows should be integration tested?
+236. [E2E Testing] Which complete user journeys should be tested?
+
+## 21. Security
+
+237. [XSS] How does Angular protect BookGallery from XSS?
+238. [DomSanitizer] When would you need it?
+239. [bypassSecurityTrust] Why can it be dangerous?
+240. [Frontend Authorization] Can frontend authorization protect the Book API?
+241. [Token Security] What are the security considerations for storing tokens?
+242. [API Security] What security responsibilities belong to the backend instead of Angular?
+
+## 22. Accessibility
+
+243. [Semantic HTML] How would you make BookGallery accessible?
+244. [Keyboard Navigation] How would you make BookGallery keyboard accessible?
+245. [ARIA] Where would ARIA attributes be needed?
+246. [Accessible Forms] How would you make Add Book accessible?
+247. [Accessible Dialog] How would you make the Confirmation Dialog accessible?
+248. [Focus Management] How would you manage focus when opening and closing a Dialog?
+249. [Accessible Validation] How would you make validation errors accessible?
+
+## 23. SSR and Hydration
+
+250. [SSR] Why might Book Details benefit from SSR?
+251. [CSR vs SSR] Which would you choose for BookGallery and why?
+252. [Hydration] What happens during Angular hydration?
+253. [Browser APIs] What problems can localStorage cause with SSR?
+254. [SEO] Why could SSR matter for a Book Store?
+255. [Incremental Hydration] What is incremental hydration?
+
+## 24. Internationalization
+
+256. [i18n] How would you add multiple languages to BookGallery?
+257. [Currency] How would you support INR, USD and EUR?
+258. [Date Localization] How would you localize dates?
+259. [Pluralization] How would you handle pluralization?
+260. [RTL] How would you support RTL languages?
+
+## 25. Architecture
+
+261. [Feature Architecture] How would you structure BookGallery using feature-based architecture?
+262. [Core] What belongs in the core area?
+263. [Shared] What belongs in the shared area?
+264. [Books Feature] What belongs inside the Books feature?
+265. [Smart Components] Which BookGallery components should be containers?
+266. [Presentational Components] Which components should be presentational?
+267. [Facade Pattern] Where would you use a facade?
+268. [Repository Pattern] Would you use a repository abstraction?
+269. [API Model vs UI Model] Should they be the same?
+270. [State Boundary] Where should Book state live?
+271. [Separation of Concerns] How would you prevent BookList from becoming too large?
+272. [Scalability] How would you structure BookGallery for multiple teams?
+273. [Feature Boundaries] How would you establish boundaries between features?
+
+## 26. Modern Angular and Migration
+
+274. [Standalone Migration] How would you migrate an NgModule-based BookGallery to standalone?
+275. [Control Flow Migration] How would you migrate *ngIf and *ngFor to @if and @for?
+276. [Signal Migration] Which existing RxJS state would you migrate to Signals?
+277. [Input Migration] How would you migrate @Input() to input()?
+278. [Output Migration] How would you migrate @Output() to output()?
+279. [RxJS to Signals] When should RxJS state remain as RxJS instead of being migrated?
+280. [Legacy Application] How would you incrementally modernize a large Angular application?
+281. [Migration Risks] What could break during migration?
+282. [Zero Downtime Migration] How would you modernize an Angular application while continuing feature development?
+
+## 27. Senior-Level Scenarios
+
+283. [RxJS + Search] The user searches for "Angular", then "Angular Signals", but the older API response arrives last. How would you solve it?
+
+284. [Change Detection] BookGallery contains 50,000 BookCards and scrolling is slow. How would you investigate?
+
+285. [Lifecycle] ngOnChanges() isn't triggered when the parent modifies book.title. Why?
+
+286. [HTTP] The same Book API is called five times when the page loads. How would you identify and fix the issue?
+
+287. [Signals] Books, Filters and SearchTerm all need to participate in derived state. How would you model this with Signals?
+
+288. [NgRx] At what point would BookGallery justify introducing NgRx?
+
+289. [Authentication] Ten API requests receive 401 simultaneously because the token expired. How would you design token refresh?
+
+290. [Forms] ISBN uniqueness must be validated against the backend while the user types. How would you avoid excessive API requests?
+
+291. [Performance] BookGallery contains 100,000 books. Design the complete frontend strategy.
+
+292. [Architecture] BookList has grown to 2,000 lines. How would you refactor it?
+
+293. [Concurrency] Two admins edit the same book simultaneously. How would you handle this between Angular and Spring Boot?
+
+294. [Caching] Book Details is requested repeatedly. Where would you cache the data and why?
+
+295. [Error Handling] Book creation succeeds on the backend, but Angular doesn't receive the response. How would you handle the situation?
+
+296. [Migration] You inherit a seven-year-old Angular application. How would you modernize it while continuing feature development?
+
+297. [Large Team] Ten frontend developers will work on BookGallery. How would you establish architecture and feature boundaries?

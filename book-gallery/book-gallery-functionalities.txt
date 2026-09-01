@@ -1,0 +1,115 @@
+# BookGallery
+
+## 1. Book Listing
+- Display books
+- Search books
+- Filter by category
+- Sort books
+- Pagination
+
+## 2. Book Details
+- View book details
+- Add to cart
+- Add to wishlist
+
+## 3. Book Management
+- Add book
+- Edit book
+- Delete book
+
+## 4. Cart
+- View cart
+- Increase/decrease quantity
+- Remove book
+- Calculate total
+
+## 5. User
+- Login
+- Logout
+- User profile
+
+## 6. Orders
+- Place order
+- View order history
+- View order details
+
+## 7. Reviews
+- Add review
+- Edit review
+- Delete review
+- Rating
+
+## 8. Admin
+- Manage books
+- Manage orders
+- Simple dashboard
+
+
+These 8 functional areas are sufficient to practice almost all the important Angular concepts:
+
+Book Listing       → RxJS, Signals, HTTP, Forms
+Book Details       → Routing, Lifecycle, Components
+Book Management    → Reactive Forms, Validation
+Cart               → State Management, Signals
+User/Login         → Guards, Interceptors, JWT
+Orders             → HTTP, Forms, Routing
+Reviews            → Forms, Custom Components
+Admin              → Lazy Loading, Guards, Architecture
+
+Then we can deliberately introduce interview scenarios such as:
+  1.  Search → debounceTime + switchMap
+  2.  Cart → Signals
+  3.  API → HttpClient + Interceptors
+  4.  Login → JWT + Guards
+  5.  Book form → Reactive Forms + Custom Validators
+  6.  Book list → OnPush + track
+  7.  Admin → Lazy Loading
+  8.  Large book list → Performance optimization
+
+
+  Required Pages :
+  BookGallery — Pages
+
+1. Home
+   - Featured books
+   - Popular books
+
+2. Books
+   - Book list
+   - Search
+   - Filter
+   - Sort
+   - Pagination
+
+3. Book Details
+   - Book information
+   - Reviews
+   - Add to cart/wishlist
+
+4. Add Book
+   - Book form
+
+5. Edit Book
+   - Edit book form
+
+6. Cart
+   - Cart items
+   - Quantity
+   - Total
+
+7. Login
+   - Login form
+
+8. Profile
+   - User information
+   - Order history
+
+9. Order Details
+   - Order information
+   - Ordered books
+   - Status
+
+10. Admin Dashboard
+    - Book management
+    - Order management
+    - Basic statistics

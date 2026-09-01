@@ -1,0 +1,282 @@
+# Angular — 10 Year Experience
+
+## 1. Angular Fundamentals
+- Standalone Components
+- Components
+- Templates
+- Data Binding
+- @if / @for / @switch
+- ng-template / ng-container
+
+## 2. Component Lifecycle ⭐
+- ngOnChanges
+- ngOnInit
+- ngDoCheck
+- ngAfterContentInit
+- ngAfterViewInit
+- ngAfterViewChecked
+- ngOnDestroy
+- Lifecycle execution order
+- DestroyRef
+- takeUntilDestroyed
+- ExpressionChangedAfterItHasBeenCheckedError
+
+## 3. Component Communication ⭐
+- @Input / input()
+- @Output / output()
+- model()
+- Parent → Child
+- Child → Parent
+- Sibling communication
+- Service communication
+- Content Projection
+- ViewChild / ContentChild
+
+## 4. Directives & Pipes
+- Custom Directives
+- HostBinding
+- HostListener
+- ElementRef
+- Renderer2
+- Custom Pipes
+- Pure vs Impure Pipes
+- AsyncPipe
+
+## 5. Dependency Injection ⭐
+- DI
+- Providers
+- Hierarchical Injectors
+- providedIn
+- inject()
+- InjectionToken
+- useClass
+- useValue
+- useFactory
+- Route-level providers
+
+## 6. Reactive Forms ⭐
+- FormControl
+- FormGroup
+- FormArray
+- FormBuilder
+- Validators
+- Custom Validators
+- Async Validators
+- Cross-field Validation
+- Dynamic Forms
+- ControlValueAccessor
+- Form State
+
+## 7. Routing ⭐
+- Router
+- ActivatedRoute
+- Route Parameters
+- Query Parameters
+- Child Routes
+- Lazy Loading
+- CanActivate
+- CanDeactivate
+- CanMatch
+- Resolvers
+- Route-level providers
+- Preloading
+
+## 8. HTTP ⭐
+- HttpClient
+- GET / POST / PUT / PATCH / DELETE
+- HttpParams
+- HttpHeaders
+- Error Handling
+- Request Cancellation
+- Timeout
+- Retry
+- Interceptors
+
+## 9. HTTP Interceptors ⭐
+- Auth Interceptor
+- JWT
+- Error Interceptor
+- Loading Interceptor
+- Token Refresh
+- Concurrent 401 Handling
+
+## 10. RxJS ⭐⭐⭐
+- Observable
+- Subject
+- BehaviorSubject
+- ReplaySubject
+- Subscription
+- Cold vs Hot
+- map
+- filter
+- tap
+- debounceTime
+- distinctUntilChanged
+- switchMap
+- mergeMap
+- concatMap
+- exhaustMap
+- forkJoin
+- combineLatest
+- withLatestFrom
+- catchError
+- retry
+- finalize
+- shareReplay
+- Subscription Cleanup
+
+## 11. Signals ⭐⭐⭐
+- signal()
+- computed()
+- effect()
+- input()
+- output()
+- model()
+- toSignal()
+- toObservable()
+- Signals + RxJS
+- Signals + Change Detection
+- Signals vs RxJS
+
+## 12. Change Detection ⭐⭐⭐
+- Change Detection
+- Default Strategy
+- OnPush
+- Reference Equality
+- Change Detection Triggers
+- markForCheck()
+- detectChanges()
+- detach()
+- reattach()
+- Signals + Change Detection
+- Zone.js
+- Zoneless Angular
+
+## 13. State Management ⭐⭐⭐
+- Component State
+- Service State
+- Signal State
+- RxJS State
+- UI State vs Server State
+- NgRx Store
+- Actions
+- Reducers
+- Selectors
+- Effects
+- Entity
+- Facade
+- Signals vs NgRx
+
+## 14. Performance ⭐⭐⭐
+- OnPush
+- track
+- Lazy Loading
+- @defer
+- Virtual Scrolling
+- Large Lists
+- Memoization
+- API Caching
+- Image Optimization
+- Bundle Optimization
+- Change Detection Optimization
+
+## 15. Authentication & Authorization
+- Authentication
+- Authorization
+- JWT
+- Access Token
+- Refresh Token
+- Guards
+- Role-based Access
+- Permission-based UI
+- Token Expiration
+- Token Refresh
+
+## 16. Dynamic & Reusable Components
+- Reusable Components
+- Content Projection
+- TemplateRef
+- ViewContainerRef
+- Dynamic Components
+- createComponent()
+- Custom Form Controls
+- ControlValueAccessor
+
+## 17. Error Handling
+- HTTP Errors
+- Global Error Handling
+- ErrorHandler
+- RxJS Error Handling
+- Retry
+- Timeout
+- Global Error UI
+- Logging
+
+## 18. Testing
+- Component Testing
+- Service Testing
+- Directive Testing
+- Pipe Testing
+- Form Testing
+- HTTP Testing
+- Router Testing
+- Guard Testing
+- Interceptor Testing
+- Signal Testing
+- Integration Testing
+- E2E Testing
+
+## 19. Security & Accessibility
+- XSS
+- Angular Sanitization
+- DomSanitizer
+- CSRF
+- Token Security
+- Authentication vs Authorization
+- Semantic HTML
+- ARIA
+- Keyboard Navigation
+- Focus Management
+
+## 20. Architecture & Senior Topics ⭐⭐⭐
+- Feature-based Architecture
+- Core / Shared / Features
+- Smart vs Presentational Components
+- Facade Pattern
+- Repository Pattern
+- State Boundaries
+- API Model vs UI Model
+- Component Boundaries
+- Large Application Architecture
+- Multi-team Development
+- Microfrontends
+- Technical Debt
+- Legacy Migration
+- Standalone Migration
+- RxJS → Signals Migration
+- Architecture Trade-offs
+
+## 21. SSR & Modern Angular
+- SSR
+- CSR
+- Hydration
+- Incremental Hydration
+- @defer
+- SEO
+- Browser vs Server APIs
+- Modern Angular Migration
+
+## 22. Real-World Scenarios
+- Slow application
+- Memory leak
+- Excessive change detection
+- Race condition
+- Stale API response
+- Duplicate API requests
+- Token refresh race
+- Large form
+- Large list
+- Complex state
+- Component becoming too large
+- Legacy application migration
+- Multi-team architecture
