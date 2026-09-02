@@ -1,0 +1,109 @@
+
+AWS ECS — 20 Interview Questions
+
+Architecture & ECS Fundamentals
+01. Explain how you would deploy your Frontend + Backend + Database architecture using ECS.
+02. Why did you choose ECS instead of EKS for this application?
+03. Explain the difference between ECS Cluster, Service, Task, and Container.
+04. What is the difference between an ECS Task Definition and an ECS Service?
+05. Would you use ECS Fargate or ECS with EC2? Why?
+
+Networking
+06. Explain the complete request flow: User → Route 53 → ALB → Frontend → Backend → RDS.
+07. How does an ALB route traffic to ECS tasks?
+08. How would you expose the frontend publicly while keeping the backend private?
+09. How would you configure Security Groups between ALB, frontend, backend, and RDS?
+10. How does the backend ECS task connect to RDS when both are in private subnets?
+
+Deployment & CI/CD
+11. Explain your deployment flow from Git → Docker → ECR → ECS.
+12. How would you achieve zero-downtime deployment in ECS?
+13. What happens to the old ECS tasks when you deploy a new version?
+14. What would you do if the new deployment is unhealthy? How would you rollback?
+
+Scaling & Availability
+15. How would you automatically scale your backend ECS service based on traffic?
+16. What is the difference between ECS Service Auto Scaling and EC2 Auto Scaling?
+17. What happens if an ECS task crashes?
+18. What happens if the underlying EC2 instance fails?
+(Especially important if using ECS on EC2.)
+19. How would you make your ECS application highly available across multiple Availability Zones?
+20. Traffic suddenly increases 10x. Explain what happens and how you would prevent the database from becoming a bottleneck.
+
+The 5 scenarios I'd practice most
+
+For a 10-year candidate, these are particularly important:
+
+Scenario 1 — Deployment
+ Your backend has 5 ECS tasks running. You deploy version 2. What exactly happens from the moment you push the new image to ECR until version 2 starts receiving traffic?
+
+Scenario 2 — Failure
+ One backend ECS task crashes in production. How does ECS detect it, what happens next, and how does traffic continue?
+
+Scenario 3 — Networking
+ Frontend is working, but it cannot call the backend. Both ECS services are healthy. How would you troubleshoot?
+
+Scenario 4 — Scaling
+ Your backend normally handles 1,000 requests/minute. Suddenly it receives 20,000 requests/minute. Design the ECS scaling strategy.
+
+Scenario 5 — Production architecture
+ Design a production-grade ECS architecture for Frontend + Backend + RDS with high availability, security, zero-downtime deployment, auto-scaling, monitoring, and rollback.
+
+These five scenarios will naturally test ECS Service, Task Definition, Fargate/EC2, ALB, Target Groups, VPC, Security Groups, ECR, Auto Scaling, 
+IAM, health checks, deployment strategy, and RDS without requiring you to memorize dozens of isolated questions.
+
+=====================================================================================================================
+
+ECS + SSL/TLS Certificate Management
+01. How would you configure HTTPS for your application running on ECS?
+02. Where would you store and manage the SSL/TLS certificate in AWS? Why would you choose AWS Certificate Manager (ACM)?
+03. How does an ACM certificate get associated with an Application Load Balancer?
+04. Explain the complete HTTPS flow:
+Client → Route 53 → ALB → ECS Task
+05. Where does TLS termination happen in your architecture? Why did you choose to terminate TLS at the ALB?
+06. How would you redirect HTTP traffic to HTTPS?
+07. What happens when the ACM certificate is about to expire? How do you handle certificate renewal?
+08. Suppose you have multiple domains such as example.com, api.example.com, and admin.example.com. How would you manage their certificates?
+09. Suppose your certificate is in one AWS region but your ALB is in another region. Can you use that certificate? Why/why not?
+10. The certificate is valid in ACM, but users are still getting a certificate/HTTPS error. How would you troubleshoot it?
+
+More senior-level scenarios
+
+These are especially worth practicing:
+
+11. You have Frontend ECS + Backend ECS + ALB. The frontend is public, but the backend should only be accessible internally. Where would you terminate TLS?
+12. Your company wants end-to-end encryption, so traffic must be encrypted from the browser all the way to the ECS container. How would you design it?
+13. You have certificates managed manually today. How would you automate certificate provisioning and renewal?
+14. Your application is deployed across multiple AWS regions. How would you manage certificates for the ALBs in each region?
+15. An ACM certificate renewal failed. What could cause it, and how would you troubleshoot it?
+16. You need to replace an expiring certificate without causing downtime. How would you do it?
+17. You have a wildcard certificate such as *.example.com. What domains does it cover, and what domains does it not cover?
+18. When would you use a public ACM certificate versus a private certificate using AWS Private CA?
+
+One architecture question to master
+
+"You have www.example.com pointing to an ALB, and the frontend/backend are running as ECS services. 
+ Explain how you would configure HTTPS and certificate management end-to-end."
+
+                    User
+                      │
+                 HTTPS :443
+                      │
+                      ▼
+              ┌───────────────┐
+              │     ALB       │
+              │ TLS Terminate │
+              └───────┬───────┘
+                      │
+                 HTTP/HTTPS
+                      │
+                      ▼
+                 ECS Service
+                      │
+                      ▼
+                    RDS
+
+Route 53 → ACM → ALB Listener (443) → Target Group → ECS
+
+For a senior interview, the interviewer will likely focus less on "What is ACM?" and more on renewal, 
+multi-domain certificates, wildcard certificates, TLS termination, end-to-end encryption, regional limitations, automation, and troubleshooting.

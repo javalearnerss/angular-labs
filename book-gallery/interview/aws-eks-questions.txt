@@ -1,0 +1,62 @@
+EKS — 25 Interview Questions
+01. Explain your complete architecture from user request to database.
+02. Why did you choose EKS/Kubernetes for this application? What problem does it solve?
+03. How are frontend and backend deployed in EKS? Explain Deployment, Pod, and Service.
+04. How does traffic from the Internet reach your frontend Pods? Explain ALB + Ingress.
+05. How does the frontend communicate with the backend inside EKS?
+06. Why is the backend Service usually ClusterIP instead of exposing it through a LoadBalancer?
+07. Where is your database deployed, and why did you choose RDS instead of running the database inside Kubernetes?
+08. Explain the networking between EKS and RDS. How do you secure database access?
+09. How do you manage application configuration and secrets in EKS?
+10. How does your EKS workload get permission to access AWS services such as S3, Secrets Manager, or SQS?
+11. Explain your CI/CD flow from code commit → Docker image → ECR → EKS deployment.
+12. How do you perform zero-downtime deployments in EKS?
+13. What happens if the new backend version is faulty after deployment? How would you rollback?
+14. How would you scale the backend when traffic increases? Explain HPA and node scaling.
+15. What happens if HPA wants 20 Pods but your existing nodes don't have enough capacity?
+16. How would you make your application highly available across multiple Availability Zones?
+17. What happens if an EKS worker node suddenly goes down?
+18. How would you handle a sudden 10x traffic spike without bringing down the database?
+19. A backend Pod is running, but the API is returning 503. How would you troubleshoot it?
+20. A Pod is continuously restarting with CrashLoopBackOff. How would you investigate?
+21. The backend cannot connect to RDS. Walk me through your troubleshooting approach.
+22. Explain liveness vs readiness probes. What happens when readiness fails?
+23. How do you monitor EKS applications, logs, metrics, API latency, and failures in production?
+24. How would you secure the EKS cluster and follow least-privilege principles?
+25. If you had to redesign this architecture for millions of users, what would you change and why?
+
+=========================================================================================================================================
+
+EKS + Certificate Management — 10 Questions
+01. How would you configure HTTPS for an application running on EKS?
+02. Where would you terminate TLS in an EKS architecture — at the ALB, Ingress, or inside the application Pod? Why?
+03. How does AWS Certificate Manager (ACM) integrate with an EKS Ingress and AWS Load Balancer Controller?
+04. Explain the complete HTTPS flow:
+Client → Route 53 → ALB → Ingress → Kubernetes Service → Pod
+05. How would you automatically provision and renew certificates for applications running on EKS?
+06. What is the difference between using ACM certificates on an ALB and managing certificates inside Kubernetes using Secrets?
+07. How would you implement HTTPS for multiple applications/domains running in the same EKS cluster?
+08. Suppose you have www.example.com and api.example.com. Would you use one certificate or separate certificates? How would you configure the Ingress?
+09. Your certificate is valid in ACM, but users receive an SSL certificate error. How would you troubleshoot it?
+10. Your company requires end-to-end TLS: Browser → ALB → Ingress → Backend Pod. How would you design this?
+
+Important senior-level scenarios
+
+Scenario 1 — Certificate renewal
+ Your production certificate expires in 15 days. How would you ensure it is automatically renewed and deployed without downtime?
+
+Scenario 2 — Multiple namespaces
+ You have frontend, payments, and orders applications in different namespaces. Each requires HTTPS. How would you manage their certificates securely?
+
+Scenario 3 — Internal service
+ Your public ALB uses HTTPS, but the backend service is internal. The security team now requires encryption between ALB and backend Pods. What would you change?
+
+Scenario 4 — Certificate stored in Kubernetes
+ A TLS certificate is stored as a Kubernetes Secret. How would you prevent developers from accidentally exposing the private key?
+
+Scenario 5 — Private CA
+ Your company requires certificates for internal microservice-to-microservice communication. Would you use ACM public certificates? If not, what would you use?
+
+For a 10-year EKS interview, I'd particularly prepare ACM + AWS Load Balancer Controller + Ingress + TLS termination + cert-manager + Kubernetes TLS Secrets + end-to-end TLS.
+
+===========================================================================================================================================
