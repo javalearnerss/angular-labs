@@ -1,0 +1,33 @@
+<div class="category-filter">
+
+  <h3 class="filter-title">
+    Categories
+  </h3>
+
+  <div class="category-list">
+
+    @for (category of categories; track category.id) {
+
+      <button
+        type="button"
+        class="category-item"
+        [class.active]="selectedCategory === category.id"
+        (click)="selectCategory(category.id)"
+        routerLink="./" [queryParams]="{category : category.name}"
+      >
+
+        <span class="category-icon">
+          <app-icon [name]="category.icon"></app-icon>
+        </span>
+
+        <span class="category-name">
+          {{ category.name }}
+        </span>
+
+      </button>
+
+    }
+
+  </div>
+
+</div>

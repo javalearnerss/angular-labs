@@ -1,0 +1,59 @@
+.books-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 24px;
+}
+
+/* Left side */
+
+.toolbar-info h1 {
+  margin: 0 0 8px;
+
+  font-size: 20px;
+  font-weight: 700;
+  color: #101828;
+}
+
+.toolbar-info p {
+  margin: 0;
+
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Right side */
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-control label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.sort-control select {
+  width: 85px;
+  height: 34px;
+
+  padding: 0 8px;
+
+  border: 1px solid #dbe3f0;
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  font-size: 13px;
+  color: #101828;
+
+  cursor: pointer;
+}
+
+.sort-control select:focus {
+  outline: none;
+  border-color: #2563eb;
+}

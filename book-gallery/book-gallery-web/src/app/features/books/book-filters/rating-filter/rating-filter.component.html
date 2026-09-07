@@ -1,0 +1,28 @@
+<div class="rating-filter">
+
+  <h3 class="filter-title">Rating</h3>
+
+  <div class="rating-options">
+
+    @for (rating of ratings; track rating) {
+      <button
+        type="button"
+        class="rating-option"
+        [class.active]="selectedRating === rating"
+        (click)="selectRating(rating)"
+      >
+
+        <span class="stars">
+          ★★★★★
+        </span>
+
+        <span class="rating-text">
+          {{ rating }} & above
+        </span>
+
+      </button>
+    }
+
+  </div>
+
+</div>

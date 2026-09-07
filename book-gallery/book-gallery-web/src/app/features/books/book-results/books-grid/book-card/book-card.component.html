@@ -1,0 +1,41 @@
+<div class="book-card">
+
+  <!-- Book Cover -->
+  <div class="book-cover">
+    <img
+      [src]="serverUrl + book.image"
+      [alt]="book.title"
+    />
+  </div>
+
+  <!-- Book Details -->
+  <div class="book-details">
+
+    <h3 class="book-title">
+      {{ book.title }}
+    </h3>
+
+    <p class="book-author">
+      {{ book.author }}
+    </p>
+
+    <!-- Rating -->
+    <div class="book-rating">
+      <span class="stars">★★★★★</span>
+      <span class="rating-value">{{ book.rating }}</span>
+    </div>
+
+    <!-- Price -->
+    <div class="book-price">
+      ₹{{ book.price }}
+    </div>
+
+    <!-- Add to Cart -->
+    <button class="add-to-cart">
+      <span class="cart-icon">🛒</span>
+      <span>Add to Cart</span>
+    </button>
+
+  </div>
+
+</div>

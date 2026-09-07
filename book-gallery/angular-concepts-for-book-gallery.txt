@@ -26,8 +26,12 @@
 19. [ngAfterViewInit] When can you safely access a BookTable using @ViewChild?
 20. [ngAfterViewChecked] Why can this affect BookGallery performance?
 21. [ngOnDestroy] What cleanup should happen when leaving BookList?
+        You are saying: "Angular, when you destroy this component, call this method."
 22. [DestroyRef] How would you use DestroyRef in BookGallery?
+        You are saying: "Angular, when you destroy this component, execute this callback."
 23. [takeUntilDestroyed] How would you automatically clean up RxJS subscriptions?
+        Keep this subscription alive until Angular destroys this component. 
+        When the component is destroyed, unsubscribe automatically.
 24. [Lifecycle Order] In what order do the lifecycle hooks execute?
 25. [Parent/Child Lifecycle] What happens to lifecycle hooks when BookList contains BookCard?
 26. [ExpressionChangedAfterItHasBeenCheckedError] How could this error occur in BookDetails?
