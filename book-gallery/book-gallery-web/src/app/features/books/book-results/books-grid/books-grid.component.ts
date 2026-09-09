@@ -1,5 +1,6 @@
 import { Component, input, Input } from '@angular/core';
-import { Book, BookCardComponent } from './book-card/book-card.component';
+import { BookCardComponent } from './book-card/book-card.component';
+import { Book } from '../../models/book.model';
 
 @Component({
   selector: 'app-books-grid',

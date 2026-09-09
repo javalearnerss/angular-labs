@@ -120,3 +120,36 @@
 .cart-icon {
   font-size: 13px;
 }
+
+.quantity-control {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 10px;
+  height: 34px;
+}
+
+.quantity-control button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: #f8fafc;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-control button:hover {
+  background: #e5e7eb;
+}
+
+.quantity-control span {
+  width: 34px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+}

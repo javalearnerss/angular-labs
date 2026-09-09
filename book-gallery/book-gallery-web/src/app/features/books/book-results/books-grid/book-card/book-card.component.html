@@ -2,10 +2,7 @@
 
   <!-- Book Cover -->
   <div class="book-cover">
-    <img
-      [src]="serverUrl + book.image"
-      [alt]="book.title"
-    />
+    <img [src]="serverUrl + book.image" [alt]="book.title" />
   </div>
 
   <!-- Book Details -->
@@ -31,10 +28,20 @@
     </div>
 
     <!-- Add to Cart -->
-    <button class="add-to-cart">
+    @if (quantity === 0) {
+    <button class="add-to-cart" (click)="addToCart()">
       <span class="cart-icon">🛒</span>
       <span>Add to Cart</span>
     </button>
+    } @else {
+    <div class="quantity-control">
+      <button (click)="decreaseQuantity()">−</button>
+
+      <span>{{ quantity }}</span>
+
+      <button (click)="increaseQuantity()">+</button>
+    </div>
+    }
 
   </div>
 

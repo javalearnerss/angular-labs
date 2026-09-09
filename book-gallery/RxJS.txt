@@ -1,0 +1,1337 @@
+01. [Observable] Why would BookService return Observables?
+02. [Observable vs Promise] Which would you choose for Book Search and why?
+03. [Subscription] What happens when BookList subscribes?
+04. [Cold vs Hot Observable] Give an example from BookGallery.
+05. [Subject] Where could a Subject be useful?
+06. [BehaviorSubject] How could it represent the selected Book?
+07. [ReplaySubject] Where could it be useful?
+08. [map] How would you transform Book API data?
+09. [filter] How would you filter books?
+10. [tap] Where would you perform side effects?
+11. [debounceTime] How would you debounce Book Search?
+12. [distinctUntilChanged] Why use it with search?
+13. [switchMap] Why is it suitable for Book Search?
+14. [mergeMap] When would it be appropriate?
+15. [concatMap] When would sequential Book operations be useful?
+16. [exhaustMap] Where could it prevent duplicate actions?
+17. [switchMap vs mergeMap] What happens if search uses mergeMap?
+18. [forkJoin] How would you load Book, Author and Category APIs?
+19. [combineLatest] How would you combine search/filter/sort streams?
+20. [withLatestFrom] Where could it be useful in Checkout?
+21. [catchError] How would you handle Book API errors?
+22. [retry] How would you retry transient failures?
+23. [finalize] How would you stop a loading spinner?
+24. [shareReplay] How would you avoid duplicate Book API calls?
+25. [Memory Leaks] How could BookGallery leak subscriptions?
+26. [takeUntilDestroyed] How would you solve subscription cleanup?
+
+=================================================================================================================
+01. [Observable] Why would BookService return Observables?
+    Scenario-based explanation:
+    Imagine you are building a Book Store application.
+    A user opens the Books page. Your Angular application needs to call the backend:
+        "Hey server, give me all the books."
+
+    The request goes over the network, so the response doesn't come immediately.
+
+        Angular App
+            |
+            |  "Give me all books"
+            ↓
+        Backend API
+            |
+            |  ...processing...
+            |  ...database...
+            ↓
+        Angular App
+            |
+            |  Books received
+            ↓
+        Display books
+
+    Now, suppose BookService directly returned the books:
+        getBooks(): Book[] {
+        // Call API
+        }
+    
+    The problem is: the books aren't available immediately. The API might take 100ms, 1 second, or even longer.
+    So instead, BookService says:
+        "I don't have the books right now, but I'll give you an Observable. 
+         Subscribe to it, and I'll give you the books when they arrive."
+
+         getBooks(): Observable<Book[]> {
+            return this.http.get<Book[]>('/api/books');
+          }
+
+    Then the component subscribes:
+        this.bookService.getBooks().subscribe(books => {
+            this.books = books;
+        });
+
+    Think of an Observable like a delivery service 📦
+    You order books online.
+    You don't stand at the warehouse waiting for the books.
+    Instead, the delivery service tells you:
+        "Here is your tracking subscription. When the books arrive, I'll notify you."
+    That's essentially what an Observable does.
+
+=================================================================================================================
+02. [Observable vs Promise] Which would you choose for Book Search and why?
+
+Scenario-based explanation
+Imagine you have a Book Store application with a search box.
+The user wants to search for books, so they start typing: Angular
+
+Your application needs to send that search term to the backend:
+
+    User types "Angular"
+            ↓
+    Search box
+            ↓
+    BookService
+            ↓
+    Backend API
+            ↓
+    Books matching "Angular"
+
+Now imagine the user doesn't type the complete search term at once. They type:
+
+    A → An → Ang → Angular
+
+Here is where Observable becomes a better choice than Promise.
+
+Where are we using Observable?
+In Angular, the search box can be a FormControl:
+    searchControl = new FormControl('');
+
+And Angular gives us: this.searchControl.valueChanges
+valueChanges is an Observable.
+
+It emits a new value whenever the user changes the search text:
+
+    User types "A"
+        ↓
+    valueChanges emits "A"
+
+    User types "An"
+        ↓
+    valueChanges emits "An"
+
+    User types "Ang"
+        ↓
+    valueChanges emits "Ang"
+
+    User types "Angular"
+        ↓
+    valueChanges emits "Angular"
+
+So the important point is:
+The search box produces multiple values over time, and valueChanges gives us those values through an Observable.
+
+Now we can use RxJS operators
+    this.searchControl.valueChanges
+    .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(term => this.bookService.searchBooks(term))
+    )
+    .subscribe(books => {
+        this.books = books;
+    });
+
+    Think of the code as a pipeline:
+
+    valueChanges
+        ↓
+    Observable
+        ↓
+    debounceTime()
+        ↓
+    distinctUntilChanged()
+        ↓
+    switchMap()
+        ↓
+    BookService
+        ↓
+    HTTP Observable
+        ↓
+    subscribe()
+        ↓
+    Display books
+What do these operators do?
+    debounceTime(300) : Waits for the user to stop typing for 300ms before continuing.
+
+    A → An → Ang → Angular
+                ↓
+          wait 300ms
+                ↓
+           Search API
+
+This prevents an API call for every single keystroke.
+
+distinctUntilChanged() : If the user enters the same value again, it doesn't perform the search again.
+
+switchMap() : 
+Suppose the user searches: Angular
+and then quickly changes it to: Angular 18
+
+We are no longer interested in the old "Angular" search. switchMap() switches to the latest search.
+
+    "Angular"
+        ↓
+    API request ────────────X
+
+    "Angular 18"
+        ↓
+    API request ────────────✓
+                            ↓
+                        Show results
+
+
+What about Promise?
+Let's say our search box is:
+    searchControl = new FormControl('');
+
+Angular gives us: this.searchControl.valueChanges
+
+This is an Observable because the search box can change many times:
+
+    User types:
+
+    "A"          → valueChanges emits "A"
+    "An"         → valueChanges emits "An"
+    "Ang"        → valueChanges emits "Ang"
+    "Angular"    → valueChanges emits "Angular"
+
+Now, imagine if valueChanges were a Promise instead.
+
+A Promise would give us only one eventual value:
+
+    Promise
+    ↓
+    "Angular"
+    ↓
+    DONE
+
+But what about "A", "An", and "Ang"?
+
+The Promise isn't designed to keep notifying us every time the value changes.
+
+That's the key difference.
+
+With Observable
+    this.searchControl.valueChanges.subscribe(value => {
+    console.log(value);
+    });
+
+    We can keep listening:
+
+    "A"        → received
+    "An"       → received
+    "Ang"      → received
+    "Angular"  → received
+
+The Observable stays subscribed and receives new values as they are emitted.
+
+With Promise
+A Promise is more like: const value = await somePromise;
+
+We wait for one result:
+    Wait
+    ↓
+    Result received
+    ↓
+    Done
+
+It doesn't naturally represent:
+
+    Value 1 → Value 2 → Value 3 → Value 4 → ...                        
+
+Answer : 
+I wouldn't choose Observable simply because Promise can't make an HTTP call. 
+Promise can certainly handle an individual search request. 
+I would choose Observable because the requirement is a 
+search-as-you-type experience: valueChanges gives us a stream of user input, 
+and RxJS allows us to debounce, ignore duplicate values, and switch to the latest request. 
+If I only needed to execute one search for a fixed term, a Promise would be a perfectly reasonable choice.
+
+export class BookSearchComponent implements OnInit, OnDestroy {
+
+  searchControl = new FormControl('');
+
+  books: Book[] = [];
+
+  private destroy$ = new Subject<void>();
+
+  constructor(private bookService: BookService) {}
+
+  ngOnInit(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+
+        switchMap(term => {
+          if (!term || term.trim() === '') {
+            return of([]);
+          }
+
+          return this.bookService.searchBooks(term.trim());
+        }),
+
+        takeUntil(this.destroy$)
+      )
+      .subscribe(books => {
+        this.books = books;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
+
+
+
+==================================================================================================================
+08. [map] How would you transform Book API data?
+
+Scenario
+Suppose the API returns one book:
+    {
+        id: 1,
+        title: 'Angular',
+        author: 'John',
+        price: 500
+    }
+
+But our component wants the book in a different format:
+    {
+        name: 'Angular',
+        writtenBy: 'John',
+        displayPrice: '₹500'
+    }
+
+So we can use RxJS map() to transform it.
+
+Book Service
+    import { Injectable } from '@angular/core';
+    import { HttpClient } from '@angular/common/http';
+    import { Observable, map } from 'rxjs';
+
+    export interface Book {
+        id: number;
+        title: string;
+        author: string;
+        price: number;
+    }
+
+    export interface BookViewModel {
+        name: string;
+        writtenBy: string;
+        displayPrice: string;
+    }
+
+    @Injectable({
+        providedIn: 'root'
+    })
+    export class BookService {
+
+    constructor(private http: HttpClient) {}
+
+    getBook(): Observable<BookViewModel> {
+
+        // Call the API.
+        // The API returns one Book object.
+        return this.http.get<Book>('/api/books/1')
+
+        // RxJS map() receives that single Book object
+        // and transforms it into a BookViewModel.
+        .pipe(
+            map(book => ({
+                name: book.title,
+                writtenBy: book.author,
+                displayPrice: `₹${book.price}`
+            }))
+        );
+      }
+    }
+
+    Component
+    export class BookComponent {
+
+    book!: BookViewModel;
+
+    constructor(private bookService: BookService) {}
+
+    loadBook() {
+
+            // Subscribe to the Observable returned by the service.
+            this.bookService.getBook().subscribe(book => {
+
+            // The book is already transformed by map().
+            this.book = book;
+
+        });
+      }
+    }
+
+    What exactly is happening?
+
+The API returns:
+
+    API
+    ↓
+    {
+        id: 1,
+        title: "Angular",
+        author: "John",
+        price: 500
+    }
+
+The RxJS map() receives this single object:
+
+map(book => ({
+  name: book.title,
+  writtenBy: book.author,
+  displayPrice: `₹${book.price}`
+}))
+
+And transforms it:
+
+    Before map()
+    {
+        id: 1,
+        title: "Angular",
+        author: "John",
+        price: 500
+    }
+
+            ↓ RxJS map()
+
+    After map()
+    {
+        name: "Angular",
+        writtenBy: "John",
+        displayPrice: "₹500"
+    }
+
+Example 1 — Number transformation
+    import { of } from 'rxjs';
+    import { map } from 'rxjs/operators';
+
+    of(10).pipe(
+        map(value => value * 2)
+    ).subscribe(result => {
+        console.log(result);
+    });
+
+    Output: 20
+
+    Here, the Observable emits 10, and RxJS map() transforms it to 20.
+
+Example 2 — String transformation
+    of('angular').pipe(
+     map(value => value.toUpperCase())
+    ).subscribe(result => {
+    console.log(result);
+    });
+
+    Output: ANGULAR
+
+    Here:
+
+        'angular'
+            ↓
+        RxJS map()
+            ↓
+        'ANGULAR'
+
+Example 3 — Transforming an API response
+    this.http.get<Book>('/api/book/1').pipe(
+        map(book => ({
+            name: book.title,
+            price: `₹${book.price}`
+        }))
+        ).subscribe(result => {
+            console.log(result);
+    });
+
+    If the API gives:
+
+    {
+        title: 'Angular',
+        price: 500
+    }
+
+    RxJS map() transforms it into:
+
+    {
+        name: 'Angular',
+        price: '₹500'
+    }
+
+Key point: RxJS map() takes whatever value the Observable emits and transforms it into a new value.
+
+==================================================================================================================
+09. [filter] How would you filter books using RxJS filter()?
+
+Imagine we have a Book Store application.
+
+The backend returns all books:
+
+GET /api/books
+
+[
+  Angular       → Technology
+  RxJS          → Technology
+  Clean Code    → Programming
+  Harry Potter  → Fiction
+  TypeScript    → Technology
+]
+
+But in our application, we are interested only in Technology books.
+We can use RxJS filter() to allow only Technology books to continue through the Observable stream.
+
+Book Service
+    import { HttpClient } from '@angular/common/http';
+    import { Observable, from, filter, mergeMap } from 'rxjs';
+
+    export interface Book {
+        id: number;
+        title: string;
+        author: string;
+        category: string;
+    }
+
+    export class BookService {
+
+    constructor(private http: HttpClient) {}
+
+    getTechnologyBooks(): Observable<Book> {
+            // Backend returns ALL books.
+            // Therefore, HttpClient returns Observable<Book[]>.
+            return this.http.get<Book[]>('/api/books').pipe(
+
+            // The Observable currently emits the entire array.
+            // Convert the array into individual Book emissions.
+            mergeMap(books => from(books)),
+
+            // Now filter() receives one Book at a time.
+            // Only Technology books are allowed to continue.
+            filter(book => book.category === 'Technology')
+        );
+      }
+    }
+How does it work?
+
+First, HttpClient receives the complete array: 
+    Observable<Book[]>
+            ↓
+    [Angular, RxJS, Clean Code, Harry Potter, TypeScript]
+
+Then:
+    mergeMap(books => from(books))
+turns the array into individual emissions:
+
+    from(books) : takes the array and creates an Observable from it.
+        You can think of from() as saying:
+            "Take these items and emit them one by one through an Observable."
+
+    const books = [
+      { id: 1, title: 'Angular', category: 'Technology' },
+      { id: 2, title: 'Java', category: 'Programming' },
+      { id: 3, title: 'RxJS', category: 'Technology' }
+    ];
+
+    const allBook$ = from(books);
+    allBook$.subscribe(book => {
+      console.log('Book Details : ',book);
+    });
+
+mergeMap() takes the values produced by from(books) and makes those values become the values emitted by the original Observable.
+
+Before mergeMap():
+    Observable<Book[]>
+            ↓
+    [Angular, RxJS, Clean Code, Harry Potter, TypeScript]
+
+After mergeMap():
+
+    Observable<Book>
+
+        Angular
+            ↓
+        RxJS
+            ↓
+        Clean Code
+            ↓
+        Harry Potter
+            ↓
+        TypeScript
+
+That's what flattening means here.
+
+Now RxJS filter() checks each emitted book:
+
+filter(book => book.category === 'Technology')
+
+So:
+
+Angular       → Technology  → ✅
+RxJS          → Technology  → ✅
+Clean Code    → Programming → ❌
+Harry Potter  → Fiction     → ❌
+TypeScript    → Technology  → ✅
+
+The subscriber receives only:
+    Angular
+    RxJS
+    TypeScript
+
+Component
+
+    export class BookComponent {
+
+        constructor(private bookService: BookService) {}
+
+        loadTechnologyBooks() {
+
+                // Subscribe to the filtered Observable.
+                this.bookService.getTechnologyBooks().subscribe(book => {
+
+                // This runs only for Technology books.
+                console.log(book);
+
+            });
+        }
+    }   
+
+The complete flow
+    Backend
+    ↓
+    All Books
+    ↓
+    HttpClient
+    ↓
+    Observable<Book[]>
+    ↓
+    mergeMap() + from()
+    ↓
+    Observable<Book>
+    ↓
+    RxJS filter()
+    ↓
+    Technology books only
+    ↓
+    subscribe()
+🎯 Interview answer
+
+Suppose the backend returns all books, but I only want Technology books. Since HttpClient returns an Observable<Book[]>, 
+the Observable initially emits the entire array as one value. If I specifically want to use RxJS filter(), 
+I can flatten the array into individual book emissions using mergeMap() and from(). 
+Then filter(book => book.category === 'Technology') checks each book and allows only Technology books to continue to the subscriber.
+
+Important point to remember
+RxJS filter() filters values emitted by the Observable. If the Observable emits an array, filter() sees the entire array. 
+To filter individual books using RxJS filter(), we first need individual Book emissions.
+
+==================================================================================================================
+10. [tap] Where would you perform side effects?
+
+In RxJS, tap() is used when you want to perform a side effect without changing the value flowing through the Observable. 
+A side effect means doing something in addition to processing the data, such as logging, showing a message, updating a variable, 
+storing something in local storage, or debugging.
+
+For example, suppose we get books from an API:
+
+return this.http.get<Book[]>('/api/books').pipe(
+
+  tap(books => {
+    console.log('Books received:', books);
+  })
+
+);
+
+Here, tap() receives the books and prints them to the console. It does not modify the books. T
+he same books array continues to the next operator or to the subscriber.
+
+You can also use tap() to update a loading flag:
+this.loading = true;
+return this.http.get<Book[]>('/api/books').pipe(
+
+  tap(books => {
+    console.log('Number of books:', books.length);
+    this.loading = false;
+  })
+
+);
+
+Another common use is debugging an RxJS pipeline:
+
+return this.http.get<Book[]>('/api/books').pipe(
+
+  tap(books => console.log('After API:', books)),
+
+  map(books => books.filter(book => book.price > 500)),
+
+  tap(books => console.log('After filtering:', books))
+
+);
+
+The important difference is:
+
+map()  → changes the value
+filter() → removes values
+tap()   → performs an action but keeps the value unchanged
+
+For example:
+
+map(book => book.title)       // Book → title
+filter(book => book.price > 500) // keeps only matching books
+tap(book => console.log(book))   // logs book, doesn't change it
+
+Easy way to remember: tap() means "I want to look at/do something with this value, but I don't want to transform it."
+
+===============================================================================================================================================
+11. [debounceTime] How would you debounce Book Search?
+
+debounceTime() is used when we don't want to perform an action every time the user types something. 
+Instead, we wait until the user stops typing for a specific amount of time.
+
+For example, imagine the user types:
+
+A → An → Ang → Angu → Angular
+
+Without debounceTime(), we could make 5 API calls. With debounceTime(300), RxJS waits for 300 milliseconds after the latest value. 
+If the user types again during those 300 ms, the timer resets.
+
+this.searchControl.valueChanges.pipe(
+  debounceTime(300)
+).subscribe(searchText => {
+  console.log(searchText);
+});
+
+The flow is:
+
+    User types: A
+        ↓
+    wait 300ms
+
+    User types: An
+        ↓
+    timer resets
+    wait 300ms
+
+    User types: Ang
+        ↓
+    timer resets
+    wait 300ms
+
+    User stops typing
+        ↓
+    300ms passes
+        ↓
+    "Ang" is emitted
+
+For an actual API search, we commonly combine debounceTime() with switchMap():
+
+this.searchControl.valueChanges.pipe(
+  debounceTime(300),
+  switchMap(searchText =>
+    this.http.get<Book[]>(`/api/books?search=${searchText}`)
+  )
+).subscribe(books => {
+  this.books = books;
+});
+
+Here, debounceTime(300) prevents an API request from being made for every keystroke. 
+The API request happens only after the user has stopped typing for 300 ms.
+
+Easy way to remember:
+    debounceTime(300) = "Wait until nothing happens for 300 ms, then continue."
+
+
+<h2>Book Search</h2>
+
+<input
+  type="text"
+  [formControl]="searchControl"
+  placeholder="Search books..."
+/>
+
+<ul>
+  <li *ngFor="let book of filteredBooks">
+    {{ book.title }} - {{ book.author }} - {{ book.category }}
+  </li>
+</ul>
+
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChildComponent } from './child/child.component';
+import { debounceTime, tap } from 'rxjs';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+}
+
+@Component({
+  selector: 'app-parent',
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
+  templateUrl: './parent.component.html',
+  styleUrl: './parent.component.css'
+})
+export class ParentComponent {
+
+  searchControl = new FormControl('', {
+    nonNullable: true
+  });
+
+  books: Book[] = [
+    {
+      id: 1,
+      title: 'Angular Basics',
+      author: 'John',
+      category: 'Technology'
+    },
+    {
+      id: 2,
+      title: 'The Alchemist',
+      author: 'Paulo Coelho',
+      category: 'Fiction'
+    },
+    {
+      id: 3,
+      title: 'RxJS in Action',
+      author: 'David',
+      category: 'Technology'
+    }
+  ];
+
+  filteredBooks: Book[] = this.books;
+
+  constructor() {
+
+    this.searchControl.valueChanges
+      .pipe(
+        tap(value => console.log("Before debounce time : ", value, new Date())),
+        debounceTime(3000),
+        tap(value => console.log("After debounce time : ", value, new Date())),
+      )
+      .subscribe((searchText: string) => {
+
+        console.log("After subscribe : ", new Date())
+        const search = searchText.toLowerCase();
+
+        this.filteredBooks = this.books.filter(book =>
+          book.category.toLowerCase().startsWith(search)
+        );
+
+      });
+  }
+}
+
+
+Output :
+Before debounce time :  t Wed Sep 09 2026 01:14:01 GMT+0530 (India Standard Time)
+parent.component.ts:54 Before debounce time :  te Wed Sep 09 2026 01:14:01 GMT+0530 (India Standard Time)
+parent.component.ts:54 Before debounce time :  tec Wed Sep 09 2026 01:14:01 GMT+0530 (India Standard Time)
+parent.component.ts:54 Before debounce time :  tech Wed Sep 09 2026 01:14:02 GMT+0530 (India Standard Time)
+parent.component.ts:56 After debounce time :  tech Wed Sep 09 2026 01:14:05 GMT+0530 (India Standard Time)
+parent.component.ts:60 After subscribe :  Wed Sep 09 2026 01:14:05 GMT+0530 (India Standard Time)
+
+=================================================================================================================
+
+12. [distinctUntilChanged] Why use it with search?
+distinctUntilChanged() is used to prevent processing the same search value repeatedly. It compares the current value with the previous value. 
+If they are the same, it does not emit the value again.
+
+For example, suppose your search input produces these values:
+
+Angular
+Angular
+Angular
+Java
+Java
+RxJS
+
+Without distinctUntilChanged():
+
+Angular → process
+Angular → process
+Angular → process
+Java    → process
+Java    → process
+RxJS    → process
+
+With distinctUntilChanged():
+
+Angular → process
+Angular → ❌ ignored
+Angular → ❌ ignored
+Java    → process
+Java    → ❌ ignored
+RxJS    → process
+
+So when used with a search box, you commonly write:
+
+this.searchControl.valueChanges
+  .pipe(
+    debounceTime(300),
+    distinctUntilChanged()
+  )
+  .subscribe(searchText => {
+    console.log(searchText);
+  });
+
+The two operators solve different problems:
+
+debounceTime(300)
+        ↓
+Wait until the user stops typing
+
+distinctUntilChanged()
+        ↓
+Don't process the same value twice in a row
+
+For example, if the user types:
+
+Angular
+
+and then deletes a character and types it again:
+
+Angular → Angula → Angular
+
+distinctUntilChanged() will allow the final Angular, because the immediately previous value was Angula. 
+It only compares with the previous emission, not with every value that has ever occurred.
+
+Easy way to remember:
+
+debounceTime() = "Wait before processing."
+distinctUntilChanged() = "Don't process the same value twice in a row."
+
+import { Component } from '@angular/core';
+import { debounceTime, distinctUntilChanged, tap } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+}
+
+@Component({
+  selector: 'app-parent',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    CommonModule
+  ],
+  templateUrl: './parent.component.html',
+  styleUrl: './parent.component.css'
+})
+export class ParentComponent {
+
+  searchControl = new FormControl('', {
+    nonNullable: true
+  });
+
+  books: Book[] = [
+    {
+      id: 1,
+      title: 'Angular Basics',
+      author: 'John',
+      category: 'Technology'
+    },
+    {
+      id: 2,
+      title: 'The Alchemist',
+      author: 'Paulo Coelho',
+      category: 'Fiction'
+    },
+    {
+      id: 3,
+      title: 'RxJS in Action',
+      author: 'David',
+      category: 'Technology'
+    }
+  ];
+
+  filteredBooks: Book[] = this.books;
+
+  constructor() {
+
+    this.searchControl.valueChanges
+      .pipe(
+        tap(value =>
+          console.log(
+            `Before debounceTime | searchedText: "${value}" | Time: ${new Date()}`
+          )
+        ),
+
+        debounceTime(3000),
+
+        tap(value =>
+          console.log(
+            `After debounceTime | searchedText: "${value}" | Time: ${new Date()}`
+          )
+        ),
+
+        tap(value =>
+          console.log(
+            `Before distinctUntilChanged | searchedText: "${value}" | Time: ${new Date()}`
+          )
+        ),
+
+        distinctUntilChanged(),
+
+        tap(value =>
+          console.log(
+            `After distinctUntilChanged | searchedText: "${value}" | Time: ${new Date()}`
+          )
+        )
+      )
+      .subscribe((searchText: string) => {
+
+        console.log(
+          `After subscribe | searchedText: "${searchText}" | Time: ${new Date()}`
+        );
+
+        const search = searchText.toLowerCase();
+
+        this.filteredBooks = this.books.filter(book =>
+          book.category.toLowerCase().startsWith(search)
+        );
+
+      });
+  }
+}
+
+Before debounceTime | searchedText: "t" | Time: Wed Sep 09 2026 01:24:35 GMT+0530 (India Standard Time)
+parent.component.ts:57 Before debounceTime | searchedText: "te" | Time: Wed Sep 09 2026 01:24:36 GMT+0530 (India Standard Time)
+parent.component.ts:57 Before debounceTime | searchedText: "tec" | Time: Wed Sep 09 2026 01:24:36 GMT+0530 (India Standard Time)
+parent.component.ts:57 Before debounceTime | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:36 GMT+0530 (India Standard Time)
+parent.component.ts:65 After debounceTime | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:39 GMT+0530 (India Standard Time)
+parent.component.ts:71 Before distinctUntilChanged | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:39 GMT+0530 (India Standard Time)
+parent.component.ts:79 After distinctUntilChanged | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:39 GMT+0530 (India Standard Time)
+parent.component.ts:86 After subscribe | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:39 GMT+0530 (India Standard Time)
+parent.component.ts:57 Before debounceTime | searchedText: "tec" | Time: Wed Sep 09 2026 01:24:42 GMT+0530 (India Standard Time)
+parent.component.ts:57 Before debounceTime | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:42 GMT+0530 (India Standard Time)
+parent.component.ts:65 After debounceTime | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:45 GMT+0530 (India Standard Time)
+parent.component.ts:71 Before distinctUntilChanged | searchedText: "tech" | Time: Wed Sep 09 2026 01:24:45 GMT+0530 (India Standard Time)
+
+==================================================================================================================================
+13. [switchMap] Why is it suitable for Book Search?
+
+switchMap() is suitable for a search box because the user can type many different search terms quickly, 
+and we usually only care about the result for the latest search term.
+
+For example, imagine the user types:
+
+A
+An
+Ang
+Angular
+
+Each search term could start an API request:
+
+"A"       → API request 1
+"An"      → API request 2
+"Ang"     → API request 3
+"Angular" → API request 4
+
+The problem is that these requests don't necessarily finish in the same order. For example:
+
+"A"       → takes 500ms
+"An"      → takes 300ms
+"Ang"     → takes 200ms
+"Angular" → takes 100ms
+
+We don't want an old "A" result to arrive later and replace our "Angular" results. switchMap() solves this by switching to the latest Observable 
+and unsubscribing from the previous one.
+
+For example:
+
+this.searchControl.valueChanges
+  .pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+
+    switchMap(searchText =>
+      this.bookService.searchBooks(searchText)
+    )
+  )
+  .subscribe(books => {
+    this.books = books;
+  });
+
+The important part is:
+
+switchMap(searchText =>
+  this.bookService.searchBooks(searchText)
+)
+
+Every time a new search term arrives, switchMap() subscribes to the new API Observable and stops listening to the previous one.
+
+Think of it like this:
+
+User types "Ang"
+       ↓
+API request for "Ang"
+       ↓
+User types "Angular"
+       ↓
+❌ Stop listening to "Ang"
+       ↓
+API request for "Angular"
+       ↓
+✅ Use "Angular" results
+
+So the main reason switchMap() is good for search is:
+Search results should correspond to the latest search term, not an older term the user has already moved past.
+debounceTime() + distinctUntilChanged() + switchMap()
+
+These three are commonly used together:
+
+this.searchControl.valueChanges.pipe(
+  debounceTime(300),
+  distinctUntilChanged(),
+  switchMap(searchText =>
+    this.bookService.searchBooks(searchText)
+  )
+);
+
+Their responsibilities are different:
+
+debounceTime(300)
+        ↓
+Wait until user stops typing
+
+distinctUntilChanged()
+        ↓
+Ignore the same search value
+
+switchMap()
+        ↓
+Cancel/stop listening to the previous search
+and switch to the latest search
+
+One important point for your current project: since you don't have a backend, you don't really need switchMap() for your local books array. 
+switchMap() becomes useful when each search term starts another Observable, such as an HTTP request.
+
+
+
+<h2>Book Search</h2>
+
+<input
+  type="text"
+  [formControl]="searchControl"
+  placeholder="Search books..."
+/>
+
+<ul>
+  <li *ngFor="let book of filteredBooks">
+    {{ book.title }} - {{ book.author }} - {{ book.category }}
+  </li>
+</ul>
+
+
+import { Component } from '@angular/core';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  tap,
+  switchMap,
+  timer,
+  map,
+  finalize
+} from 'rxjs';
+
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+}
+
+@Component({
+  selector: 'app-parent',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    CommonModule
+  ],
+  templateUrl: './parent.component.html',
+  styleUrl: './parent.component.css'
+})
+export class ParentComponent {
+
+  searchControl = new FormControl('', {
+    nonNullable: true
+  });
+
+  books: Book[] = [
+    {
+      id: 1,
+      title: 'Angular Basics',
+      author: 'John',
+      category: 'Technology'
+    },
+    {
+      id: 2,
+      title: 'The Alchemist',
+      author: 'Paulo Coelho',
+      category: 'Fiction'
+    },
+    {
+      id: 3,
+      title: 'RxJS in Action',
+      author: 'David',
+      category: 'Technology'
+    }
+  ];
+
+  filteredBooks: Book[] = this.books;
+
+  constructor() {
+
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(100),
+        distinctUntilChanged(),
+        switchMap(searchText => {
+          console.log(`START request | searchedText: "${searchText}" | Time: ${new Date()}`);
+
+          const search = searchText.toLowerCase();
+          return timer(3000).pipe(
+            map(() => {
+              return this.books.filter(book =>
+                book.category
+                  .toLowerCase()
+                  .startsWith(search)
+              );
+            }),
+
+            tap(result => {
+              console.log(
+                `RESPONSE received | searchedText: "${searchText}" | result:`,
+                result
+              );
+            }),
+
+            finalize(() => {
+              console.log(`CLEANUP / UNSUBSCRIBE | searchedText: "${searchText}" | Time: ${new Date()}`);
+
+            })
+
+          );
+
+        })
+
+      )
+      .subscribe((books: Book[]) => {
+        console.log(`AFTER subscribe | books:`, books);
+        this.filteredBooks = books;
+
+      });
+  }
+}
+
+
+Output : 
+START request | searchedText: "t" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "t" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:68 START request | searchedText: "te" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "te" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:68 START request | searchedText: "tec" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "tec" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:68 START request | searchedText: "tech" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
+parent.component.ts:81 RESPONSE received | searchedText: "tech" | result: (2) [{…}, {…}]
+parent.component.ts:101 AFTER subscribe | books: (2) [{…}, {…}]
+parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "tech" | Time: Wed Sep 09 2026 01:38:50 GMT+0530 (India Standard Time)
+
+=========================================================================================================================
+14. [mergeMap] When would it be appropriate?
+
+mergeMap() is appropriate when you have multiple inner Observables and you want all of them to continue running at the same time. Unlike switchMap(), mergeMap() does not cancel the previous Observable when a new value arrives.
+
+For example, suppose you have multiple books and you want to load additional information for every book:
+
+from(this.books).pipe(
+  mergeMap(book =>
+    this.getBookDetails(book.id)
+  )
+).subscribe(details => {
+  console.log(details);
+});
+
+Imagine the books are:
+
+Angular
+RxJS
+Java
+
+mergeMap() can start all three operations:
+
+Angular → getBookDetails(1) ────────┐
+RxJS    → getBookDetails(2) ────┐  │
+Java    → getBookDetails(3) ─┐  │  │
+                              ↓  ↓  ↓
+                         All continue
+
+Even if Angular takes 3 seconds and Java takes only 1 second, mergeMap() doesn't cancel Angular. All requests are allowed to complete.
+
+A simple example without an API is:
+
+import { from, of, mergeMap, delay } from 'rxjs';
+
+from([1, 2, 3]).pipe(
+  mergeMap(id =>
+    of(`Book ${id}`).pipe(
+      delay(1000)
+    )
+  )
+).subscribe(result => {
+  console.log(result);
+});
+
+Here, each number creates a new Observable, and mergeMap() subscribes to all of them concurrently.
+
+The easiest way to compare it with switchMap() is:
+
+switchMap()
+1 → start
+2 → cancel 1, start 2
+3 → cancel 2, start 3
+                    ↓
+                only latest
+
+mergeMap()
+1 → start ──────────→ complete
+2 → start ──────────→ complete
+3 → start ──────────→ complete
+        ↓
+   all continue
+
+So remember:
+
+switchMap() → I only care about the latest operation.
+
+mergeMap() → I want all operations to continue.
+
+For a search box, switchMap() is usually more appropriate because you generally want only the latest search result. 
+For something like loading details for multiple books, processing multiple independent tasks, or sending multiple independent requests, 
+mergeMap() can be appropriate.
+
+===============================================================================================================================

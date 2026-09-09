@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-books-toolbar',
@@ -8,5 +8,10 @@ import { Component } from '@angular/core';
   styleUrl: './books-toolbar.component.css'
 })
 export class BooksToolbarComponent {
+
+  @Input() startBookNumber! : number;
+  @Input() endBookNumber! : number;
+  @Input() totalBooksCount! : number;
+  @Input() selectedCategory!: string;
 
 }

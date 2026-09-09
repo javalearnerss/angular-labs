@@ -1,14 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { environment } from '../../../../../../environments/environments';
+import { CartService } from '../../../../../core/services/cart.service';
+import { Book } from '../../../models/book.model';
 
-export interface Book {
-  id: number;
-  title: string;
-  author: string;
-  price: number;
-  rating: number;
-  image: string;
-}
+
 
 @Component({
   selector: 'app-book-card',
@@ -18,6 +13,26 @@ export interface Book {
   styleUrl: './book-card.component.css'
 })
 export class BookCardComponent {
+
   @Input() book!: Book;
-  readonly serverUrl = environment.serverUrl;
+
+  serverUrl : string = environment.serverUrl;
+
+  constructor(private cartService: CartService) { }
+
+  addToCart(): void {
+    this.cartService.addToCart(this.book);
+  }
+
+  increaseQuantity(): void {
+    this.cartService.increaseQuantity(this.book.id);
+  }
+
+  decreaseQuantity(): void {
+    this.cartService.decreaseQuantity(this.book.id);
+  }
+
+  get quantity(): number {
+    return this.cartService.getQuantity(this.book.id);
+  }
 }

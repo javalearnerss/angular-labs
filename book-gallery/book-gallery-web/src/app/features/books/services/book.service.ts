@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environments';
 import { Book } from '../models/book.model';
 import { Observable } from 'rxjs';
+import { PageResponse } from '../models/page-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,11 @@ export class BookService {
 
   constructor(private http: HttpClient) { }
 
-  getBooksBycategory(category: string): Observable<Book[]> {
-    const params = new HttpParams().set('category', category);
-    return this.http.get<Book[]>(this.apiUrl + "/books", {
+  getBooksByCategory(category: string, pageNumber : number, pageSize : number): Observable<PageResponse> {
+    const params = new HttpParams().set('category', category)
+    .set('pageNumber', pageNumber)
+    .set('pageSize', pageSize);
+    return this.http.get<PageResponse>(this.apiUrl + "/books", {
       params
     });
   }

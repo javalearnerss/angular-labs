@@ -1,5 +1,11 @@
 
 
-<app-books-toolbar></app-books-toolbar>
+<app-books-toolbar [startBookNumber]="startBookNumber" 
+[endBookNumber]="endBookNumber" 
+[totalBooksCount]="totalBooksCount"
+[selectedCategory]="selectedCategory" 
+[selectedCategory]="selectedCategory"></app-books-toolbar>
+
 <app-books-grid [books]="books"></app-books-grid>
-<app-pagination></app-pagination>
+
+<app-pagination [totalPages]="totalPages" (pageChanged)="onPageChanged($event)"></app-pagination>
