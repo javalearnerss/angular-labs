@@ -1,5 +1,5 @@
 
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { BooksToolbarComponent } from './books-toolbar/books-toolbar.component';
 import { BooksGridComponent } from './books-grid/books-grid.component';
 import { PaginationComponent } from './pagination/pagination.component';
@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Book } from '../models/book.model';
 import { BookService } from '../services/book.service';
 import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-book-results',
@@ -22,41 +23,43 @@ import { Subscription } from 'rxjs';
 export class BookResultsComponent implements OnInit {
 
   selectedCategory: string = '';
+  query: string = '';
   books: Book[] = [];
 
   currentPageNumber: number = 1;
-  pageSize: number = 5;
+  pageSize: number = 12;
   totalBooksCount: number = 0;
   totalPages: number = 0;
 
-  private routeSubscription!: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private activateRoute: ActivatedRoute,
-    private bookService: BookService,
-    private destroyRef: DestroyRef
+    private bookService: BookService
   ) { }
 
   ngOnInit(): void {
-    this.routeSubscription = this.activateRoute.queryParamMap.subscribe({
+    this.activateRoute.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (queryParam) => {
-        this.selectedCategory = queryParam.get('category') ?? '';
+        this.selectedCategory = queryParam.get('categories') ?? '';
+        this.query = queryParam.get('query') ?? '';
         this.currentPageNumber = 1;
         this.loadBooks();
       }
     });
 
-    this.destroyRef.onDestroy(() => {
-      this.routeSubscription.unsubscribe();
-    });
+
   }
 
   loadBooks(): void {
-    this.bookService
-      .getBooksByCategory(
-        this.selectedCategory,
-        this.currentPageNumber,
-        this.pageSize
+    this.bookService.getBooks(
+      this.query,
+      this.selectedCategory,
+      this.currentPageNumber,
+      this.pageSize
+    )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response) => {
@@ -69,7 +72,7 @@ export class BookResultsComponent implements OnInit {
       });
   }
 
-  onPageChanged(pageNumber: number){
+  onPageChanged(pageNumber: number) {
     this.currentPageNumber = pageNumber;
     this.loadBooks();
   }

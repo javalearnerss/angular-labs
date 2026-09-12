@@ -24,55 +24,43 @@ public class BooksController {
     }
 
     @GetMapping("/books")
-    public ResponseEntity<PageResponse<Book>> getBooks(
-            @RequestParam(required = false) String category,
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "5") int pageSize) {
+    public ResponseEntity<PageResponse<Book>> getBooks(@RequestParam(required = false) String query, @RequestParam(required = false) List<String> categories, @RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "12") int pageSize) {
 
-        logger.info("Fetching books - category: {}, pageNumber: {}, pageSize: {}",
-                category, pageNumber, pageSize);
+        logger.info("Fetching books - query: {}, categories: {}, pageNumber: {}, pageSize: {}", query, categories, pageNumber, pageSize);
 
-        if (pageNumber < 0) {
-            logger.warn("Invalid pageNumber: {}. Using pageNumber: 0", pageNumber);
-            pageNumber = 0;
+        if (pageNumber < 1) {
+            logger.warn("Invalid pageNumber: {}. Using pageNumber: 1", pageNumber);
+            pageNumber = 1;
         }
 
         if (pageSize <= 0) {
-            logger.warn("Invalid pageSize: {}. Using pageSize: 5", pageSize);
-            pageSize = 5;
+            logger.warn("Invalid pageSize: {}. Using pageSize: 12", pageSize);
+            pageSize = 12;
         }
 
-        List<Book> filteredBooks;
-
-        if (category == null || category.isBlank() || category.startsWith("All")) {
-            logger.debug("Fetching books from all categories");
-            filteredBooks = bookService.getAllBooks();
-        } else {
-            logger.debug("Fetching books for category: {}", category);
-            filteredBooks = bookService.getBooksByCategory(category);
-        }
-
-        if (filteredBooks.isEmpty()) {
-            logger.info("No books found for category: {}", category);
-            return ResponseEntity.notFound().build();
-        }
+        List<Book> filteredBooks = bookService.getBooks(query, categories);
 
         int totalBookCount = filteredBooks.size();
 
-        int startIndex = (pageNumber-1) * pageSize;
-        int endIndex = Math.min(startIndex + pageSize, totalBookCount);
+        if (totalBookCount == 0) {
+            logger.info("No books found for query: {} and categories: {}", query, categories);
+            return ResponseEntity.ok(new PageResponse<>(List.of(), pageNumber, pageSize, 0));
+        }
+
+        int startIndex = (pageNumber - 1) * pageSize;
 
         if (startIndex >= totalBookCount) {
             logger.info("Page {} is beyond available books. Total books: {}", pageNumber, totalBookCount);
             return ResponseEntity.ok(new PageResponse<>(List.of(), pageNumber, pageSize, totalBookCount));
         }
 
+        int endIndex = Math.min(startIndex + pageSize, totalBookCount);
+
         List<Book> booksForCurrentPage = filteredBooks.subList(startIndex, endIndex);
 
         PageResponse<Book> pageResponse = new PageResponse<>(booksForCurrentPage, pageNumber, pageSize, totalBookCount);
 
-        logger.info("Books fetched successfully - pageNumber: {}, booksReturned: {}, totalBookCount: {}",
-                pageNumber, booksForCurrentPage.size(), totalBookCount);
+        logger.info("Books fetched successfully - pageNumber: {}, booksReturned: {}, totalBookCount: {}", pageNumber, booksForCurrentPage.size(), totalBookCount);
 
         return ResponseEntity.ok(pageResponse);
     }

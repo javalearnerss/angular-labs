@@ -30,6 +30,40 @@ Scaling & Availability
 19. How would you make your ECS application highly available across multiple Availability Zones?
 20. Traffic suddenly increases 10x. Explain what happens and how you would prevent the database from becoming a bottleneck.
 
+
+I would add these 10 questions
+
+21. IAM & Security
+How would you give an ECS task permission to access AWS resources such as S3, Secrets Manager, or CloudWatch?
+
+22. IAM Role Difference
+What is the difference between an ECS task execution role and an ECS task role?
+
+23. Secrets
+How would you securely store and inject database credentials into an ECS application?
+
+24. Service Discovery
+If the frontend/backend are private ECS services, how would one ECS service discover another?
+
+25. ECS Service Connect / Cloud Map
+How would you implement service-to-service communication between ECS services without exposing them through a public ALB?
+
+26. Logging & Monitoring
+How would you monitor ECS tasks and application logs? How would CloudWatch fit into the architecture?
+
+27. Health Checks
+What is the difference between an ALB health check and an ECS container health check?
+
+28. Troubleshooting
+An ECS service shows Running, but users receive 503 from the ALB. How would you troubleshoot it?
+
+29. Deployment Configuration
+What are minimumHealthyPercent and maximumPercent in ECS rolling deployments?
+
+30. ECS Networking
+How does awsvpc networking work in ECS Fargate, and what network interface does each task receive?
+
+
 The 5 scenarios I'd practice most
 
 For a 10-year candidate, these are particularly important:

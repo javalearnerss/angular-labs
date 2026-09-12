@@ -1,0 +1,11 @@
+.search-page {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: start;
+  padding: 24px;
+}
+
+.search-content {
+  min-width: 0;
+}

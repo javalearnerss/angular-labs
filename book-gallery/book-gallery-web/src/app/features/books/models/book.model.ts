@@ -5,5 +5,5 @@ export interface Book {
   category: string;
   price: number;
   rating: number;
-  image: string;
+  imageUrl: string;
 }

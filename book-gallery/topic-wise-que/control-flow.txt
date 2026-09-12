@@ -1,0 +1,367 @@
+41. [@if] How would you show "Out of Stock" when a book is unavailable?
+42. [@for] How would you render all books?
+43. [track] Why should you use track when rendering BookCards?
+44. [@empty] How would you display "No books found"?
+45. [@switch] How would you show different UI for different book statuses?
+46. [ng-template] When would you use a template instead of a component?
+47. [ng-container] When would you use ng-container in BookGallery?
+48. [ngTemplateOutlet] How could you create a reusable Book template?
+
+==========================================================================================================================
+
+
+41. [@if] In a Book Store application, how would you conditionally show a "Free Delivery" message when the customer's cart value reaches ₹499?
+
+Answer:
+
+I would use Angular's @if to check the cart total.
+
+@if (cartTotal >= 499) {
+  <span>Free Delivery</span>
+} @else {
+  <span>Add more items for free delivery</span>
+}
+
+For example:
+
+Cart total ₹650 → ✅ Free Delivery
+Cart total ₹350 → ℹ️ Add more items for free delivery
+
+============================================================================================================================
+
+42. [@for] How would you render all books?
+
+I would use Angular's @for to iterate over the books array and render each book as a card.
+
+<div class="book-list">
+
+  @for (book of books; track book.id) {
+    <div class="book-card">
+      <h3>{{ book.title }}</h3>
+      <p>Author: {{ book.author }}</p>
+      <p>Price: ₹{{ book.price }}</p>
+    </div>
+  }
+
+</div>
+Example data
+books = [
+  { id: 1, title: 'Atomic Habits', author: 'James Clear', price: 399 },
+  { id: 2, title: 'Clean Code', author: 'Robert C. Martin', price: 450 },
+  { id: 3, title: 'The Psychology of Money', author: 'Morgan Housel', price: 299 }
+];
+UI
+📚 Atomic Habits
+   James Clear
+   ₹399
+
+📚 Clean Code
+   Robert C. Martin
+   ₹450
+
+📚 The Psychology of Money
+   Morgan Housel
+   ₹299
+
+================================================================================================================
+43. [track] Why should you use track when rendering BookCards?
+
+Answer:
+
+track helps Angular identify each book uniquely when rendering a list. This allows Angular to update only the BookCard that changed instead of recreating the entire list.
+
+@for (book of books; track book.id) {
+  <div class="book-card">
+    <h3>{{ book.title }}</h3>
+    <p>₹{{ book.price }}</p>
+  </div>
+}
+
+Here, book.id is the unique identifier.
+
+Real Book Store example
+
+Suppose we have:
+
+Books:
+101 → Atomic Habits
+102 → Clean Code
+103 → Psychology of Money
+
+If the price of Clean Code changes:
+
+Clean Code: ₹450 → ₹399
+
+Because we have:
+
+track book.id
+
+Angular knows that book 102 changed and can update that BookCard efficiently.
+
+Interview explanation
+
+"track provides a unique identity for each item in an @for loop. In a Book Store, 
+I would use track book.id. It improves rendering performance because Angular can 
+reuse existing DOM elements and update only the books that actually changed."
+
+If the order of items in the cart changes, track book.id becomes even more useful.
+
+Suppose the initial cart is:
+
+101 → Atomic Habits
+102 → Clean Code
+103 → Java
+
+After sorting or moving an item:
+
+103 → Java
+101 → Atomic Habits
+102 → Clean Code
+
+With:
+
+@for (book of cartItems; track book.id) {
+  <div class="cart-item">
+    {{ book.title }}
+  </div>
+}
+
+Angular uses the unique id to understand:
+
+103 moved from position 3 → 1
+101 moved from position 1 → 2
+102 moved from position 2 → 3
+
+So Angular can reuse the existing DOM elements and move them to the new positions, rather than treating them as completely new items.
+
+Why not track by index?
+
+If you do:
+
+@for (book of cartItems; track $index) {
+
+and the order changes, index 0 now contains a different book. Angular may associate the existing DOM element with the wrong book, causing unnecessary updates and potentially incorrect UI state.
+
+Interview answer
+
+"track book.id is especially important when the order of cart items changes. 
+Angular uses the stable unique ID to identify each book and can efficiently move the existing 
+DOM element to its new position. I prefer tracking by a unique business ID rather than $index."
+
+
+=======================================================================================================
+44. [@empty] How would you display "No books found"?
+
+In a Book Store, if the search/filter returns no books, I can use Angular's @empty block with @for.
+
+<div class="book-list">
+
+  @for (book of books; track book.id) {
+    <div class="book-card">
+      <h3>{{ book.title }}</h3>
+      <p>{{ book.author }}</p>
+      <p>₹{{ book.price }}</p>
+    </div>
+  } @empty {
+    <p>No books found</p>
+  }
+
+</div>
+
+============================================================================================================
+
+45. [@switch] How would you show different UI for different book statuses?
+In a Book Store, a book can have statuses such as Available, Out of Stock, Coming Soon, or Discontinued. 
+I can use Angular's @switch to render different UI for each status.
+
+@switch (book.status) {
+
+  @case ('AVAILABLE') {
+    <span>✅ Available</span>
+    <button>Add to Cart</button>
+  }
+
+  @case ('OUT_OF_STOCK') {
+    <span>❌ Out of Stock</span>
+  }
+
+  @case ('COMING_SOON') {
+    <span>🔔 Coming Soon</span>
+    <button>Notify Me</button>
+  }
+
+  @case ('DISCONTINUED') {
+    <span>Book No Longer Available</span>
+  }
+
+  @default {
+    <span>Status Unknown</span>
+  }
+}
+
+
+===================================================================================================================
+46. [ng-template] When would you use a template instead of a component?
+
+I would use ng-template when I need a small reusable or conditional piece of UI within the same component, 
+but I don't need the full functionality or lifecycle of a separate component.
+
+Real Book Store example
+
+Suppose we have a reusable "Book Unavailable" message:
+
+<ng-template #unavailable>
+  <div class="unavailable">
+    <span>Book is currently unavailable</span>
+
+    <button (click)="notifyMe()">
+      Notify Me
+    </button>
+  </div>
+</ng-template>
+
+@if (book.stockQuantity > 0) {
+  <button>Add to Cart</button>
+} @else {
+  <ng-container *ngTemplateOutlet="unavailable"></ng-container>
+}
+
+Here, #unavailable is just a template fragment. We don't need to create something like:
+
+BookUnavailableComponent
+
+because the UI is small and doesn't have its own business logic.
+
+===================================================================================================================
+47. [ng-container] When would you use ng-container in a BookGallery?
+
+I would use ng-container when I need to apply Angular logic without adding an extra HTML element to the DOM.
+
+Real Book Store example
+
+Suppose I want to show only books that are available:
+
+<div class="book-gallery">
+
+  @for (book of books; track book.id) {
+
+    <ng-container *ngIf="book.isAvailable">
+      <div class="book-card">
+        <h3>{{ book.title }}</h3>
+        <p>₹{{ book.price }}</p>
+      </div>
+    </ng-container>
+
+  }
+
+</div>
+
+The important point is that ng-container does not create a <div> in the DOM.
+
+The resulting DOM is conceptually:
+
+<div class="book-gallery">
+
+  <div class="book-card">
+    <h3>Atomic Habits</h3>
+    <p>₹399</p>
+  </div>
+
+</div>
+
+Not:
+
+<div class="book-gallery">
+
+  <div>                 ❌ Extra wrapper
+    <div class="book-card">
+      ...
+    </div>
+  </div>
+
+</div>
+Why is that useful?
+
+In a BookGallery, CSS might depend on the direct children:
+
+.book-gallery {
+  display: grid;
+}
+
+If I add unnecessary wrapper <div> elements, they can interfere with the layout.
+
+ng-container lets me say:
+
+"Apply Angular's logic here, but don't create an extra DOM element."
+
+=============================================================================================================================
+
+48. [ngTemplateOutlet] How could you create a reusable Book template?
+
+In a Book Store, I can define a book card template once and use ngTemplateOutlet to render it wherever I need it.
+
+<ng-template #bookTemplate let-book>
+  <div class="book-card">
+    <h3>{{ book.title }}</h3>
+    <p>Author: {{ book.author }}</p>
+    <p>Price: ₹{{ book.price }}</p>
+  </div>
+</ng-template>
+
+Then I can pass different books to the same template:
+
+<ng-container
+  *ngTemplateOutlet="bookTemplate; context: { $implicit: book }">
+</ng-container>
+
+For multiple books:
+
+@for (book of books; track book.id) {
+  <ng-container
+    *ngTemplateOutlet="bookTemplate; context: { $implicit: book }">
+  </ng-container>
+}
+How does let-book work?
+
+This:
+
+<ng-template #bookTemplate let-book>
+
+receives the value of:
+
+$implicit
+   ↓
+book
+
+So if Angular passes:
+
+{ $implicit: book }
+
+then inside the template:
+
+{{ book.title }}
+{{ book.price }}
+
+refers to that particular book.
+
+Real example
+
+For:
+
+books:
+  Atomic Habits → ₹399
+  Clean Code    → ₹450
+
+the same bookTemplate is rendered twice with different data.
+
+┌─────────────────────┐
+│ Atomic Habits       │
+│ James Clear         │
+│ ₹399                │
+└─────────────────────┘
+
+┌─────────────────────┐
+│ Clean Code          │
+│ Robert C. Martin    │
+│ ₹450                │
+└─────────────────────┘

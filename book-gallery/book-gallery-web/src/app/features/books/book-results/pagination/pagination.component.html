@@ -3,7 +3,7 @@
   <!-- Previous -->
   <button
     class="page-btn arrow"
-    [disabled]="currentPage === 1"
+    [disabled]="currentPageNumber === 1"
     (click)="previousPage()">
     ←
   </button>
@@ -12,7 +12,7 @@
   @for (page of pages; track page) {
     <button
       class="page-btn"
-      [class.active]="currentPage === page"
+      [class.active]="currentPageNumber === page"
       (click)="goToPage(page)">
       {{ page }}
     </button>
@@ -21,7 +21,7 @@
   <!-- Next -->
   <button
     class="page-btn arrow"
-    [disabled]="currentPage === totalPages"
+    [disabled]="currentPageNumber === totalPages"
     (click)="nextPage()">
     →
   </button>

@@ -25,6 +25,28 @@ EKS — 25 Interview Questions
 24. How would you secure the EKS cluster and follow least-privilege principles?
 25. If you had to redesign this architecture for millions of users, what would you change and why?
 
+
+
+Only 5 areas I'd add
+
+You don't need another huge list. I'd add these 5 questions to make the set very strong:
+
+26. What is the difference between a Deployment, ReplicaSet, and Pod?
+This is a very common Kubernetes fundamentals question.
+
+27. What is the difference between ClusterIP, NodePort, and LoadBalancer Services?
+You already cover ClusterIP, but interviewers may ask you to compare all three.
+
+28. What is the difference between Ingress and the AWS Load Balancer Controller?
+Important for understanding how Kubernetes resources actually result in an AWS ALB.
+
+29. What happens when a Pod is OOMKilled? How would you troubleshoot and fix it?
+Very realistic production troubleshooting.
+
+30. How do you control Pod placement across nodes/AZs? Explain nodeSelector, affinity, taints/tolerations, and topology spread constraints.
+This becomes important when discussing high availability.
+
+
 =========================================================================================================================================
 
 EKS + Certificate Management — 10 Questions

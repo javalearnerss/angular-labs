@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class PaginationComponent {
 
-  currentPage = 1;
+  @Input() currentPageNumber!: number;
   @Input() totalPages! : number;
   @Output() pageChanged = new EventEmitter<number>();
 
@@ -18,21 +18,21 @@ export class PaginationComponent {
   }
 
   goToPage(page: number): void {
-    this.currentPage = page;
-    this.pageChanged.emit(this.currentPage);
+    this.currentPageNumber = page;
+    this.pageChanged.emit(this.currentPageNumber);
   }
 
   previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.pageChanged.emit(this.currentPage);
+    if (this.currentPageNumber > 1) {
+      this.currentPageNumber--;
+      this.pageChanged.emit(this.currentPageNumber);
     }
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.pageChanged.emit(this.currentPage);
+    if (this.currentPageNumber < this.totalPages) {
+      this.currentPageNumber++;
+      this.pageChanged.emit(this.currentPageNumber);
     }
   }
 }

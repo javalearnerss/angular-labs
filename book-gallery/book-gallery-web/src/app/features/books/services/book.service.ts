@@ -14,10 +14,11 @@ export class BookService {
 
   constructor(private http: HttpClient) { }
 
-  getBooksByCategory(category: string, pageNumber : number, pageSize : number): Observable<PageResponse> {
-    const params = new HttpParams().set('category', category)
-    .set('pageNumber', pageNumber)
-    .set('pageSize', pageSize);
+  getBooks(query: string, categories: string, pageNumber: number, pageSize: number): Observable<PageResponse> {
+    const params = new HttpParams().set('query', query)
+      .set('categories', categories)
+      .set('pageNumber', pageNumber)
+      .set('pageSize', pageSize);
     return this.http.get<PageResponse>(this.apiUrl + "/books", {
       params
     });

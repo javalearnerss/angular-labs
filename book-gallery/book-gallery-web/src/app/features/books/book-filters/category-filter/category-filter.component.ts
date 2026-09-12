@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-import { IconComponent } from '../../../../shared/icon/icon.component';
-import { RouterLink } from "@angular/router";
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Category {
   id: number;
@@ -11,64 +10,57 @@ interface Category {
 @Component({
   selector: 'app-category-filter',
   standalone: true,
-  imports: [IconComponent, RouterLink ],
+  imports: [],
   templateUrl: './category-filter.component.html',
   styleUrl: './category-filter.component.css'
 })
 export class CategoryFilterComponent {
 
-  selectedCategory: number = 0;
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  categories: Category[] = [
-    {
-      id: 0,
-      name: 'All Categories',
-      icon: 'book'
-    },
-    {
-      id: 1,
-      name: 'Fiction',
-      icon: 'book'
-    },
-    {
-      id: 2,
-      name: 'Non-Fiction',
-      icon: 'document'
-    },
-    {
-      id: 3,
-      name: 'Science',
-      icon: 'science'
-    },
-    {
-      id: 4,
-      name: 'Technology',
-      icon: 'technology'
-    },
-    {
-      id: 5,
-      name: 'Business',
-      icon: 'business'
-    },
-    {
-      id: 6,
-      name: 'Biography',
-      icon: 'person'
-    },
-    {
-      id: 7,
-      name: 'Self Help',
-      icon: 'heart'
-    },
-    {
-      id: 8,
-      name: 'Children',
-      icon: 'children'
-    }
+  selectedCategories: string[] = [];
+
+  readonly categories: Category[] = [
+    { id: 1, name: 'Fiction', icon: 'book' },
+    { id: 2, name: 'Non-Fiction', icon: 'document' },
+    { id: 3, name: 'Science', icon: 'science' },
+    { id: 4, name: 'Technology', icon: 'technology' },
+    { id: 5, name: 'Business', icon: 'business' },
+    { id: 6, name: 'Biography', icon: 'person' },
+    { id: 7, name: 'Self Help', icon: 'heart' },
+    { id: 8, name: 'Children', icon: 'children' }
   ];
 
-  selectCategory(categoryId : number) : void {
-    this .selectedCategory = categoryId;
+  onCategoryChange(category: Category, checked: boolean): void {
+    if (checked) {
+      this.selectedCategories = [
+        ...this.selectedCategories,
+        category.name
+      ];
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(
+        name => name !== category.name
+      );
+    }
+
+    this.updateUrl();
   }
 
+  clearFilters(): void {
+    this.selectedCategories = [];
+    this.updateUrl();
+  }
+
+  private updateUrl(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        categories: this.selectedCategories.length
+          ? this.selectedCategories.join(',')
+          : null
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
 }
