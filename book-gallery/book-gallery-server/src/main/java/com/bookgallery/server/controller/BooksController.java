@@ -63,4 +63,33 @@ public class BooksController {
 
         return ResponseEntity.ok(pageResponse);
     }
+
+    @GetMapping("/books/{bookId}")
+    public ResponseEntity<Book> getBookById(@PathVariable Integer bookId){
+
+        logger.info("Fetching book with ID: {}", bookId);
+        Book book = bookService.getBookById(bookId);
+
+        if (book == null) {
+            logger.warn("Book not found with ID: {}", bookId);
+            return ResponseEntity.notFound().build();
+        }
+        logger.info("Book fetched successfully with ID: {}", bookId);
+        return ResponseEntity.ok(book);
+    }
+
+    @GetMapping("/book/title")
+    public ResponseEntity<Book> getBookByTitle(@RequestParam String title){
+
+        logger.info("Fetching book with title: {}", title);
+        Book book = bookService.getBookByTitle(title);
+
+        logger.info("Book fetched successfully with title: {}", title);
+        if (book == null) {
+            logger.warn("Book not found with title: {}", title);
+            return ResponseEntity.notFound().build();
+        }
+        logger.info("Book fetched successfully with title: {}", title);
+        return ResponseEntity.ok(book);
+    }
 }

@@ -1,0 +1,84 @@
+<section class="data-table-container">
+
+  <table class="books-table">
+
+    <thead>
+      <tr>
+        <th class="number-column">#</th>
+        <th class="cover-column">Cover</th>
+        <th class="title-column">Title</th>
+        <th>Author</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th class="actions-column">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+
+  <tr *ngFor="let book of books">
+
+    <td>
+      {{ book.id }}
+    </td>
+
+    <td>
+      <img
+        [src]="book.coverImage"
+        [alt]="book.title"
+        class="book-cover"
+      />
+    </td>
+
+    <td>
+      <div class="book-title">
+        {{ book.title }}
+      </div>
+
+      <div class="book-isbn">
+        ISBN: {{ book.isbn }}
+      </div>
+    </td>
+
+    <td>
+      {{ book.author }}
+    </td>
+
+    <td>
+      {{ book.category }}
+    </td>
+
+    <td>
+      ₹{{ book.price }}
+    </td>
+
+    <td>
+      {{ book.stock }}
+    </td>
+
+    <td>
+      <span
+        class="status"
+        [class.active]="book.status === 'Active'"
+        [class.inactive]="book.status === 'Inactive'"
+        [class.out-of-stock]="book.status === 'Out of Stock'">
+        {{ book.status }}
+      </span>
+    </td>
+
+    <td>
+      <button class="edit-button">Edit</button>
+      <button class="delete-button">Delete</button>
+    </td>
+
+  </tr>
+
+</tbody>
+
+
+  </table>
+
+</section>

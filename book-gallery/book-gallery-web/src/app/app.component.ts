@@ -7,7 +7,7 @@ import { MainContentComponent } from './layout/main-content/main-content.compone
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HeaderComponent, MainContentComponent, FooterComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

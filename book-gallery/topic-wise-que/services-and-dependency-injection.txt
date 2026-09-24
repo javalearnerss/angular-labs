@@ -1,0 +1,1513 @@
+
+
+
+## 7. Dependency Injection
+
+61. [Dependency Injection] How does Angular inject BookService into BookList?
+62. [providedIn: root] What does it mean for BookService?
+63. [Component Provider] What happens if BookService is provided at BookCard level?
+64. [Hierarchical Injector] Which BookService instance will Angular select?
+65. [Route-level Provider] When would you provide BookService at route level?
+66. [inject()] How would you inject BookService using inject()?
+67. [InjectionToken] Where could an InjectionToken be useful in BookGallery?
+68. [useClass] When would you use useClass?
+69. [useValue] How would you provide BookGallery configuration?
+70. [useFactory] When would you need a factory provider?
+71. [useExisting] What problem does useExisting solve?
+72. [Multi Provider] Where could a multi provider be useful?
+
+============================================================================================================
+
+67. [InjectionToken] Where could an InjectionToken be useful in BookGallery?
+
+# Angular `InjectionToken`
+
+## 1. What is `InjectionToken`?
+
+InjectionToken is a unique key used by Angular Dependency Injection to identify and inject a value or dependency that cannot be identified directly by a class.
+
+Even simpler:
+InjectionToken is a unique key that Angular uses to identify what should be injected.
+
+It is commonly used when the dependency is:
+* an interface
+* a primitive value such as `string`, `number`, or `boolean`
+* a configuration object
+* multiple implementations of the same abstraction
+* a value created using a factory
+
+The important idea is:
+
+> **Angular DI needs a runtime token to identify what should be injected.**
+
+A class can itself act as a runtime token. An interface cannot, because TypeScript interfaces are removed during compilation.
+
+---
+
+# 2. First understand normal class-based DI
+
+Consider a normal Angular service:
+
+```typescript
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BookService {
+
+  getBooks(): string[] {
+    return ['Java', 'Angular'];
+  }
+}
+```
+
+Another class can inject it:
+
+```typescript
+import { Component } from '@angular/core';
+import { BookService } from './book.service';
+
+@Component({
+  selector: 'app-books',
+  template: `...`
+})
+export class BooksComponent {
+
+  constructor(private bookService: BookService) {
+  }
+}
+```
+
+Why does this work?
+
+Because `BookService` is a **class**.
+
+At runtime, the class still exists as a JavaScript value.
+
+Conceptually:
+
+```text
+BookService
+     ↓
+JavaScript class
+     ↓
+runtime value
+     ↓
+can be used as Angular DI token
+```
+
+Angular can therefore conceptually do:
+
+```typescript
+injector.get(BookService);
+```
+
+and return the corresponding `BookService` instance.
+
+---
+
+# 3. What happens with an interface?
+
+Now suppose we have an abstraction:
+
+```typescript
+export interface BookRepository {
+
+  findAll(): Book[];
+
+  findById(id: number): Book;
+}
+```
+
+We might want a service to depend on this abstraction:
+
+```typescript
+export class BookService {
+
+  constructor(
+    private repository: BookRepository
+  ) {}
+}
+```
+
+From a design perspective, this is useful because `BookService` doesn't need to know which repository implementation is being used.
+
+For example, we could have:
+
+```text
+BookRepository
+      |
+      +-------------------+
+      |                   |
+      ↓                   ↓
+ApiBookRepository   MockBookRepository
+```
+
+However, Angular cannot directly use:
+
+```typescript
+BookRepository
+```
+
+as a DI token.
+
+Why?
+
+Because `BookRepository` is an interface.
+
+TypeScript uses the interface during compilation for type checking, but the interface does not exist as a runtime JavaScript value.
+
+Conceptually:
+
+```text
+TypeScript
+
+interface BookRepository
+          ↓
+    compile-time only
+          ↓
+      removed
+          ↓
+JavaScript
+
+(no BookRepository value)
+```
+
+Angular therefore has no runtime object to use as the DI key.
+
+This is where `InjectionToken` comes in.
+
+---
+
+# 4. Create an InjectionToken
+
+We create a runtime token for the interface:
+
+```typescript
+import { InjectionToken } from '@angular/core';
+
+export const BOOK_REPOSITORY =
+  new InjectionToken<BookRepository>('BOOK_REPOSITORY');
+```
+
+This line is very important.
+
+```typescript
+new InjectionToken<BookRepository>('BOOK_REPOSITORY')
+```
+
+creates an actual runtime object.
+
+The token is:
+
+```typescript
+BOOK_REPOSITORY
+```
+
+The generic type:
+
+```typescript
+<BookRepository>
+```
+
+tells TypeScript what type of value is associated with this token.
+
+The string:
+
+```typescript
+'BOOK_REPOSITORY'
+```
+
+is mainly a descriptive/debugging name.
+
+It is not the actual dependency being injected.
+
+---
+
+# 5. The token is a runtime key
+
+Think of Angular's injector conceptually as a map:
+
+```text
+Angular Injector
+
+┌────────────────────────────────────────────┐
+│ Runtime Token          →  Object           │
+│                                            │
+│ BOOK_REPOSITORY        →  ApiBookRepository│
+│ BookService            →  BookService      │
+│ LoggerService          →  LoggerService    │
+└────────────────────────────────────────────┘
+```
+
+The important point is that:
+
+```typescript
+BOOK_REPOSITORY
+```
+
+is an actual runtime object.
+
+Therefore Angular can use it as a key.
+
+---
+
+# 6. Register the implementation
+
+Creating the token alone does not tell Angular which implementation should be used.
+
+We need to provide an implementation.
+
+Suppose we have:
+
+```typescript
+export class ApiBookRepository
+  implements BookRepository {
+
+  findAll(): Book[] {
+    // Call backend API
+    return [];
+  }
+
+  findById(id: number): Book {
+    // Call backend API
+    return {} as Book;
+  }
+}
+```
+
+Now register it:
+
+```typescript
+providers: [
+  {
+    provide: BOOK_REPOSITORY,
+    useClass: ApiBookRepository
+  }
+]
+```
+
+This means:
+
+> Whenever something asks Angular for `BOOK_REPOSITORY`, create/provide an `ApiBookRepository`.
+
+Conceptually:
+
+```text
+BOOK_REPOSITORY
+       |
+       ↓
+ApiBookRepository
+```
+
+---
+
+# 7. Inject the token
+
+Now `BookService` can depend on the abstraction:
+
+```typescript
+import { Inject, Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BookService {
+
+  constructor(
+    @Inject(BOOK_REPOSITORY)
+    private repository: BookRepository
+  ) {}
+
+  getBooks(): Book[] {
+    return this.repository.findAll();
+  }
+}
+```
+
+Notice something important.
+
+The property is typed as:
+
+```typescript
+BookRepository
+```
+
+but Angular's runtime token is:
+
+```typescript
+BOOK_REPOSITORY
+```
+
+These have two different jobs.
+
+```text
+BookRepository
+      ↓
+TypeScript type
+      ↓
+compile-time safety
+
+
+BOOK_REPOSITORY
+      ↓
+Runtime token
+      ↓
+Angular DI
+```
+
+---
+
+# 8. Complete example
+
+## Book model
+
+```typescript
+export interface Book {
+  id: number;
+  title: string;
+  price: number;
+}
+```
+
+## Repository abstraction
+
+```typescript
+export interface BookRepository {
+
+  findAll(): Book[];
+
+  findById(id: number): Book | undefined;
+}
+```
+
+## Repository implementation
+
+```typescript
+export class ApiBookRepository
+  implements BookRepository {
+
+  private books: Book[] = [
+    {
+      id: 1,
+      title: 'Clean Code',
+      price: 500
+    },
+    {
+      id: 2,
+      title: 'Effective Java',
+      price: 700
+    }
+  ];
+
+  findAll(): Book[] {
+    return this.books;
+  }
+
+  findById(id: number): Book | undefined {
+    return this.books.find(book => book.id === id);
+  }
+}
+```
+
+## InjectionToken
+
+```typescript
+import { InjectionToken } from '@angular/core';
+
+export const BOOK_REPOSITORY =
+  new InjectionToken<BookRepository>(
+    'BOOK_REPOSITORY'
+  );
+```
+
+## Provider
+
+```typescript
+providers: [
+  {
+    provide: BOOK_REPOSITORY,
+    useClass: ApiBookRepository
+  }
+]
+```
+
+## Service
+
+```typescript
+import {
+  Inject,
+  Injectable
+} from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BookService {
+
+  constructor(
+    @Inject(BOOK_REPOSITORY)
+    private repository: BookRepository
+  ) {}
+
+  getBooks(): Book[] {
+    return this.repository.findAll();
+  }
+
+  getBook(id: number): Book | undefined {
+    return this.repository.findById(id);
+  }
+}
+```
+
+---
+
+# 9. What happens internally?
+
+When Angular creates `BookService`, conceptually the process is:
+
+```text
+BookService
+     |
+     ↓
+constructor requires BOOK_REPOSITORY
+     |
+     ↓
+Angular Injector
+     |
+     ↓
+Find BOOK_REPOSITORY
+     |
+     ↓
+Provider says:
+BOOK_REPOSITORY → ApiBookRepository
+     |
+     ↓
+Create ApiBookRepository
+     |
+     ↓
+Pass it to BookService
+```
+
+Conceptually:
+
+```typescript
+new BookService(
+  new ApiBookRepository()
+);
+```
+
+The actual Angular DI system is more sophisticated, but this mental model is enough for understanding the concept.
+
+---
+
+# 10. Why not simply inject `ApiBookRepository`?
+
+We could do this:
+
+```typescript
+constructor(
+  private repository: ApiBookRepository
+) {}
+```
+
+and Angular could inject it directly.
+
+But now `BookService` is tightly coupled to:
+
+```text
+BookService
+     |
+     ↓
+ApiBookRepository
+```
+
+If later we want:
+
+```text
+DatabaseBookRepository
+```
+
+we have to change the service.
+
+With an abstraction:
+
+```text
+                BookRepository
+                      ↑
+                      |
+             +--------+--------+
+             |                 |
+             ↓                 ↓
+     ApiBookRepository   MockBookRepository
+```
+
+`BookService` depends only on:
+
+```typescript
+BookRepository
+```
+
+and the DI configuration decides which implementation to provide.
+
+This is **Dependency Inversion**.
+
+---
+
+# 11. Changing the implementation without changing the service
+
+Suppose production uses:
+
+```typescript
+ApiBookRepository
+```
+
+Provider:
+
+```typescript
+providers: [
+  {
+    provide: BOOK_REPOSITORY,
+    useClass: ApiBookRepository
+  }
+]
+```
+
+For testing, we can use:
+
+```typescript
+MockBookRepository
+```
+
+Provider:
+
+```typescript
+providers: [
+  {
+    provide: BOOK_REPOSITORY,
+    useClass: MockBookRepository
+  }
+]
+```
+
+`BookService` does not change.
+
+It still says:
+
+```typescript
+constructor(
+  @Inject(BOOK_REPOSITORY)
+  private repository: BookRepository
+) {}
+```
+
+Only the DI configuration changes.
+
+---
+
+# 12. `InjectionToken` vs Service Class
+
+This is an important interview comparison.
+
+### Service class
+
+```typescript
+@Injectable({
+  providedIn: 'root'
+})
+export class BookService {}
+```
+
+Angular can use:
+
+```typescript
+BookService
+```
+
+as the token because the class exists at runtime.
+
+```text
+BookService
+     ↓
+runtime class
+     ↓
+DI token
+```
+
+### Interface
+
+```typescript
+interface BookRepository {}
+```
+
+The interface doesn't exist at runtime.
+
+```text
+BookRepository
+     ↓
+compile-time type
+     ↓
+removed after compilation
+```
+
+Therefore:
+
+```typescript
+const BOOK_REPOSITORY =
+  new InjectionToken<BookRepository>(
+    'BOOK_REPOSITORY'
+  );
+```
+
+creates the runtime token.
+
+```text
+BookRepository
+       ↓
+   interface
+       ↓
+compile-time type
+
+BOOK_REPOSITORY
+       ↓
+InjectionToken
+       ↓
+runtime token
+```
+
+---
+
+# 13. Does creating an InjectionToken register it?
+
+No.
+
+This:
+
+```typescript
+export const BOOK_REPOSITORY =
+  new InjectionToken<BookRepository>(
+    'BOOK_REPOSITORY'
+  );
+```
+
+only creates the token.
+
+It does not tell Angular which value to return.
+
+You still need a provider:
+
+```typescript
+providers: [
+  {
+    provide: BOOK_REPOSITORY,
+    useClass: ApiBookRepository
+  }
+]
+```
+
+Think of it as:
+
+```text
+new InjectionToken(...)
+        ↓
+creates the KEY
+
+
+provider
+        ↓
+maps KEY → VALUE
+```
+
+---
+
+# 14. Exception: Token with a factory
+
+An `InjectionToken` can also define its own factory:
+
+```typescript
+export const BOOK_REPOSITORY =
+  new InjectionToken<BookRepository>(
+    'BOOK_REPOSITORY',
+    {
+      providedIn: 'root',
+
+      factory: () =>
+        new ApiBookRepository()
+    }
+  );
+```
+
+Now a separate provider isn't required because the token itself knows how to create the value.
+
+---
+
+# 15. Other common use cases
+
+`InjectionToken` isn't only for interfaces.
+
+## Configuration
+
+```typescript
+export interface AppConfig {
+  apiUrl: string;
+  timeout: number;
+}
+
+export const APP_CONFIG =
+  new InjectionToken<AppConfig>(
+    'APP_CONFIG'
+  );
+```
+
+## Primitive value
+
+```typescript
+export const API_URL =
+  new InjectionToken<string>('API_URL');
+```
+
+Provider:
+
+```typescript
+{
+  provide: API_URL,
+  useValue: 'https://api.example.com'
+}
+```
+
+## Multiple implementations
+
+```text
+PaymentService
+      |
+      +── StripePayment
+      +── RazorpayPayment
+      +── PaypalPayment
+```
+
+An injection token can allow the application to select which implementation should be injected.
+
+---
+
+# 16. Interview answer
+
+If the interviewer asks:
+
+**"What is InjectionToken and why do we need it?"**
+
+A strong answer is:
+
+> `InjectionToken` is a runtime token used by Angular's dependency injection system to identify dependencies that don't have 
+a suitable runtime class token. The most common example is an interface. TypeScript interfaces exist only during compile 
+time and are removed from the generated JavaScript, so Angular cannot use an interface directly as a DI token. 
+We create an `InjectionToken<T>` as a runtime key and map that token to an implementation using a provider. 
+For example, `BookService` can depend on a `BookRepository` interface, while the DI configuration maps `BOOK_REPOSITORY` to `ApiBookRepository`. 
+This keeps the service loosely coupled to the implementation and allows us to replace the implementation without changing the consuming service.
+
+---
+
+# 17. The one diagram to remember
+
+```text
+                    COMPILE TIME
+                         |
+                         |
+              BookRepository interface
+                         |
+                         ↓
+                  Type checking
+                         |
+                         ↓
+                    REMOVED
+                         |
+                         |
+                    RUNTIME
+                         |
+                         ↓
+              BOOK_REPOSITORY
+              InjectionToken
+                         |
+                         ↓
+                    Angular DI
+                         |
+                         ↓
+              ApiBookRepository
+                         |
+                         ↓
+                   BookService
+```
+
+The most important distinction is:
+
+> **`BookRepository` is the type. `BOOK_REPOSITORY` is the runtime DI token. `ApiBookRepository` is the implementation that Angular 
+creates/provides for that token.**
+
+=====================================================================================================
+
+68. [useClass] When would you use useClass?
+
+1. useClass
+
+Use it when you want Angular to create an instance of a class.
+
+Example:
+
+export interface BookRepository {
+  findAll(): Book[];
+}
+
+export class ApiBookRepository implements BookRepository {
+
+  findAll(): Book[] {
+    return [];
+  }
+}
+
+Provider:
+
+providers: [
+  {
+    provide: BOOK_REPOSITORY,
+    useClass: ApiBookRepository
+  }
+]
+
+This means:
+
+"Angular, whenever someone asks for BOOK_REPOSITORY, create an ApiBookRepository object and give it to them."
+
+Conceptually:
+
+new ApiBookRepository()
+
+Angular manages the object creation and its dependencies.
+
+When useful?
+
+When the dependency is a class with behavior.
+
+Examples:
+
+BOOK_REPOSITORY → ApiBookRepository
+PAYMENT_SERVICE  → RazorpayPaymentService
+NOTIFICATION     → EmailNotificationService
+
+
+===========================================================================================================
+
+69. [useValue] How would you provide BookGallery configuration?
+
+## `useValue` in Angular
+
+### Definition
+
+`useValue` is used when **the object or value already exists and we want Angular DI to provide that exact object to other parts of the application.**
+
+In other words:
+
+> **`useValue` means: "Angular, don't create this dependency. I already have it — just provide it."**
+
+---
+
+## Real-world example: Payment SDK
+
+Consider an e-commerce application that uses a third-party payment SDK.
+
+The payment SDK creates a payment client for us:
+
+```typescript
+const paymentClient = PaymentSDK.create({
+  // configuration
+});
+```
+
+At this point, `paymentClient` is already an object created by the **payment SDK**, not by Angular.
+
+Now we want our Angular services to use this same payment client.
+
+### Step 1: Create an InjectionToken
+
+```typescript
+export const PAYMENT_CLIENT =
+  new InjectionToken<PaymentClient>('PAYMENT_CLIENT');
+```
+
+The token gives Angular a unique key for this dependency.
+
+### Step 2: Register the existing object
+
+```typescript
+providers: [
+  {
+    provide: PAYMENT_CLIENT,
+    useValue: paymentClient
+  }
+]
+```
+
+This tells Angular:
+
+> "When someone asks for `PAYMENT_CLIENT`, give them this exact `paymentClient` object."
+
+### Step 3: Inject it into a service
+
+```typescript
+@Injectable()
+export class PaymentService {
+
+  constructor(
+    @Inject(PAYMENT_CLIENT)
+    private paymentClient: PaymentClient
+  ) {}
+
+  pay(amount: number) {
+    return this.paymentClient.charge(amount);
+  }
+}
+```
+
+### What happens?
+
+```text
+Third-party Payment SDK
+          |
+          | creates
+          ↓
+   paymentClient
+   (already exists)
+          |
+          | useValue
+          ↓
+    Angular DI
+          |
+          ↓
+    PaymentService
+```
+
+Angular **does not create** the `PaymentClient`.
+
+It simply provides the **same existing object** to `PaymentService`.
+
+---
+
+## Why not `useClass`?
+
+With:
+
+```typescript
+{
+  provide: PAYMENT_CLIENT,
+  useClass: PaymentClient
+}
+```
+
+Angular would be responsible for creating the object.
+
+But in this scenario, the third-party SDK controls how `PaymentClient` is created.
+
+Therefore:
+
+```text
+useClass
+    ↓
+Angular creates the object
+
+
+useValue
+    ↓
+Object already exists
+    ↓
+Angular provides that exact object
+```
+
+---
+
+## Other real-world situations
+
+The same pattern is useful when an object is created outside Angular, for example:
+
+* Payment SDK client
+* Analytics SDK instance
+* Maps SDK instance
+* WebSocket client
+* Browser APIs such as `localStorage`
+* A pre-created mock object in unit tests
+
+### Interview answer
+
+> **I use `useValue` when a dependency has already been created outside Angular and I want Angular's DI system to make that exact instance available to services or components. A common example is a third-party SDK such as a payment or analytics client, where the SDK controls object creation rather than Angular.**
+
+
+==================================================================================================================================
+
+70. [useFactory] When would you need a factory provider?
+
+### 70. When would you need a factory provider?
+
+A **factory provider (`useFactory`)** is needed when Angular cannot simply use a class or an existing value because the dependency must be **created or selected using runtime logic and/or other injected dependencies**.
+
+### Production example: E-commerce payment provider
+
+An e-commerce application supports multiple payment gateways. The gateway is selected through **runtime configuration**, so the application code does not hardcode whether it should use Stripe or Razorpay.
+
+```ts
+export interface PaymentClient {
+  pay(amount: number): Promise<string>;
+}
+
+export interface PaymentConfig {
+  provider: 'stripe' | 'razorpay';
+}
+```
+
+Because `PaymentClient` and `PaymentConfig` are interfaces, Angular cannot use them directly as DI tokens:
+
+```ts
+export const PAYMENT_CLIENT =
+  new InjectionToken<PaymentClient>('PAYMENT_CLIENT');
+
+export const PAYMENT_CONFIG =
+  new InjectionToken<PaymentConfig>('PAYMENT_CONFIG');
+```
+
+Assume the runtime configuration has already been loaded into an `AppConfigService`:
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class AppConfigService {
+
+  private config!: PaymentConfig;
+
+  setPaymentConfig(config: PaymentConfig): void {
+    this.config = config;
+  }
+
+  getPaymentConfig(): PaymentConfig {
+    return this.config;
+  }
+}
+```
+
+Now the payment client factory can select the implementation:
+
+```ts
+export function paymentClientFactory(
+  config: PaymentConfig,
+  stripeClient: StripeClient,
+  razorpayClient: RazorpayClient
+): PaymentClient {
+
+  switch (config.provider) {
+    case 'stripe':
+      return stripeClient;
+
+    case 'razorpay':
+      return razorpayClient;
+
+    default:
+      throw new Error(
+        `Unsupported payment provider: ${config.provider}`
+      );
+  }
+}
+```
+
+Register it with Angular:
+
+```ts
+{
+  provide: PAYMENT_CLIENT,
+  useFactory: paymentClientFactory,
+  deps: [
+    PAYMENT_CONFIG,
+    StripeClient,
+    RazorpayClient
+  ]
+}
+```
+
+Angular now performs this flow:
+
+```text
+Runtime configuration
+        ↓
+   PAYMENT_CONFIG
+        ↓
+paymentClientFactory(...)
+        ↓
+ ┌───────────────┐
+ │ StripeClient  │
+ │ RazorpayClient│
+ └───────────────┘
+        ↓
+   PAYMENT_CLIENT
+        ↓
+   CheckoutService
+```
+
+The consuming service is completely independent of the selected provider:
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class CheckoutService {
+
+  constructor(
+    @Inject(PAYMENT_CLIENT)
+    private paymentClient: PaymentClient
+  ) {}
+
+  checkout(amount: number) {
+    return this.paymentClient.pay(amount);
+  }
+}
+```
+
+### Why `useFactory` is needed here
+
+The application cannot always say:
+
+```ts
+useClass: StripeClient
+```
+
+because the implementation depends on **runtime configuration**.
+
+The factory contains the decision:
+
+```ts
+if provider === 'stripe'
+    → StripeClient
+
+if provider === 'razorpay'
+    → RazorpayClient
+```
+
+Angular also injects the factory's dependencies through:
+
+```ts
+deps: [
+  PAYMENT_CONFIG,
+  StripeClient,
+  RazorpayClient
+]
+```
+
+So `useFactory` essentially means:
+
+> **"Angular, inject the dependencies required by this factory, execute the factory, and use the object it returns as the dependency."**
+
+### Difference from the other providers
+
+```text
+useClass
+→ Angular should create a specific class.
+
+useValue
+→ Angular should provide an already-existing value/object.
+
+useFactory
+→ Angular should run creation/selection logic and provide the result.
+```
+
+**Interview-ready one-liner:**
+
+> I use `useFactory` when a dependency needs to be created or selected dynamically based on runtime conditions or other injected dependencies.
+
+=======================================================================================================================================
+71. [useExisting] What problem does `useExisting` solve?
+
+`useExisting` is used when **an existing Angular dependency needs to be exposed through another DI token without creating another instance**.
+
+### Production example: E-commerce authentication interceptor
+
+In an e-commerce application, an authentication interceptor adds the access token to requests going to the product, cart, order, and payment APIs.
+
+```ts
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+
+  constructor(private authService: AuthService) {}
+
+  intercept(
+    req: HttpRequest<unknown>,
+    next: HttpHandler
+  ) {
+    const token = this.authService.getAccessToken();
+
+    const request = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    return next.handle(request);
+  }
+}
+```
+
+Register the interceptor:
+
+```ts
+providers: [
+  AuthInterceptor,
+
+  {
+    provide: HTTP_INTERCEPTORS,
+    useExisting: AuthInterceptor,
+    multi: true
+  }
+]
+```
+
+Here:
+
+```text
+AuthInterceptor
+       ↓
+ existing instance
+       ↑
+       │
+HTTP_INTERCEPTORS
+   useExisting
+```
+
+`useExisting` tells Angular:
+
+> **"For the `HTTP_INTERCEPTORS` token, use the already existing `AuthInterceptor` instance."**
+
+It does **not** create another `AuthInterceptor`.
+
+---
+
+### Direct token-alias example
+
+A very simple way to understand `useExisting` is to have **two DI tokens pointing to the same service**.
+
+Suppose an e-commerce application already has:
+
+```ts
+@Injectable({
+  providedIn: 'root'
+})
+export class CustomerSessionService {
+
+  getCustomerId(): string | null {
+    // ...
+    return null;
+  }
+}
+```
+
+Now the application wants to expose the same service through a dedicated token:
+
+```ts
+export const CHECKOUT_SESSION =
+  new InjectionToken<CustomerSessionService>('CHECKOUT_SESSION');
+```
+
+Create the alias:
+
+```ts
+providers: [
+  {
+    provide: CHECKOUT_SESSION,
+    useExisting: CustomerSessionService
+  }
+]
+```
+
+Now:
+
+```ts
+constructor(
+  private session: CustomerSessionService
+) {}
+```
+
+and:
+
+```ts
+constructor(
+  @Inject(CHECKOUT_SESSION)
+  private checkoutSession: CustomerSessionService
+) {}
+```
+
+both receive the **same `CustomerSessionService` instance**.
+
+```text
+              CustomerSessionService
+                       │
+                 same instance
+                  ┌────┴────┐
+                  ↓         ↓
+     CustomerSessionService  CHECKOUT_SESSION
+             token              token
+```
+
+This is a **direct token alias**.
+
+### Why `useExisting`?
+
+Because we don't want:
+
+```text
+Token A → instance #1
+Token B → instance #2
+```
+
+We want:
+
+```text
+Token A ─┐
+         ├──→ same instance
+Token B ─┘
+```
+
+### Why not `useClass`?
+
+```ts
+{
+  provide: CHECKOUT_SESSION,
+  useClass: CustomerSessionService
+}
+```
+
+does not express the intent of an alias. It asks Angular to provide that class for the new token.
+
+Whereas:
+
+```ts
+{
+  provide: CHECKOUT_SESSION,
+  useExisting: CustomerSessionService
+}
+```
+
+explicitly says:
+
+> **"Alias this token to the provider that already exists."**
+
+### Interview answer
+
+> **`useExisting` creates a DI alias. It allows multiple tokens to resolve to the same existing instance instead of creating another instance. 
+This is useful when exposing an existing service through another token, integrating with framework tokens, or maintaining compatibility 
+while introducing a new DI token.**
+
+
+========================================================================================================================
+72. [Multi Provider] Where could a multi provider be useful?
+
+A multi provider is useful when multiple implementations need to contribute to the same DI token.
+
+You mark the provider with:
+
+multi: true
+
+Instead of Angular having one value for the token, Angular collects all registered values into an array.
+
+Genuine e-commerce example: HTTP interceptors
+
+An e-commerce application may need several cross-cutting HTTP behaviors:
+
+Every HTTP request
+       │
+       ▼
+Auth interceptor       → adds access token
+       │
+       ▼
+Logging interceptor    → records request/response
+       │
+       ▼
+Retry interceptor      → retries transient failures
+       │
+       ▼
+Backend API
+
+Each interceptor has a different responsibility, but all of them need to participate in the same HTTP request pipeline.
+
+With the DI-based interceptor mechanism:
+
+providers: [
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  },
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: LoggingInterceptor,
+    multi: true
+  },
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: RetryInterceptor,
+    multi: true
+  }
+]
+
+Angular treats these as multiple contributions to HTTP_INTERCEPTORS; that token represents an array of registered interceptors.
+
+Conceptually:
+
+HTTP_INTERCEPTORS
+       │
+       ▼
+[
+  AuthInterceptor,
+  LoggingInterceptor,
+  RetryInterceptor
+]
+
+The important benefit is that different parts of the application can register additional interceptors without replacing the existing ones.
+
+Why multi: true?
+
+Without multi: true, you're effectively trying to provide one value for the token.
+
+With:
+
+multi: true
+
+you're saying:
+
+"Add this provider to the collection of providers for this token."
+
+That's the core purpose of a multi provider.
+
+Another production pattern
+
+The same concept is useful for application/plugin architectures where several modules contribute implementations to one common token:
+
+export const CHECKOUT_RULE =
+  new InjectionToken<CheckoutRule[]>('CHECKOUT_RULE');
+
+Different features can register:
+
+{
+  provide: CHECKOUT_RULE,
+  useClass: CouponValidationRule,
+  multi: true
+},
+{
+  provide: CHECKOUT_RULE,
+  useClass: InventoryValidationRule,
+  multi: true
+},
+{
+  provide: CHECKOUT_RULE,
+  useClass: PaymentValidationRule,
+  multi: true
+}
+
+A checkout service can then receive all rules and execute them.
+
+One important modern Angular note
+
+For new Angular applications, Angular currently recommends functional HTTP interceptors with withInterceptors() rather than DI-based HTTP_INTERCEPTORS; DI-based interceptors are still supported through withInterceptorsFromDi().
+
+Interview answer
+
+A multi provider is useful when multiple providers need to contribute to the same DI token. Angular collects them into an array instead of treating later providers as replacements. A classic production example is HTTP interceptors, where authentication, logging, retry, and other interceptors all contribute to the same interceptor chain.
+

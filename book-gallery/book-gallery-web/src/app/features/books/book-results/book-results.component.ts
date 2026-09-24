@@ -5,7 +5,7 @@ import { BooksGridComponent } from './books-grid/books-grid.component';
 import { PaginationComponent } from './pagination/pagination.component';
 import { ActivatedRoute } from '@angular/router';
 import { Book } from '../models/book.model';
-import { BookService } from '../services/book.service';
+import { BookService } from '../../../shared/services/book.service';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 

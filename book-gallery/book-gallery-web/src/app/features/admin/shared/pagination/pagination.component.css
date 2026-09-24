@@ -1,0 +1,215 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+
+/* =========================================
+   Pagination Container
+   ========================================= */
+
+.pagination-container {
+  width: 100%;
+  min-height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #dbe4ef;
+  border-radius: 6px;
+}
+
+
+/* =========================================
+   Pagination Information
+   ========================================= */
+
+.pagination-info {
+  color: #526b88;
+
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.pagination-info strong {
+  color: #172f4d;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   Pagination Controls
+   ========================================= */
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+}
+
+
+/* =========================================
+   Pagination Button
+   ========================================= */
+
+.pagination-button {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d2dce8;
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  color: #526b88;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* =========================================
+   Hover
+   ========================================= */
+
+.pagination-button:hover {
+  border-color: #1675df;
+
+  background: #f4f8ff;
+
+  color: #1675df;
+}
+
+
+/* =========================================
+   Active Page
+   ========================================= */
+
+.pagination-button.active {
+  border-color: #1675df;
+
+  background: #1675df;
+
+  color: #ffffff;
+
+  font-weight: 600;
+}
+
+.pagination-button.active:hover {
+  border-color: #1267c5;
+
+  background: #1267c5;
+
+  color: #ffffff;
+}
+
+
+/* =========================================
+   Previous / Next
+   ========================================= */
+
+.pagination-button.arrow {
+  font-size: 22px;
+  font-weight: 400;
+
+  line-height: 1;
+}
+
+
+/* =========================================
+   Ellipsis
+   ========================================= */
+
+.ellipsis {
+  width: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #71849a;
+
+  font-size: 15px;
+}
+
+
+/* =========================================
+   Disabled
+   ========================================= */
+
+.pagination-button:disabled {
+  background: #f8fafc;
+
+  color: #a5b1bf;
+
+  border-color: #e0e6ed;
+
+  cursor: not-allowed;
+}
+
+.pagination-button:disabled:hover {
+  background: #f8fafc;
+
+  color: #a5b1bf;
+
+  border-color: #e0e6ed;
+}
+
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  .pagination-container {
+    min-height: auto;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    padding: 12px;
+  }
+
+  .pagination-info {
+    order: 2;
+  }
+
+  .pagination-controls {
+    order: 1;
+
+    gap: 4px;
+  }
+
+  .pagination-button {
+    width: 34px;
+    height: 34px;
+  }
+}

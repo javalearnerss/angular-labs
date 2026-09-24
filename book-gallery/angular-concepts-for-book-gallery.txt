@@ -119,6 +119,10 @@
 87. [Cross-field Validation] How would you validate related fields?
 88. [Dynamic Forms] How would you dynamically add Book fields?
 89. [Form State] What are dirty, pristine, touched and untouched?
+        Pristine → User enters the field but doesn't change the value → pristine = true.
+        Dirty → User changes the value → dirty = true.
+        Untouched → User has not focused and left the field → untouched = true.
+        Touched → User focuses and leaves the field, whether value changed or not → touched = true.
 90. [ControlValueAccessor] How would you create a reusable Book Rating control?
 91. [Custom Form Control] How would your Rating component integrate with Reactive Forms?
 92. [Unsaved Changes] How would you prevent leaving Edit Book when changes haven't been saved?

@@ -1,0 +1,38 @@
+
+93.  [Angular Router] How would you design BookGallery routes?
+94.  [Route Parameters] How would you implement /books/:id?
+95.  [Query Parameters] How would you implement /books?category=java?
+96.  [Multiple Query Parameters] How would you represent search, filter and sorting in the URL?
+97.  [Child Routes] When would Book Details need child routes?
+98.  [Lazy Loading] How would you lazy-load the Book feature?
+99.  [CanActivate] How would you protect Add/Edit Book?
+100. [CanActivateChild] When would you use it for Admin routes?
+101. [CanDeactivate] How would you prevent losing unsaved Book changes?
+102. [CanMatch] When would you use it instead of CanActivate?
+103. [Route Resolver] When would you resolve Book Details before navigation?
+104. [Route Data] How would you pass metadata to Admin routes?
+105. [Route-level Providers] Why might BookGallery need them?
+106. [Router Events] How would you track navigation/loading?
+107. [Preloading] When would you preload the Books feature?
+
+
+========================================================================================================
+98. [Lazy Loading] How would you lazy-load the Book feature?
+
+app/
+├── features/
+│   ├── home/
+│   ├── books/
+│   ├── search/
+│   ├── store/
+│   │
+│   └── admin/
+│       ├── authors/
+│       ├── books/
+│       ├── categories/
+│       ├── container/
+│       ├── dashboard/
+│       └── shared/
+│
+├── app.routes.ts
+└── app.config.ts

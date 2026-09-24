@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../../environments/environments';
-import { Book } from '../models/book.model';
+import { environment } from '../../../environments/environments';
 import { Observable } from 'rxjs';
-import { PageResponse } from '../models/page-response.model';
+import { PageResponse } from '../../features/books/models/page-response.model';
+import { Book } from '../../features/books/models/book.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +22,21 @@ export class BookService {
     return this.http.get<PageResponse>(this.apiUrl + "/books", {
       params
     });
+  }
+
+  getBookById(bookId: string): Observable<Book> {
+    return this.http.get<Book>(`${this.apiUrl}/books/${bookId}`);
+  }
+
+  getBookByTitle(title : string) : Observable<Book> {
+
+    const params = new HttpParams()
+    .set('title', title);
+
+    return this.http.get<Book>(this.apiUrl+'/book/title', {
+      params
+    });
+
   }
 
 }

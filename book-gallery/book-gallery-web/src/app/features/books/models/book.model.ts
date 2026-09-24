@@ -2,8 +2,10 @@ export interface Book {
   id: number;
   title: string;
   author: string;
-  category: string;
+  categoryId: string;
   price: number;
+  isbn: string,
+  stock: number,
   rating: number;
   imageUrl: string;
 }

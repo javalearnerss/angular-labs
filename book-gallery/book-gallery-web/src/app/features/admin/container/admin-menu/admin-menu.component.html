@@ -1,0 +1,63 @@
+<aside class="sidebar">
+
+  <!-- Brand -->
+  <div class="brand">
+
+    <div class="brand-icon">
+      ▮▮
+    </div>
+
+    <div class="brand-info">
+      <div class="brand-name">BookStore</div>
+      <div class="brand-subtitle">Admin Panel</div>
+    </div>
+
+  </div>
+
+
+  <!-- Main Menu -->
+  <nav class="menu">
+
+    <a
+      *ngFor="let item of menuItems"
+      class="menu-item"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+
+      <span class="menu-icon">
+        {{ item.icon }}
+      </span>
+
+      <span>
+        {{ item.label }}
+      </span>
+
+    </a>
+
+  </nav>
+
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+
+    <a
+      *ngFor="let item of footerItems"
+      class="menu-item"
+      [routerLink]="item.route"
+    >
+
+      <span class="menu-icon">
+        {{ item.icon }}
+      </span>
+
+      <span>
+        {{ item.label }}
+      </span>
+
+    </a>
+
+  </div>
+
+</aside>

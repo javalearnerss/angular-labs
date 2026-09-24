@@ -39,5 +39,13 @@ public class BookService {
         String searchText = query.trim().toLowerCase();
         return books.stream().filter(book -> book.getTitle().toLowerCase().contains(searchText) || book.getAuthor().toLowerCase().contains(searchText)).toList();
     }
+
+    public Book getBookById(int bookId){
+         return bookRepository.findById(bookId).orElse(null);
+    }
+
+    public Book getBookByTitle(String title){
+        return bookRepository.findByTitle(title);
+    }
 }
 

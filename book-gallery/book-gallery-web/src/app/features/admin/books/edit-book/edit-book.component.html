@@ -1,0 +1,269 @@
+<div class="add-book-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span>Dashboard</span>
+        <span class="breadcrumb-separator">›</span>
+        <span>Books</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="current">Edit Book</span>
+    </div>
+
+    <!-- Main Card -->
+    <form [formGroup]="editBookForm">
+        <section class="book-form-card">
+
+            <!-- Header -->
+            <div class="form-header">
+
+                <div class="header-content">
+                    <h1>Edit Book</h1>
+                    <p>Edit a book</p>
+                </div>
+
+                <button type="button" class="back-button">
+                    <span class="back-icon">←</span>
+                    <span>Back to Books</span>
+                </button>
+
+            </div>
+
+            <div class="header-divider"></div>
+
+
+            <!-- Form Content -->
+            <div class="form-content">
+
+                <!-- Left Section -->
+                <div class="form-fields">
+
+                    <!-- Title / Author -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="title">
+                                Title <span class="required">*</span>
+                            </label>
+
+                            <input id="title" type="text" placeholder="Enter book title" name="title"
+                                formControlName="title">
+
+
+                            @if(hasError('title', 'required')){
+                            <div class="error-message">
+                                <span>Title is required</span>
+                            </div>
+                            }
+
+                            @if(hasError('title', 'titleExists')){
+                            <div class="error-message">
+                                <span>Title is already present</span>
+                            </div>
+                            }
+
+                            
+
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="author">
+                                Author <span class="required">*</span>
+                            </label>
+
+                            <select id="author" name="author" formControlName="author">
+                                <option value="">Select an author</option>
+                                <option>Paulo Coelho</option>
+                                <option>Khaled Hosseini</option>
+                                <option>J. K. Rowling</option>
+                            </select>
+                            @if(isFieldValid('author')){
+                            <div class="error-message">
+                                <span>Author is required</span>
+                            </div>
+                            }
+                        </div>
+
+                    </div>
+
+
+                    <!-- ISBN / Category -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="isbn">
+                                ISBN <span class="required">*</span>
+                            </label>
+
+                            <input id="isbn" type="text" placeholder="Enter ISBN (e.g. 9780062315007)" name="isbn"
+                                formControlName="isbn">
+                            @if(hasError('isbn', 'required')){
+                            <div class="error-message">
+                                <span>ISBN is required</span>
+                            </div>
+                            }
+
+                            @if(hasError('isbn', 'invalidIsbn')){
+                            <div class="error-message">
+                                <span>Please enter a valid ISBN</span>
+                            </div>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">
+                                Category <span class="required">*</span>
+                            </label>
+
+                            <select id="category" name="category" formControlName="category">
+                                <option value="">Select a category</option>
+
+                                @for (category of categories; track category.id) {
+                                   <option value="{{category.id}}">{{category.name}}</option> 
+                                }
+
+                               
+                            </select>
+                            @if(isFieldValid('category')){
+                            <div class="error-message">
+                                <span>Category is required</span>
+                            </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Price / Stock -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="price">
+                                Price <span class="required">*</span>
+                            </label>
+
+                            <div class="price-input">
+                                <span class="currency">₹</span>
+
+                                <input id="price" type="number" placeholder="0.00" name="price" formControlName="price">
+                                @if(hasError('price', 'required')){
+                                <div class="error-message">
+                                    <span>Price is required</span>
+                                </div>
+                                }
+
+                                @if(hasError('price', 'min')){
+                                <div class="error-message">
+                                    <span>Price cannot be negative or zero</span>
+                                </div>
+                                }
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="stock">
+                                Stock <span class="required">*</span>
+                            </label>
+
+                            <input id="stock" type="number" placeholder="0" name="stock" formControlName="stock">
+
+                            @if(hasError('stock', 'required')){
+                            <div class="error-message">
+                                <span>Stock is required</span>
+                            </div>
+                            }
+
+                            @if(hasError('stock', 'min')){
+                            <div class="error-message">
+                                <span>Stock cannot be negative</span>
+                            </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="form-group description-group">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea id="description" maxlength="500"
+                            placeholder="Enter a short description about the book..." name="description"></textarea>
+
+                        <div class="character-count">
+                            0 / 500
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Right Section -->
+                <div class="cover-section">
+
+                    <label class="cover-label">
+                        Book Cover
+                    </label>
+
+                    @if (existingCoverImage) {
+
+                    <div class="cover-preview-container">
+                        <img class="cover-preview" [src]="existingCoverImage" alt="Book cover">
+                    </div>
+
+                    } @else {
+
+                    <label class="upload-box" for="coverImage">
+
+                        <div class="upload-icon">
+                            <!-- your existing SVG -->
+                        </div>
+
+                        <div class="upload-title">
+                            Click to upload cover image
+                        </div>
+
+                        <div class="upload-subtitle">
+                            or drag and drop
+                        </div>
+
+                        <div class="upload-info">
+                            JPG, PNG or WEBP (Max 2MB)
+                        </div>
+
+                    </label>
+
+                    }
+
+                    <input id="coverImage" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+
+                </div>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="form-footer">
+
+                <button type="button" class="cancel-button">
+                    Cancel
+                </button>
+
+                <button type="submit" class="blue-button">
+                    Save Book
+                </button>
+
+            </div>
+
+        </section>
+    </form>
+
+</div>

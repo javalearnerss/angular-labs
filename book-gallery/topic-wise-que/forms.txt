@@ -1,0 +1,365 @@
+78. [Template-driven Forms] How would you create Add Book using template-driven forms?
+79. [Reactive Forms] How would you implement Add/Edit Book using Reactive Forms?
+80. [FormControl] How would you create a Book title control?
+81. [FormGroup] How would you model the complete Book form?
+82. [FormArray] How would you allow multiple authors?
+83. [FormBuilder] How would you simplify form creation?
+84. [Validators] How would you validate title, price and ISBN?
+85. [Custom Validator] How would you validate ISBN?
+86. [Async Validator] How would you check ISBN uniqueness through the backend?
+87. [Cross-field Validation] How would you validate related fields?
+88. [Dynamic Forms] How would you dynamically add Book fields?
+89. [Form State] What are dirty, pristine, touched and untouched?
+        Pristine → User enters the field but doesn't change the value → pristine = true.
+        Dirty → User changes the value → dirty = true.
+        Untouched → User has not focused and left the field → untouched = true.
+        Touched → User focuses and leaves the field, whether value changed or not → touched = true.
+90. [ControlValueAccessor] How would you create a reusable Book Rating control?
+91. [Custom Form Control] How would your Rating component integrate with Reactive Forms?
+92. [Unsaved Changes] How would you prevent leaving Edit Book when changes haven't been saved?
+
+
+=============================================================================================================================
+
+88. [Dynamic Forms] How would you dynamically add Book fields?
+Dynamic Forms — Dynamically add Book fields
+
+I would use Angular Reactive Forms with FormArray when the number of fields is dynamic.
+
+For example, if a book can have multiple authors:
+
+bookForm = this.fb.group({
+  title: ['', Validators.required],
+  authors: this.fb.array([
+    this.createAuthor()
+  ])
+});
+
+createAuthor() {
+  return this.fb.control('', Validators.required);
+}
+
+get authors() {
+  return this.bookForm.get('authors') as FormArray;
+}
+
+addAuthor() {
+  this.authors.push(this.createAuthor());
+}
+
+removeAuthor(index: number) {
+  this.authors.removeAt(index);
+}
+
+Template:
+
+<form [formGroup]="bookForm">
+
+  <input formControlName="title">
+
+  <div formArrayName="authors">
+
+    @for (author of authors.controls; track $index) {
+      <div>
+        <input [formControlName]="$index">
+
+        <button type="button"
+                (click)="removeAuthor($index)">
+          Remove
+        </button>
+      </div>
+    }
+
+  </div>
+
+  <button type="button" (click)="addAuthor()">
+    Add Author
+  </button>
+
+</form>
+Flow
+FormArray
+   ↓
+[Author 1]
+   ↓ Add Author
+[Author 1, Author 2]
+   ↓ Add Author
+[Author 1, Author 2, Author 3]
+
+Interview one-liner:
+
+"For dynamic Book fields, I would use a FormArray, where I can dynamically push() new controls and removeAt() existing ones."
+
+
+=============================================================================================================================
+90. [ControlValueAccessor] How would you create a reusable Book Rating control?
+
+ControlValueAccessor is an Angular interface that allows a custom component to behave like a normal form control such as <input>, <select>, or <textarea>.
+
+For example, if you create:
+
+<app-book-title formControlName="title"></app-book-title>
+
+Angular needs to know how to read/write the value and detect changes in your custom component. That's what ControlValueAccessor provides.
+
+It has 4 main methods:
+
+Method	Purpose
+    writeValue()	Angular → Component: set the value
+    registerOnChange()	Component → Angular: notify value changed
+    registerOnTouched()	Component → Angular: notify field was touched
+    setDisabledState()	Angular → Component: enable/disable the control
+
+Simple flow:
+    Angular Form
+        ↓ writeValue()
+    Custom Component
+        ↓ onChange(value)
+    Angular Form
+
+In one line: ControlValueAccessor is the bridge between Angular Forms and a custom form component.
+
+1. Reusable Book Rating Component
+import { Component, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+@Component({
+  selector: 'app-book-rating',
+  standalone: true,
+  template: `
+    <div class="rating">
+      @for (star of stars; track star) {
+        <button
+          type="button"
+          [disabled]="disabled"
+          (click)="setRating(star)">
+          {{ star <= rating ? '★' : '☆' }}
+        </button>
+      }
+    </div>
+  `,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => BookRatingComponent),
+      multi: true
+    }
+  ]
+})
+export class BookRatingComponent implements ControlValueAccessor {
+
+  stars = [1, 2, 3, 4, 5];
+
+  rating = 0;
+  disabled = false;
+
+  private onChange = (value: number) => {};
+  private onTouched = () => {};
+
+  // Angular → Component
+  writeValue(value: number): void {
+    this.rating = value ?? 0;
+  }
+
+  // Component → Angular
+  registerOnChange(fn: (value: number) => void): void {
+    this.onChange = fn;
+  }
+
+  // Component → Angular
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  // Angular → Component
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+
+  setRating(value: number): void {
+    this.rating = value;
+
+    this.onChange(value);
+    this.onTouched();
+  }
+}
+
+2. Use it like a normal form control
+bookForm = this.fb.group({
+  title: [''],
+  rating: [0]
+});
+<form [formGroup]="bookForm">
+
+  <input formControlName="title">
+
+  <app-book-rating
+    formControlName="rating">
+  </app-book-rating>
+
+</form>
+
+Now the parent doesn't need to know how the rating component works.
+
+3. What makes it reusable?
+
+You can use the same component anywhere:
+
+<app-book-rating formControlName="rating"></app-book-rating>
+
+or with ngModel:
+
+<app-book-rating [(ngModel)]="rating"></app-book-rating>
+
+or directly:
+
+const rating = new FormControl(4);
+
+
+=============================================================================================================================
+91. [Custom Form Control] How would your Rating component integrate with Reactive Forms?
+Custom Form Control — Rating with Reactive Forms
+
+I would make the RatingComponent implement ControlValueAccessor and register it with NG_VALUE_ACCESSOR. Then Angular can treat it like a normal FormControl.
+
+1. Parent Reactive Form
+bookForm = this.fb.group({
+  title: ['', Validators.required],
+  rating: [0, Validators.required]
+});
+2. Use the custom control
+<form [formGroup]="bookForm">
+
+  <input formControlName="title">
+
+  <app-rating formControlName="rating"></app-rating>
+
+</form>
+3. Rating component
+export class RatingComponent implements ControlValueAccessor {
+
+  rating = 0;
+  disabled = false;
+
+  private onChange = (value: number) => {};
+  private onTouched = () => {};
+
+  writeValue(value: number): void {
+    this.rating = value ?? 0;
+  }
+
+  registerOnChange(fn: (value: number) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(disabled: boolean): void {
+    this.disabled = disabled;
+  }
+
+  selectRating(value: number): void {
+    this.rating = value;
+
+    this.onChange(value);  // Update FormControl
+    this.onTouched();      // Mark as touched
+  }
+}
+
+And register it:
+
+providers: [
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => RatingComponent),
+    multi: true
+  }
+]
+Flow
+User clicks ⭐ 4
+       ↓
+selectRating(4)
+       ↓
+onChange(4)
+       ↓
+FormControl value = 4
+       ↓
+Validators run
+       ↓
+bookForm.value.rating = 4
+
+Interview one-liner:
+
+"I integrate the custom Rating component with Reactive Forms by implementing ControlValueAccessor, 
+registering it as an NG_VALUE_ACCESSOR, and using formControlName so Angular can manage its value, 
+validation, touched state, and disabled state."
+
+========================================================================================================================
+92. [Unsaved Changes] How would you prevent leaving Edit Book when changes haven't been saved?
+Unsaved Changes — Prevent leaving Edit Book
+
+I would use an Angular CanDeactivate route guard and check whether the form is dirty.
+
+1. Component
+export class EditBookComponent {
+
+  editBookForm = this.fb.group({
+    title: [''],
+    author: [''],
+    price: [0],
+    stock: [0]
+  });
+
+  canDeactivate(): boolean {
+    if (this.editBookForm.dirty) {
+      return confirm(
+        'You have unsaved changes. Do you really want to leave?'
+      );
+    }
+
+    return true;
+  }
+}
+
+After successfully saving:
+
+onSave() {
+  // save API call
+
+  // After successful save
+  this.editBookForm.markAsPristine();
+}
+2. Guard
+import { CanDeactivateFn } from '@angular/router';
+
+export const unsavedChangesGuard: CanDeactivateFn<any> =
+  (component) => {
+    return component.canDeactivate();
+  };
+3. Add it to the Edit Book route
+{
+  path: 'books/:id/edit',
+  component: EditBookComponent,
+  canDeactivate: [unsavedChangesGuard]
+}
+Flow
+User edits Book
+      ↓
+Form becomes dirty
+      ↓
+User clicks another page
+      ↓
+CanDeactivate Guard
+      ↓
+"Unsaved changes. Leave?"
+      ↓
+Yes → Navigate
+No  → Stay on Edit Book
+
+Interview one-liner:
+
+"I would use a CanDeactivate guard and check the form's dirty state; if the form has unsaved changes, 
+I would ask the user for confirmation before allowing navigation."
+
