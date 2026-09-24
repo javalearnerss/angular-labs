@@ -1,0 +1,18 @@
+## 15. Change Detection
+
+167. [Change Detection] How does Angular change detection work?
+168. [Change Detection Tree] What is the change detection tree?
+169. [Default Strategy] How does default change detection work?
+170. [OnPush] Why would you use OnPush for BookCard?
+171. [OnPush Triggers] What triggers an OnPush component to update?
+172. [Reference Equality] What happens if you mutate a Book object?
+173. [markForCheck()] When would you use it?
+174. [detectChanges()] When would you use it?
+175. [markForCheck vs detectChanges] What is the difference?
+176. [detach()] When could detaching a Book List help?
+177. [reattach()] When would you reattach it?
+178. [Signals + OnPush] How do they work together?
+179. [Zone.js] What role does Zone.js play?
+180. [Zoneless Angular] What changes when Angular runs without Zone.js?
+181. [ExpressionChanged Error] Why does it occur and how would you fix it?
+182. [Performance] How would you identify unnecessary change detection?

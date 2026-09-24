@@ -1,5 +1,5 @@
 
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { BooksToolbarComponent } from './books-toolbar/books-toolbar.component';
 import { BooksGridComponent } from './books-grid/books-grid.component';
 import { PaginationComponent } from './pagination/pagination.component';
@@ -18,7 +18,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     PaginationComponent
   ],
   templateUrl: './book-results.component.html',
-  styleUrl: './book-results.component.css'
+  styleUrl: './book-results.component.css',
+  changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class BookResultsComponent implements OnInit {
 
@@ -35,7 +36,8 @@ export class BookResultsComponent implements OnInit {
 
   constructor(
     private activateRoute: ActivatedRoute,
-    private bookService: BookService
+    private bookService: BookService,
+    private cdr : ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -68,6 +70,7 @@ export class BookResultsComponent implements OnInit {
           this.totalPages = response.totalPages;
           this.pageSize = response.pageSize;
           this.currentPageNumber = response.pageNumber;
+          this.cdr.markForCheck();
         }
       });
   }
