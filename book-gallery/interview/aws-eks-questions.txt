@@ -82,3 +82,170 @@ Scenario 5 — Private CA
 For a 10-year EKS interview, I'd particularly prepare ACM + AWS Load Balancer Controller + Ingress + TLS termination + cert-manager + Kubernetes TLS Secrets + end-to-end TLS.
 
 ===========================================================================================================================================
+
+20 EKS Troubleshooting Interview Questions
+1. Pod Keeps Restarting
+A backend Pod is continuously restarting and shows CrashLoopBackOff. How would you troubleshoot it end-to-end?
+
+Covers: Pod, container logs, exit codes, kubectl describe, events, configuration, Secrets, probes, dependencies, CPU/memory.
+
+2. Pod Is Running but API Returns 503
+The backend Pod shows Running, but users receive 503 Service Unavailable. How would you troubleshoot the complete request path?
+
+Covers: ALB → Ingress → Service → Endpoints → Pod → readiness probe → ports → security groups.
+
+3. ALB/Ingress Is Not Working
+The ALB is created, but requests never reach the Kubernetes Pods. How would you troubleshoot the Ingress and AWS Load Balancer Controller?
+
+Covers: Ingress, AWS Load Balancer Controller, ALB listener, target group, annotations, Service, target registration, controller logs.
+
+4. Service Cannot Reach Backend Pods
+The frontend Pod is healthy, but it cannot communicate with the backend Service. How would you troubleshoot it?
+
+Covers: ClusterIP, Kubernetes DNS, Service selector, Endpoints/EndpointSlices, ports, NetworkPolicy, namespaces.
+
+5. Pod Cannot Connect to RDS
+Backend Pods are running, but they cannot connect to RDS. RDS shows Available. Walk me through your troubleshooting approach.
+
+Covers: VPC, subnets, routes, security groups, DNS, RDS port, credentials, Secrets, NetworkPolicy.
+
+6. Pods Stuck in Pending
+You scale the application from 5 to 20 replicas, but several Pods remain in Pending. How would you find the reason?
+
+Covers: kubectl describe pod, scheduler, CPU/memory requests, node capacity, taints/tolerations, affinity, AZ constraints, node groups.
+
+7. HPA Wants More Pods but Pods Stay Pending
+HPA increases replicas from 10 to 30, but the cluster doesn't have enough capacity. What happens next and how would you troubleshoot/fix it?
+
+Covers: HPA, Cluster Autoscaler/Karpenter, node groups, node capacity, scheduling, resource requests.
+
+8. Pod Gets OOMKilled
+A production Pod suddenly shows OOMKilled. How would you troubleshoot the cause and decide whether to increase memory or fix the application?
+
+Covers: memory requests/limits, actual usage, application memory leak, Kubernetes events, container metrics, node pressure.
+
+9. Deployment Is Stuck
+You deploy a new backend version, but the Deployment never reaches the desired number of ready replicas. How would you troubleshoot it?
+
+Covers: Deployment, ReplicaSet, Pods, rolling update, readiness probes, image, configuration, resource constraints.
+
+10. New Version Is Broken
+Version 2 has been deployed, but users are experiencing errors. How would you safely rollback the Kubernetes deployment?
+
+Covers: Deployment history, rollout status, rollout history, rollback, readiness, zero-downtime deployment.
+
+11. Image Pull Failure
+New Pods are stuck in ImagePullBackOff or ErrImagePull. How would you troubleshoot it?
+
+Covers: ECR, image/tag, node IAM, IRSA where relevant, network connectivity, ECR permissions, image architecture.
+
+12. Pod Cannot Access AWS Service
+A Pod needs to access S3, but the application receives AccessDenied. How would you determine whether the problem is Kubernetes configuration or AWS IAM?
+
+Covers: IRSA / EKS Pod Identity, IAM role, ServiceAccount, trust policy, permissions, AWS SDK credentials.
+
+13. DNS/Service Discovery Failure
+A Pod cannot resolve backend.default.svc.cluster.local. How would you troubleshoot Kubernetes DNS?
+
+Covers: CoreDNS, Service, namespace, DNS configuration, NetworkPolicy, VPC DNS, Service discovery.
+
+14. Node Suddenly Goes Down
+A worker node suddenly becomes unavailable while running several application Pods. What happens to those Pods and how does Kubernetes recover them?
+
+Covers: Node failure, Pod rescheduling, Deployment/ReplicaSet, node groups, AZs, high availability, PodDisruptionBudget.
+
+15. Application Works in One AZ but Not Another
+Your application works correctly when scheduled in one Availability Zone but fails when Pods run in another AZ. How would you investigate?
+
+Covers: Multi-AZ networking, subnets, routes, security groups, node groups, topology, RDS, load balancer, AZ-specific dependencies.
+
+16. Production Performance Problem
+API latency increases from 200 ms to 5 seconds, but all Pods are Running and readiness probes are passing. How would you identify the bottleneck?
+
+Covers: CPU/memory, HPA, application metrics, ALB latency, database performance, network latency, downstream services, CloudWatch/Prometheus.
+
+17. Sudden 10x Traffic Spike
+Traffic suddenly increases 10x. HPA starts scaling Pods, but RDS reaches 100% CPU and database connections are exhausted. How would you stabilize the system?
+
+Covers: HPA, node scaling, connection pooling, RDS scaling, caching, read replicas, queues, rate limiting, backpressure.
+
+18. HTTPS/Certificate Error
+ACM shows the certificate as Issued, but users receive an SSL certificate error when accessing the EKS application. How would you troubleshoot the complete HTTPS path?
+
+Covers: Route 53 → ALB → listener → ACM → Ingress → AWS Load Balancer Controller → certificate ARN → domain/SAN → TLS.
+
+19. End-to-End TLS Failure
+Your architecture requires:
+
+Browser → HTTPS ALB → HTTPS Ingress → HTTPS Backend Pod
+
+The browser connection works, but ALB → Pod HTTPS communication fails. How would you troubleshoot it?
+
+Covers: TLS termination, ALB target protocol, Kubernetes Service, backend certificate, TLS Secret, certificate trust, ports, health checks.
+
+20. Complete Production Incident
+At 2 AM, your EKS application starts returning intermittent 5xx errors.
+
+You observe:
+
+ALB 5xx increasing
+
+Some Pods are CrashLoopBackOff
+
+HPA has scaled from 10 → 40 Pods
+
+Several Pods are Pending
+
+RDS CPU is 95%
+
+API latency increased from 200 ms → 5 seconds
+
+You are the senior engineer on call. Walk me through your troubleshooting and mitigation process step by step.
+
+Covers almost everything:
+ALB → Ingress → Service → Pods → Deployment → HPA → nodes → scheduling → IAM → networking → RDS → monitoring → incident response.
+
+5 Most Important for a 10-Year EKS Interview
+If you don't have time to practice all 20, focus on these:
+
+1. Pod Running + API 503
+Tests:
+
+ALB → Ingress → Service → Endpoint → Pod → Readiness → Port
+
+2. CrashLoopBackOff
+Tests:
+
+Logs → Events → Exit code → Config → Secrets → Probes → Resources → Dependencies
+
+3. Pending Pods + HPA
+Tests:
+
+HPA → Scheduler → Requests/Limits → Node capacity → Cluster Autoscaler/Karpenter → Taints/Affinity
+
+4. EKS → RDS Failure
+Tests:
+
+VPC → Subnet → Route → SG → DNS → Port → Credentials → NetworkPolicy
+
+5. Production 5xx + High RDS CPU
+Tests your senior-level troubleshooting methodology across the entire architecture.
+
+The troubleshooting framework to memorize
+For almost any EKS production issue, think in this order:
+
+Internet → Route 53 → ALB → Ingress → Service → Endpoint → Pod → Container → Application → AWS dependencies → RDS
+
+Then investigate the relevant Kubernetes layers:
+
+Pod → ReplicaSet → Deployment → Node → Scheduler → HPA → Cluster Autoscaling
+
+And for AWS:
+
+VPC → Subnet → Route Table → Security Group → IAM → ECR → RDS
+
+For TLS:
+
+DNS → ALB 443 → ACM → Ingress → Service → Pod certificate
+
+If you can systematically walk through those layers, you don't need to memorize dozens of individual troubleshooting questions.

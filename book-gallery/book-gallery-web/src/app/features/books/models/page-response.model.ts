@@ -1,4 +1,4 @@
-import { Book } from "./book.model";
+import { Book } from "../../../shared/models/book.model";
 
 
 export interface PageResponse {

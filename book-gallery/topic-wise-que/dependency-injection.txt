@@ -24,7 +24,8 @@
 
 ## 1. What is `InjectionToken`?
 
-InjectionToken is a unique key used by Angular Dependency Injection to identify and inject a value or dependency that cannot be identified directly by a class.
+InjectionToken is a unique key used by Angular Dependency Injection to identify and inject a value or dependency 
+that cannot be identified directly by a class.
 
 Even simpler:
 InjectionToken is a unique key that Angular uses to identify what should be injected.
@@ -1043,7 +1044,6 @@ The same pattern is useful when an object is created outside Angular, for exampl
 
 70. [useFactory] When would you need a factory provider?
 
-### 70. When would you need a factory provider?
 
 A **factory provider (`useFactory`)** is needed when Angular cannot simply use a class or an existing value because the dependency must be **created or selected using runtime logic and/or other injected dependencies**.
 
@@ -1217,183 +1217,174 @@ useFactory
 =======================================================================================================================================
 71. [useExisting] What problem does `useExisting` solve?
 
-`useExisting` is used when **an existing Angular dependency needs to be exposed through another DI token without creating another instance**.
+useExisting is used when I want two different Angular DI tokens to resolve to the same existing provider instance.
 
-### Production example: E-commerce authentication interceptor
+The important point is that useExisting is an alias. It does not create a new instance.
 
-In an e-commerce application, an authentication interceptor adds the access token to requests going to the product, cart, order, and payment APIs.
+A practical example
 
-```ts
+Suppose a reusable library defines an abstraction:
+
+export abstract class Logger {
+  abstract info(message: string): void;
+  abstract error(message: string): void;
+}
+
+The library uses this abstraction:
+
 @Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+export class LibraryService {
 
-  constructor(private authService: AuthService) {}
+  constructor(private logger: Logger) {}
 
-  intercept(
-    req: HttpRequest<unknown>,
-    next: HttpHandler
-  ) {
-    const token = this.authService.getAccessToken();
-
-    const request = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    return next.handle(request);
+  process(): void {
+    this.logger.info('Processing started');
   }
 }
-```
 
-Register the interceptor:
+The library doesn't know anything about my application's concrete logger.
 
-```ts
-providers: [
-  AuthInterceptor,
+In my application, I already have:
 
-  {
-    provide: HTTP_INTERCEPTORS,
-    useExisting: AuthInterceptor,
-    multi: true
-  }
-]
-```
-
-Here:
-
-```text
-AuthInterceptor
-       ↓
- existing instance
-       ↑
-       │
-HTTP_INTERCEPTORS
-   useExisting
-```
-
-`useExisting` tells Angular:
-
-> **"For the `HTTP_INTERCEPTORS` token, use the already existing `AuthInterceptor` instance."**
-
-It does **not** create another `AuthInterceptor`.
-
----
-
-### Direct token-alias example
-
-A very simple way to understand `useExisting` is to have **two DI tokens pointing to the same service**.
-
-Suppose an e-commerce application already has:
-
-```ts
 @Injectable({
   providedIn: 'root'
 })
-export class CustomerSessionService {
+export class AppLogger implements Logger {
 
-  getCustomerId(): string | null {
-    // ...
-    return null;
+  info(message: string): void {
+    console.log(message);
+  }
+
+  error(message: string): void {
+    console.error(message);
   }
 }
-```
 
-Now the application wants to expose the same service through a dedicated token:
+I can configure the abstraction:
 
-```ts
-export const CHECKOUT_SESSION =
-  new InjectionToken<CustomerSessionService>('CHECKOUT_SESSION');
-```
-
-Create the alias:
-
-```ts
 providers: [
   {
-    provide: CHECKOUT_SESSION,
-    useExisting: CustomerSessionService
+    provide: Logger,
+    useClass: AppLogger
   }
 ]
-```
 
-Now:
+Now when LibraryService asks for Logger, Angular creates/provides an AppLogger.
 
-```ts
+Where useExisting comes in
+
+Suppose the library exposes another DI token:
+
+export const LIBRARY_LOGGER =
+  new InjectionToken<Logger>('LIBRARY_LOGGER');
+
+and some library component injects:
+
 constructor(
-  private session: CustomerSessionService
+  @Inject(LIBRARY_LOGGER)
+  private logger: Logger
 ) {}
-```
 
-and:
+I already have an AppLogger provider in my application.
 
-```ts
-constructor(
-  @Inject(CHECKOUT_SESSION)
-  private checkoutSession: CustomerSessionService
-) {}
-```
+Instead of creating another provider instance for LIBRARY_LOGGER, I can create an alias:
 
-both receive the **same `CustomerSessionService` instance**.
+providers: [
+  AppLogger,
 
-```text
-              CustomerSessionService
-                       │
-                 same instance
-                  ┌────┴────┐
-                  ↓         ↓
-     CustomerSessionService  CHECKOUT_SESSION
-             token              token
-```
+  {
+    provide: LIBRARY_LOGGER,
+    useExisting: AppLogger
+  }
+]
 
-This is a **direct token alias**.
+Now Angular has two tokens:
 
-### Why `useExisting`?
+AppLogger token ──────────┐
+                          │
+                          ▼
+                    AppLogger instance
+                          ▲
+                          │
+LIBRARY_LOGGER token ─────┘
 
-Because we don't want:
+Both tokens resolve to the same object.
 
-```text
-Token A → instance #1
-Token B → instance #2
-```
+Why not useClass?
 
-We want:
+Consider:
 
-```text
-Token A ─┐
-         ├──→ same instance
-Token B ─┘
-```
-
-### Why not `useClass`?
-
-```ts
 {
-  provide: CHECKOUT_SESSION,
-  useClass: CustomerSessionService
+  provide: LIBRARY_LOGGER,
+  useClass: AppLogger
 }
-```
 
-does not express the intent of an alias. It asks Angular to provide that class for the new token.
+This tells Angular:
+
+"Use AppLogger as the provider for LIBRARY_LOGGER."
 
 Whereas:
 
-```ts
 {
-  provide: CHECKOUT_SESSION,
-  useExisting: CustomerSessionService
+  provide: LIBRARY_LOGGER,
+  useExisting: AppLogger
 }
-```
 
-explicitly says:
+tells Angular:
 
-> **"Alias this token to the provider that already exists."**
+"Don't create another provider for this token. Give me the existing AppLogger provider."
 
-### Interview answer
+So conceptually:
 
-> **`useExisting` creates a DI alias. It allows multiple tokens to resolve to the same existing instance instead of creating another instance. 
-This is useful when exposing an existing service through another token, integrating with framework tokens, or maintaining compatibility 
-while introducing a new DI token.**
+useClass
+
+Token A ───────→ AppLogger instance #1
+Token B ───────→ AppLogger instance #2
+
+versus:
+
+useExisting
+
+Token A ───────┐
+               ├────→ AppLogger instance #1
+Token B ───────┘
+
+The exact instance behavior also depends on the provider configuration/scope, 
+but the key distinction is that useExisting establishes an alias to an existing provider.
+
+Why would I actually need this?
+
+The important interview point is:
+
+I don't use useExisting just because I have a service. I use it when I need another DI token to refer to an already registered provider.
+
+Typical situations include:
+
+Library integration
+A library defines an abstraction or InjectionToken, while my application already has an implementation.
+Backward compatibility
+An application has an old DI token and introduces a new token, but both should resolve to the same service.
+Multiple names/tokens for one service
+Different parts of an application intentionally use different tokens to access the same implementation.
+Avoiding duplicate instances
+I want different tokens to share the exact same configured service instance.
+
+useClass vs useExisting vs useValue vs useFactory
+A good interview summary is:
+
+
+| Provider      | Meaning                                   |
+| ------------- | ----------------------------------------- |
+| `useClass`    | Create/use an instance of this class      |
+| `useExisting` | Alias another existing provider           |
+| `useValue`    | Use this specific value/object            |
+| `useFactory`  | Create the value using a factory function |
+
+One-line interview answer
+
+useExisting creates an alias between two DI tokens so that both tokens resolve to the same existing provider instance. 
+Unlike useClass, it doesn't ask Angular to create another instance; it's useful when an existing service needs to be exposed under another token, 
+such as when integrating abstractions or tokens from a library.
 
 
 ========================================================================================================================
@@ -1505,9 +1496,13 @@ A checkout service can then receive all rules and execute them.
 
 One important modern Angular note
 
-For new Angular applications, Angular currently recommends functional HTTP interceptors with withInterceptors() rather than DI-based HTTP_INTERCEPTORS; DI-based interceptors are still supported through withInterceptorsFromDi().
+For new Angular applications, Angular currently recommends functional HTTP interceptors with withInterceptors() 
+rather than DI-based HTTP_INTERCEPTORS; DI-based interceptors are still supported through withInterceptorsFromDi().
 
 Interview answer
 
-A multi provider is useful when multiple providers need to contribute to the same DI token. Angular collects them into an array instead of treating later providers as replacements. A classic production example is HTTP interceptors, where authentication, logging, retry, and other interceptors all contribute to the same interceptor chain.
+A multi provider is useful when multiple providers need to contribute to the same DI token. 
+Angular collects them into an array instead of treating later providers as replacements. 
+A classic production example is HTTP interceptors, where authentication, logging, retry, and other interceptors 
+all contribute to the same interceptor chain.
 

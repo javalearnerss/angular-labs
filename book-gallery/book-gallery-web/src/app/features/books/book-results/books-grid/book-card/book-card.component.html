@@ -2,7 +2,7 @@
 
   <!-- Book Cover -->
   <div class="book-cover">
-    <img [src]="serverUrl + book.imageUrl" [alt]="book.title" />
+    <img [src]="serverUrl + book.coverImage" [alt]="book.title" />
   </div>
 
   <!-- Book Details -->
@@ -19,7 +19,7 @@
     <!-- Rating -->
     <div class="book-rating">
       <span class="stars">★★★★★</span>
-      <span class="rating-value">{{ book.rating }}</span>
+      <span class="rating-value">5</span>
     </div>
 
     <!-- Price -->

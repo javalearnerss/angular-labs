@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environments';
 import { Observable } from 'rxjs';
 import { PageResponse } from '../../features/books/models/page-response.model';
-import { Book } from '../../features/books/models/book.model';
+import { Book } from '../models/book.model';
 import { Category } from '../models/category.model';
 
 @Injectable({

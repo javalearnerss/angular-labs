@@ -1,8 +1,8 @@
 import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
 import { catchError, debounceTime, distinctUntilChanged, map, Observable, of, switchMap, tap } from "rxjs";
-import { BookService } from "../services/book.service";
+import { BookApiService } from "../services/book-api.service";
 
-export function bookTitleExistsValidator(bookService: BookService, getOriginalTitle: () => string): AsyncValidatorFn {
+export function bookTitleExistsValidator(bookService: BookApiService, getOriginalTitle: () => string): AsyncValidatorFn {
 
     return (titleControl: AbstractControl): Observable<ValidationErrors | null> => {
 

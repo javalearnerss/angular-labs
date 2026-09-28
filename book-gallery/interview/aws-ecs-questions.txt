@@ -69,7 +69,8 @@ The 5 scenarios I'd practice most
 For a 10-year candidate, these are particularly important:
 
 Scenario 1 — Deployment
- Your backend has 5 ECS tasks running. You deploy version 2. What exactly happens from the moment you push the new image to ECR until version 2 starts receiving traffic?
+ Your backend has 5 ECS tasks running. You deploy version 2. 
+ What exactly happens from the moment you push the new image to ECR until version 2 starts receiving traffic?
 
 Scenario 2 — Failure
  One backend ECS task crashes in production. How does ECS detect it, what happens next, and how does traffic continue?
@@ -81,7 +82,8 @@ Scenario 4 — Scaling
  Your backend normally handles 1,000 requests/minute. Suddenly it receives 20,000 requests/minute. Design the ECS scaling strategy.
 
 Scenario 5 — Production architecture
- Design a production-grade ECS architecture for Frontend + Backend + RDS with high availability, security, zero-downtime deployment, auto-scaling, monitoring, and rollback.
+ Design a production-grade ECS architecture for Frontend + Backend + RDS with high availability, security, 
+ zero-downtime deployment, auto-scaling, monitoring, and rollback.
 
 These five scenarios will naturally test ECS Service, Task Definition, Fargate/EC2, ALB, Target Groups, VPC, Security Groups, ECR, Auto Scaling, 
 IAM, health checks, deployment strategy, and RDS without requiring you to memorize dozens of isolated questions.
@@ -141,3 +143,146 @@ Route 53 → ACM → ALB Listener (443) → Target Group → ECS
 
 For a senior interview, the interviewer will likely focus less on "What is ACM?" and more on renewal, 
 multi-domain certificates, wildcard certificates, TLS termination, end-to-end encryption, regional limitations, automation, and troubleshooting.
+
+
+
+
+===============================================================================================
+20 ECS Troubleshooting Questions That Cover Everything
+
+1. ECS Task Keeps Restarting
+An ECS service has 5 desired tasks, but tasks keep starting and stopping. How would you troubleshoot the issue end-to-end?
+
+Covers: ECS Service, Task, Task Definition, container exit codes, CPU/memory, health checks, CloudWatch Logs, IAM, secrets, deployment.
+
+2. ECS Tasks Are Running but ALB Returns 503
+ECS shows all tasks as Running, but users receive 503 Service Unavailable from the ALB. Walk me through your troubleshooting process.
+
+Covers: ALB, listener, target group, target health, container port, health checks, security groups, ECS networking.
+
+3. ALB Returns 502/504
+Users intermittently receive 502 or 504 responses from the ALB, while ECS tasks appear healthy. How would you identify the root cause?
+
+Covers: ALB, target response time, container/application errors, timeouts, CPU/memory, networking, RDS latency, CloudWatch.
+
+4. Frontend Cannot Reach Backend
+Your frontend ECS service is healthy and your backend ECS service is healthy, but frontend requests to the backend are failing. 
+How would you troubleshoot it?
+
+Covers: Service discovery, DNS, private communication, ALB/internal ALB, ports, security groups, routes, NACLs, application configuration.
+
+5. ECS Cannot Connect to RDS
+The backend ECS tasks are running, but the application cannot connect to RDS. RDS itself shows Available. 
+How would you troubleshoot the complete connection path?
+
+Covers: VPC, subnets, routing, security groups, ports, DNS, credentials, Secrets Manager, RDS availability, database connections.
+
+6. ECS Cannot Pull Image from ECR
+A newly launched ECS task fails with CannotPullContainerError. How would you troubleshoot it?
+
+Covers: ECR, image/tag, task execution role, IAM, private subnet, NAT Gateway, VPC endpoints, DNS, networking.
+
+7. New ECS Deployment Is Failing
+You deploy version 2 of your application. New tasks start but fail health checks, while version 1 is still running. 
+Explain what happens and how you would troubleshoot and rollback.
+
+Covers: ECR → Task Definition → ECS Service → deployment → rolling deployment → ALB health checks → minimumHealthyPercent → maximumPercent → rollback.
+
+8. Application Works Locally but Fails on ECS
+The Docker container works perfectly on your laptop, but after deploying the same image to ECS, the application fails. 
+What would you compare between local and ECS environments?
+
+Covers: Docker, environment variables, secrets, IAM, networking, ports, CPU architecture, filesystem, startup command, dependencies, logs.
+
+9. ECS Auto Scaling Isn't Working
+Traffic increases significantly, but your ECS service doesn't scale out. How would you troubleshoot the auto-scaling configuration?
+
+Covers: CloudWatch metrics, target tracking, CPU/memory/request count, scaling policies, desired count, service configuration, cooldown behavior.
+
+10. ECS Scales but RDS Becomes the Bottleneck
+Traffic increases 10x. ECS automatically scales from 5 to 30 tasks, but RDS reaches 100% CPU and database connections are exhausted. 
+How would you troubleshoot and prevent this?
+
+Covers: ECS scaling, RDS, connection pooling, max connections, caching, read replicas, database scaling, architecture bottlenecks.
+
+11. ECS Task Has AccessDenied
+Your application needs to read from S3 and Secrets Manager, but the ECS container receives AccessDenied. 
+How would you determine whether the problem is the task role or execution role?
+
+Covers: IAM, task execution role, task role, S3, Secrets Manager, least privilege.
+
+12. ECS Logs Are Missing
+ECS tasks are running successfully, but application logs aren't appearing in CloudWatch. How would you troubleshoot this?
+
+Covers: awslogs configuration, log groups, task execution role, CloudWatch permissions, container stdout/stderr, region, task definition.
+
+13. HTTPS Suddenly Stops Working
+Your application is accessible through HTTP but HTTPS is failing. ACM shows the certificate as Issued. 
+How would you troubleshoot the complete HTTPS path?
+
+Covers: Route 53, DNS, ALB, port 443, listener, ACM certificate, SAN/domain, certificate region, security groups, TLS termination.
+
+14. Production ECS Incident
+At 2 AM, users report slow responses and intermittent 5xx errors. You observe:
+
+ALB 5xx increasing
+
+ECS CPU at 90%
+
+ECS desired count = 20
+
+ECS running count = 20
+
+RDS CPU = 95%
+
+API latency increased from 200 ms to 5 seconds
+
+As the senior engineer, how would you investigate and stabilize the system?
+
+Covers almost everything: ALB → ECS → scaling → application → RDS → CloudWatch → incident response → bottleneck identification → mitigation.
+
+15. Complete Production Architecture Troubleshooting
+You have:
+
+Route 53 → ALB → Frontend ECS → Backend ECS → RDS
+
+The frontend is public, backend is private, ECS uses Fargate, HTTPS is enabled through ACM, secrets are stored in Secrets Manager, 
+and logs go to CloudWatch.
+
+Suddenly users cannot access the application.
+
+Walk me through how you would troubleshoot the entire architecture layer by layer.
+
+Covers:
+Route 53 → ACM → ALB → Target Groups → ECS Service → Tasks → Containers → Security Groups → VPC → Service Discovery → IAM → Secrets → ECR → CloudWatch → RDS.
+
+16. ECS on EC2 Instance Failure
+Your ECS cluster uses EC2 launch type. An EC2 instance suddenly fails while running several ECS tasks. What happens to those tasks, 
+and how would ECS recover? How would you design the cluster to avoid a major outage?
+
+Covers: ECS on EC2, EC2 Auto Scaling, capacity, task replacement, instance failure, Multi-AZ, high availability, capacity providers.
+
+17. ECS Service Discovery / Service Connect Failure
+Frontend and backend are separate private ECS services. The backend should not be publicly accessible. 
+You use ECS Service Connect or Cloud Map, but the frontend cannot resolve or connect to the backend. How would you troubleshoot it?
+
+Covers: Service Connect, Cloud Map, private DNS, service discovery, ports, security groups, networking.
+
+18. End-to-End TLS
+Your company requires encryption from the browser all the way to the ECS container. How would you design it, 
+where would TLS terminate, and how would you manage the certificates?
+
+Covers: ACM, ALB, TLS termination, ALB → ECS HTTPS, certificates, end-to-end encryption.
+
+19. ECS Task Stuck in PENDING
+An ECS service has a desired count of 5, but new tasks remain in PENDING and never reach RUNNING. 
+How would you troubleshoot it?
+
+Covers: Task placement, Fargate capacity, ECS/EC2 capacity, CPU/memory requirements, networking, ENI/IP availability, IAM, ECR image pull, 
+subnet capacity, security groups.
+
+20. ECS Service Is Healthy but Application Is Slow
+All ECS tasks are Running, ALB health checks are passing, and there are no obvious errors. 
+However, API response time has increased from 200 ms to 5 seconds. How would you identify the bottleneck?
+
+Covers: ALB metrics, ECS CPU/memory, application performance, RDS, connection pools, network latency, downstream services, CloudWatch, tracing, scalin

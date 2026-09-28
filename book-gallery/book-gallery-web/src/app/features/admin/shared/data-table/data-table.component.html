@@ -62,9 +62,9 @@
     <td>
       <span
         class="status"
-        [class.active]="book.status === 'Active'"
-        [class.inactive]="book.status === 'Inactive'"
-        [class.out-of-stock]="book.status === 'Out of Stock'">
+        [class.active]="book.status === 'AVAILABLE'"
+        [class.inactive]="book.status === 'DISCONTINUED'"
+        [class.out-of-stock]="book.status === 'OUT_OF_STOCK'">
         {{ book.status }}
       </span>
     </td>

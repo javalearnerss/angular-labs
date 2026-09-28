@@ -65,12 +65,12 @@ export class HeaderComponent {
       });
   }
 
-  private navigateToSearch(searchText: string): void {
-    const query = searchText.trim();
+  private navigateToSearch(searchKeywordValue: string): void {
+    const searchKeyword = searchKeywordValue.trim();
 
     this.router.navigate(['/books'], {
       queryParams: {
-        query: query || null
+        searchQuery: searchKeyword || null
       }, 
       queryParamsHandling: 'merge'
     });

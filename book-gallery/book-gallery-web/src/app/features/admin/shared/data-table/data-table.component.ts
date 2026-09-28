@@ -1,20 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { Book } from '../../../../shared/models/book.model';
 
 
-export interface Book {
-  id: number;
-  title: string;
-  author: string;
-  category: string;
-  price: number;
-  stock: number;
-  status: BookStatus;
-  isbn: string;
-  coverImage: string;
+
+
+export enum BookStatus {
+  AVAILABLE = 'AVAILABLE',
+  OUT_OF_STOCK = 'OUT_OF_STOCK',
+  DISCONTINUED = 'DISCONTINUED'
 }
-
-export type BookStatus = 'Active' | 'Inactive' | 'Out of Stock';
 
 @Component({
   selector: 'app-data-table',
@@ -32,7 +27,7 @@ books: Book[] = [
     category: 'Fiction',
     price: 399,
     stock: 25,
-    status: 'Active',
+    status: BookStatus.AVAILABLE,
     isbn: '9780062315007',
     coverImage: 'assets/books/alchemist.jpg'
   },
@@ -43,7 +38,7 @@ books: Book[] = [
     category: 'Fiction',
     price: 499,
     stock: 18,
-    status: 'Active',
+    status: BookStatus.AVAILABLE,
     isbn: '9781594631931',
     coverImage: 'assets/books/kite-runner.jpg'
   }

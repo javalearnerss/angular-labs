@@ -1,4 +1,4 @@
-import { Book } from '../../features/books/models/book.model';
+import { Book } from '../../shared/models/book.model';
 
 export interface CartItem {
   book: Book;

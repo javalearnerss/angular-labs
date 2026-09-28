@@ -18,9 +18,6 @@ body {
    color: #172033;
 }
 
-body {
-  overflow: hidden;
-}
 
 * {
   box-sizing: border-box;

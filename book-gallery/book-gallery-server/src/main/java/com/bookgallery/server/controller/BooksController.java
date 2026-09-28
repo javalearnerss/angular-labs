@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
@@ -23,7 +24,13 @@ public class BooksController {
     }
 
     @GetMapping("/books")
-    public ResponseEntity<PageResponse<Book>> getBooks(@RequestParam(required = false) String query, @RequestParam(required = false) List<String> categories, @RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "12") int pageSize) {
+    public ResponseEntity<PageResponse<Book>> getBooks(@RequestParam( required = false) String query, @RequestParam(required = false) List<String> categories, @RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "12") int pageSize) {
+
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         logger.info("Fetching books - query: {}, categories: {}, pageNumber: {}, pageSize: {}", query, categories, pageNumber, pageSize);
 

@@ -1,13 +1,13 @@
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, inject, Injectable, OnInit } from '@angular/core';
 import { BooksToolbarComponent } from './books-toolbar/books-toolbar.component';
 import { BooksGridComponent } from './books-grid/books-grid.component';
 import { PaginationComponent } from './pagination/pagination.component';
 import { ActivatedRoute } from '@angular/router';
-import { Book } from '../models/book.model';
-import { BookService } from '../../../shared/services/book.service';
-import { Subscription } from 'rxjs';
+import { Book } from '../../../shared/models/book.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BookService } from '../../../shared/services/book.service';
+import { BOOK_SERVICE } from '../../../shared/services/book-mock-data';
 
 @Component({
   selector: 'app-book-results',
@@ -24,7 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class BookResultsComponent implements OnInit {
 
   selectedCategory: string = '';
-  query: string = '';
+  searchKeyword: string = '';
   books: Book[] = [];
 
   currentPageNumber: number = 1;
@@ -36,7 +36,7 @@ export class BookResultsComponent implements OnInit {
 
   constructor(
     private activateRoute: ActivatedRoute,
-    private bookService: BookService,
+    @Inject(BOOK_SERVICE) private bookService: BookService,
     private cdr : ChangeDetectorRef
   ) { }
 
@@ -44,7 +44,7 @@ export class BookResultsComponent implements OnInit {
     this.activateRoute.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (queryParam) => {
         this.selectedCategory = queryParam.get('categories') ?? '';
-        this.query = queryParam.get('query') ?? '';
+        this.searchKeyword = queryParam.get('searchQery') ?? '';
         this.currentPageNumber = 1;
         this.loadBooks();
       }
@@ -55,7 +55,7 @@ export class BookResultsComponent implements OnInit {
 
   loadBooks(): void {
     this.bookService.getBooks(
-      this.query,
+      this.searchKeyword,
       this.selectedCategory,
       this.currentPageNumber,
       this.pageSize
