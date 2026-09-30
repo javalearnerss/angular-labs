@@ -10,7 +10,7 @@
     </div>
 
     <!-- Main Card -->
-    <form [formGroup]="editBookForm">
+    <form [formGroup]="editBookForm" (ngSubmit)="onSave()">
         <section class="book-form-card">
 
             <!-- Header -->
@@ -21,7 +21,7 @@
                     <p>Edit a book</p>
                 </div>
 
-                <button type="button" class="back-button">
+                <button type="button" class="back-button" (click)="goToBooks()">
                     <span class="back-icon">←</span>
                     <span>Back to Books</span>
                 </button>
@@ -61,7 +61,7 @@
                             </div>
                             }
 
-                            
+
 
 
                         </div>
@@ -77,7 +77,7 @@
                                 <option>Khaled Hosseini</option>
                                 <option>J. K. Rowling</option>
                             </select>
-                            @if(isFieldValid('author')){
+                            @if(hasError('author', 'required')){
                             <div class="error-message">
                                 <span>Author is required</span>
                             </div>
@@ -97,12 +97,6 @@
 
                             <input id="isbn" type="text" placeholder="Enter ISBN (e.g. 9780062315007)" name="isbn"
                                 formControlName="isbn">
-                            @if(hasError('isbn', 'required')){
-                            <div class="error-message">
-                                <span>ISBN is required</span>
-                            </div>
-                            }
-
                             @if(hasError('isbn', 'invalidIsbn')){
                             <div class="error-message">
                                 <span>Please enter a valid ISBN</span>
@@ -115,16 +109,16 @@
                                 Category <span class="required">*</span>
                             </label>
 
-                            <select id="category" name="category" formControlName="category">
+                            <select id="category" name="categoryId" formControlName="categoryId">
                                 <option value="">Select a category</option>
 
                                 @for (category of categories; track category.id) {
-                                   <option value="{{category.id}}">{{category.name}}</option> 
+                                <option [value]="category.id">{{category.name}}</option>
                                 }
 
-                               
+
                             </select>
-                            @if(isFieldValid('category')){
+                            @if(hasError('category', 'required')){
                             <div class="error-message">
                                 <span>Category is required</span>
                             </div>
@@ -195,10 +189,11 @@
                         </label>
 
                         <textarea id="description" maxlength="500"
-                            placeholder="Enter a short description about the book..." name="description"></textarea>
+                            placeholder="Enter a short description about the book..." name="description"
+                            formControlName="description"></textarea>
 
                         <div class="character-count">
-                            0 / 500
+                            {{editBookForm.controls.description.value?.length ?? 0}} / 500
                         </div>
 
                     </div>
@@ -213,16 +208,12 @@
                         Book Cover
                     </label>
 
-                    @if (existingCoverImage) {
-
-                    <div class="cover-preview-container">
-                        <img class="cover-preview" [src]="existingCoverImage" alt="Book cover">
-                    </div>
-
-                    } @else {
-
                     <label class="upload-box" for="coverImage">
 
+                        @if (coverImagePreview || existingCoverImage) {
+                        <img class="cover-preview" [src]="(coverImagePreview || existingCoverImage)"
+                            alt="Book cover preview">
+                        } @else {
                         <div class="upload-icon">
                             <!-- your existing SVG -->
                         </div>
@@ -238,12 +229,11 @@
                         <div class="upload-info">
                             JPG, PNG or WEBP (Max 2MB)
                         </div>
-
+                        }
                     </label>
 
-                    }
-
-                    <input id="coverImage" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                    <input id="coverImage" type="file" accept="image/jpeg,image/png,image/webp" hidden
+                        (change)="onCoverImageSelected($event)">
 
                 </div>
 
@@ -253,12 +243,16 @@
             <!-- Footer -->
             <div class="form-footer">
 
-                <button type="button" class="cancel-button">
+                @if(errorMessage){
+                <div class="error-message" role="alert">{{errorMessage}}</div>
+                }
+
+                <button type="button" class="cancel-button" (click)="goToBooks()">
                     Cancel
                 </button>
 
-                <button type="submit" class="blue-button">
-                    Save Book
+                <button type="submit" class="blue-button" [disabled]="isSaving || editBookForm.invalid">
+                    {{isSaving ? 'Saving...' : 'Save Book'}}
                 </button>
 
             </div>

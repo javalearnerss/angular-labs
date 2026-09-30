@@ -3,12 +3,10 @@ import {
   HttpResponse
 } from '@angular/common/http';
 
-import { Observable, of, tap } from 'rxjs';
-
-import { PageResponse } from '../../features/books/models/page-response.model';
+import { of, tap } from 'rxjs';
 
 interface CacheEntry {
-  data: PageResponse;
+  response: HttpResponse<unknown>;
   expiry: number;
 }
 
@@ -18,58 +16,34 @@ const cache = new Map<string, CacheEntry>();
 
 export const cacheInterceptor: HttpInterceptorFn = (req, next) => {
 
-  // Cache only GET requests
   if (req.method !== 'GET') {
+    cache.clear();
     return next(req);
   }
 
-  // Create unique key including query parameters
-  const cacheKey = req.urlWithParams;
+  const requestPath = req.url.replace(/\/+$/, '');
+  if (!requestPath.endsWith('/books') || req.headers.has('Authorization')) {
+    return next(req);
+  }
 
-  // Check cache
+  const cacheKey = req.urlWithParams;
   const cachedEntry = cache.get(cacheKey);
 
   if (cachedEntry) {
-
-    // Check whether cache is still valid
     if (Date.now() < cachedEntry.expiry) {
-
-      console.log('Cache HIT:', cacheKey);
-
-      return of(
-        new HttpResponse<PageResponse>({
-          body: cachedEntry.data,
-          status: 200
-        })
-      );
+      return of(cachedEntry.response.clone());
     }
-
-    // Cache expired
-    console.log('Cache EXPIRED:', cacheKey);
 
     cache.delete(cacheKey);
   }
 
-  console.log('Cache MISS:', cacheKey);
-
-  // Make actual HTTP request
   return next(req).pipe(
-
     tap(event => {
-
-      if (event instanceof HttpResponse) {
-
-        const responseBody = event.body as PageResponse;
-
-        if (responseBody) {
-
+      if (event instanceof HttpResponse && event.status === 200 && event.body !== null) {
           cache.set(cacheKey, {
-            data: responseBody,
+            response: event.clone(),
             expiry: Date.now() + CACHE_DURATION
           });
-
-          console.log('Response cached:', cacheKey);
-        }
       }
     })
   );

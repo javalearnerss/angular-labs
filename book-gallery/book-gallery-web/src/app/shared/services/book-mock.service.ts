@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
-import { BookService } from './book.service';
+import { AdminBookSearchCriteria, BookService } from './book.service';
 import { PageResponse } from '../../features/books/models/page-response.model';
 import { Book } from '../models/book.model';
 import { BOOK_DATA } from './book-mock-data';
@@ -50,6 +50,49 @@ export class BookMockService implements BookService {
       books: pageBooks,
       pageNumber,
       pageSize,
+      totalBooks,
+      totalPages
+    });
+  }
+
+  searchAdminBooks(criteria: AdminBookSearchCriteria, pageNumber: number, pageSize: number): Observable<PageResponse> {
+    const query = criteria.query.trim().toLowerCase();
+    let books = this.booksData.filter(book =>
+      (!query || book.title.toLowerCase().includes(query)
+        || book.author.toLowerCase().includes(query)
+        || book.isbn?.toLowerCase().includes(query))
+      && (criteria.categoryId <= 0 || book.categoryId === criteria.categoryId)
+      && (criteria.status.toLowerCase() === 'all'
+        || criteria.status.toLowerCase() === 'active' && book.stock > 0
+        || criteria.status.toLowerCase() === 'out-of-stock' && book.stock <= 0)
+    );
+
+    switch (criteria.sortBy) {
+      case 'oldest':
+        books = books.sort((first, second) => first.id - second.id);
+        break;
+      case 'price-low':
+        books = books.sort((first, second) => first.price - second.price);
+        break;
+      case 'price-high':
+        books = books.sort((first, second) => second.price - first.price);
+        break;
+      case 'name':
+        books = books.sort((first, second) => first.title.localeCompare(second.title));
+        break;
+      default:
+        books = books.sort((first, second) => second.id - first.id);
+    }
+
+    const totalBooks = books.length;
+    const safePageSize = Math.max(1, pageSize);
+    const totalPages = Math.ceil(totalBooks / safePageSize);
+    const start = (Math.max(1, pageNumber) - 1) * safePageSize;
+
+    return of({
+      books: books.slice(start, start + safePageSize),
+      pageNumber: Math.max(1, pageNumber),
+      pageSize: safePageSize,
       totalBooks,
       totalPages
     });

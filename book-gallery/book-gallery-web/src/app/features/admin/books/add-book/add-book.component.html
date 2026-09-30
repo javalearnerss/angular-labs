@@ -21,7 +21,7 @@
                     <p>Add a new book to your inventory</p>
                 </div>
 
-                <button type="button" class="back-button">
+                <button type="button" class="back-button" (click)="goToBooks()">
                     <span class="back-icon">←</span>
                     <span>Back to Books</span>
                 </button>
@@ -84,16 +84,16 @@
 
                         <div class="form-group">
                             <label for="isbn">
-                                ISBN <span class="required">*</span>
+                                ISBN
                             </label>
 
                             <input id="isbn" type="text" placeholder="Enter ISBN (e.g. 9780062315007)" name="isbn"
-                                ngModel required #isbn="ngModel">
+                                ngModel pattern="([0-9][ -]?){9}[0-9Xx]|([0-9][ -]?){12}[0-9]" #isbn="ngModel">
 
 
-                            @if(isbn.invalid && (isbn.touched || addBookForm.submitted)){
+                            @if(isbn.errors?.['pattern'] && (isbn.touched || addBookForm.submitted)){
                             <div class="error-message">
-                                ISBN is required
+                                Enter a valid ISBN-10 or ISBN-13.
                             </div>
                             }
 
@@ -104,12 +104,11 @@
                                 Category <span class="required">*</span>
                             </label>
 
-                            <select id="category" name="category" ngModel required #category="ngModel">
+                            <select id="category" name="categoryId" ngModel required #category="ngModel">
                                 <option value="">Select a category</option>
-                                <option>Fiction</option>
-                                <option>Historical</option>
-                                <option>Science Fiction</option>
-                                <option>Classic</option>
+                                @for (item of categories; track item.id) {
+                                <option [value]="item.id">{{item.name}}</option>
+                                }
                             </select>
 
                             @if(category.invalid && (category.touched || addBookForm.submitted)){
@@ -185,10 +184,10 @@
 
                         <textarea id="description" maxlength="500"
                             placeholder="Enter a short description about the book..." name="description" ngModel
-                            required></textarea>
+                            #description="ngModel"></textarea>
 
                         <div class="character-count">
-                            0 / 500
+                            {{description.value?.length ?? 0}} / 500
                         </div>
 
                     </div>
@@ -227,7 +226,7 @@
                         </div>
 
                         <div class="upload-subtitle">
-                            or drag and drop
+                            or choose a file
                         </div>
 
                         <div class="upload-info">
@@ -249,12 +248,16 @@
             <!-- Footer -->
             <div class="form-footer">
 
-                <button type="button" class="cancel-button">
+                @if(errorMessage){
+                <div class="error-message" role="alert">{{errorMessage}}</div>
+                }
+
+                <button type="button" class="cancel-button" (click)="goToBooks()">
                     Cancel
                 </button>
 
-                <button type="submit" class="blue-button">
-                    Save Book
+                <button type="submit" class="blue-button" [disabled]="isSaving">
+                    {{isSaving ? 'Saving...' : 'Save Book'}}
                 </button>
 
             </div>

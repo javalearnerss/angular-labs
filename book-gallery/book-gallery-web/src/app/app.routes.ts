@@ -1,17 +1,5 @@
 import { Routes } from '@angular/router';
 
-import { HomeComponent } from './features/home/home.component';
-import { BooksComponent } from './features/books/books.component';
-import { SearchComponent } from './features/search/search.component';
-
-
-import { AdminContainerComponent }
-    from './features/admin/container/admin-container/admin-container.component';
-import { StoreContainerComponent } from './features/store/store-container/store-container.component';
-import { BooksPageComponent } from './features/admin/books/books-page/books-page.component';
-import { AddBookComponent } from './features/admin/books/add-book/add-book.component';
-import { EditBookComponent } from './features/admin/books/edit-book/edit-book.component';
-
 export const routes: Routes = [
 
     // =========================
@@ -20,27 +8,32 @@ export const routes: Routes = [
 
     {
         path: '',
-        component: StoreContainerComponent,
+        loadComponent: () => import('./features/store/store-container/store-container.component')
+            .then(component => component.StoreContainerComponent),
         children: [
 
             {
                 path: '',
-                component: HomeComponent
+                loadComponent: () => import('./features/home/home.component')
+                    .then(component => component.HomeComponent)
             },
 
             {
                 path: 'home',
-                component: HomeComponent
+                loadComponent: () => import('./features/home/home.component')
+                    .then(component => component.HomeComponent)
             },
 
             {
                 path: 'books',
-                component: BooksComponent
+                loadComponent: () => import('./features/books/books.component')
+                    .then(component => component.BooksComponent)
             },
 
             {
                 path: 'search',
-                component: SearchComponent
+                loadComponent: () => import('./features/search/search.component')
+                    .then(component => component.SearchComponent)
             }
 
         ]
@@ -53,7 +46,8 @@ export const routes: Routes = [
 
     {
         path: 'admin',
-        component: AdminContainerComponent,
+        loadComponent: () => import('./features/admin/container/admin-container/admin-container.component')
+            .then(component => component.AdminContainerComponent),
         children: [
 
             {
@@ -62,16 +56,24 @@ export const routes: Routes = [
                 pathMatch: 'full'
             },
             {
+                path: 'dashboard',
+                loadComponent: () => import('./features/admin/dashboard/dashboard-page/dashboard-page.component')
+                    .then(component => component.DashboardPageComponent)
+            },
+            {
                 path: 'books',
-                component: BooksPageComponent,
+                loadComponent: () => import('./features/admin/books/books-page/books-page.component')
+                    .then(component => component.BooksPageComponent)
             },
             {
                 path: 'books/add-book',
-                component: AddBookComponent
+                loadComponent: () => import('./features/admin/books/add-book/add-book.component')
+                    .then(component => component.AddBookComponent)
             },
             {
                 path: 'books/:bookId/edit-book',
-                component: EditBookComponent
+                loadComponent: () => import('./features/admin/books/edit-book/edit-book.component')
+                    .then(component => component.EditBookComponent)
             }
 
             // admin routes will come here

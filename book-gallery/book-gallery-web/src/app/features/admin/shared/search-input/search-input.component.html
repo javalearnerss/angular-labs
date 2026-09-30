@@ -15,25 +15,24 @@
 
     <input
       type="text"
-      placeholder="Search books by title, author or ISBN..."
+      placeholder="Search books by title, author or ISBN..." [formControl]="searchControl"
     />
 
   </div>
 
 
   <!-- Category -->
-  <select class="filter-select">
-    <option value="">All Categories</option>
-    <option value="fiction">Fiction</option>
-    <option value="historical">Historical</option>
-    <option value="science-fiction">Science Fiction</option>
-    <option value="classic">Classic</option>
+  <select class="filter-select" [formControl]="categoryControl">
+    <option value="0">All Categories</option>
+    @for (category of categories; track category.id) {
+      <option [value]="category.id">{{category.name}}</option>
+    }
   </select>
 
 
   <!-- Status -->
-  <select class="filter-select status-select">
-    <option value="">All Status</option>
+  <select class="filter-select status-select" [formControl]="bookStatusControl">
+    <option value="All">All</option>
     <option value="active">Active</option>
     <option value="out-of-stock">Out of Stock</option>
   </select>
@@ -46,7 +45,7 @@
       Sort by:
     </label>
 
-    <select id="sort" class="sort-select">
+    <select id="sort" class="sort-select" [formControl]="sortingControl">
       <option value="newest">Newest First</option>
       <option value="oldest">Oldest First</option>
       <option value="price-low">Price: Low to High</option>
@@ -57,3 +56,7 @@
   </div>
 
 </section>
+
+@if(errorMessage){
+  <p role="alert">{{errorMessage}}</p>
+}

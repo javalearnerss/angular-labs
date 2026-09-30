@@ -26,6 +26,34 @@
 25. [Memory Leaks] How could BookGallery leak subscriptions?
 26. [takeUntilDestroyed] How would you solve subscription cleanup?
 
+27. [take / first] How would you read a value once and complete? take(1) vs first()?
+28. [takeUntil] How did you clean up subscriptions before takeUntilDestroyed?
+29. [startWith] Why does combineLatest with valueChanges need it?
+30. [scan] How would you accumulate state (pagination, infinite scroll)?
+31. [of / from] of([1,2,3]) vs from([1,2,3])? How do you convert a Promise?
+32. [throwError] How would you rethrow or map an error inside catchError?
+33. [merge] When merge instead of combineLatest (multiple event sources)?
+34. [zip] How does it differ from combineLatest?
+35. [combineLatestWith / mergeWith / concatWith] What are the pipeable forms?
+36. [throttleTime] debounceTime vs throttleTime: scroll, resize, button spam?
+37. [timer / interval] How would you implement polling?
+38. [timeout] What if the Book API hangs?
+39. [delay] Where would you delay emissions (e.g. mock/testing)?
+40. [skip / skipWhile / takeWhile] Where would you ignore or limit emissions?
+41. [distinctUntilKeyChanged] When to prefer it over distinctUntilChanged?
+42. [retry with config] How would you do exponential backoff? (retryWhen is deprecated)
+43. [share vs shareReplay] Difference? What does refCount: true do?
+44. [defer] Why wrap a Promise or factory call in defer?
+45. [AsyncSubject] What does it emit, and when?
+46. [auditTime / sampleTime] How do they differ from throttleTime?
+47. [expand] How would you fetch paginated APIs recursively?
+48. [groupBy / bufferTime / window] When would you batch or group a stream?
+49. [observeOn / subscribeOn] What are schedulers and when do they matter?
+50. [toSignal / toObservable] How do you bridge RxJS and Signals?
+51. [async pipe] Why is it better than manual subscribe?
+52. [pluck] Deprecated: what replaces it? (map)
+53. [multicast / publish] Deprecated: what replaced them? (share)
+
  */
 
 =================================================================================================================
@@ -673,8 +701,8 @@ return this.http.get<Book[]>('/api/books').pipe(
 
 );
 
-Here, tap() receives the books and prints them to the console. It does not modify the books. T
-he same books array continues to the next operator or to the subscriber.
+Here, tap() receives the books and prints them to the console. It does not modify the books. 
+The same books array continues to the next operator or to the subscriber.
 
 You can also use tap() to update a loading flag:
 this.loading = true;
@@ -1283,7 +1311,8 @@ parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "tech" | Time: Wed 
 =========================================================================================================================
 14. [mergeMap] When would it be appropriate?
 
-mergeMap() is appropriate when you have multiple inner Observables and you want all of them to continue running at the same time. Unlike switchMap(), mergeMap() does not cancel the previous Observable when a new value arrives.
+mergeMap() is appropriate when you have multiple inner Observables and you want all of them to continue running at the same time. 
+Unlike switchMap(), mergeMap() does not cancel the previous Observable when a new value arrives.
 
 For example, suppose you have multiple books and you want to load additional information for every book:
 
@@ -1357,6 +1386,7 @@ mergeMap() can be appropriate.
 15. [concatMap] When would sequential Book operations be useful?
 
 In a Book Gallery application, concatMap is useful when you have multiple operations that must execute one after another in the same order.
+
 In simple terms:
 concatMap puts asynchronous operations into a queue and executes them one by one, preserving their order.
 
@@ -1626,15 +1656,19 @@ exhaustMap turns repeated clicks on Submit Review into a single POST request, so
 ===============================================================================================================================
 17. [switchMap vs mergeMap] What happens if search uses mergeMap?
 
-With mergeMap, every keystroke starts a new request and none of the old ones are cancelled. All requests run in parallel, and responses can arrive out of order, so the screen can end up showing results for an older search instead of the latest one. This bug is called a race condition.
+With mergeMap, every keystroke starts a new request and none of the old ones are cancelled. All requests run in parallel, 
+and responses can arrive out of order, so the screen can end up showing results for an older search instead of the latest one. 
+This bug is called a race condition.
 
 The Story Version
 
 A customer types "harry" into the bookstore search box. The manager has a rule for Sam:
 
-"Sam, every time the customer adds a letter, send a new runner to the warehouse. Don't call back the old runners. Show whatever comes back."
+"Sam, every time the customer adds a letter, send a new runner to the warehouse. 
+Don't call back the old runners. Show whatever comes back."
 
-Runners for "h", "ha", "har", "harr", "harry" all go out at once. The runner for "harry" may return first, but the slow runner for "ha" arrives later and overwrites the correct results with wrong ones.
+Runners for "h", "ha", "har", "harr", "harry" all go out at once. 
+The runner for "harry" may return first, but the slow runner for "ha" arrives later and overwrites the correct results with wrong ones.
 
 What Goes Wrong
 Typing:      h --- ha --- har --- harr --- harry
@@ -1648,11 +1682,13 @@ Requests:    "h"      ───────────────────�
 Order of responses:  harry, harr, har, ha, h
 Screen finally shows: results for "h"  ❌  (user typed "harry")
 The Code That Causes It
+
 typescript
 // ❌ Buggy: mergeMap
 this.searchControl.valueChanges.pipe(
   mergeMap(term => this.bookService.searchBooks(term))
 ).subscribe(books => this.books = books);
+
 The Fix
 typescript
 // ✅ Correct: switchMap (with debounce for good measure)
@@ -1743,7 +1779,8 @@ so the page renders only when everything is ready.
 
 ===============================================================================================================================
 19. [combineLatest] How would you combine search/filter/sort streams?
-combineLatest combines multiple Observables and emits an array (or object) of their latest values every time any one of them emits. It starts emitting only after every source has emitted at least once.
+combineLatest combines multiple Observables and emits an array (or object) of their latest values every time any one of them emits. 
+It starts emitting only after every source has emitted at least once.
 
 Use it when a result depends on several changing inputs at the same time.
 

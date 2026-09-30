@@ -29,8 +29,17 @@ public class Book {
     @Column(nullable = false)
     private double price;
 
+    @Column(unique = true, length = 20)
+    private String isbn;
+
+    @Column(nullable = false)
+    private int stock;
+
+    @Column(length = 500)
+    private String description;
+
     @Column(name = "image_url")
-    private String imageUrl;
+    private String coverImage;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
@@ -38,12 +47,12 @@ public class Book {
     public Book() {
     }
 
-    public Book(String title, String author, Long category, double price, String imageUrl) {
+    public Book(String title, String author, Long category, double price, String coverImage) {
         this.title = title;
         this.author = author;
         this.categoryId = category;
         this.price = price;
-        this.imageUrl = imageUrl;
+        this.coverImage = coverImage;
     }
 
 

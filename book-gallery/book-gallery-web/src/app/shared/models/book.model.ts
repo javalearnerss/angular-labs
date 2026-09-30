@@ -5,9 +5,11 @@ export interface Book {
   title: string;
   author: string;
   category: string;
+  categoryId?: number;
   price: number;
   stock: number;
   status: BookStatus;
-  isbn: string;
+  isbn: string | null;
+  description?: string | null;
   coverImage: string;
 }

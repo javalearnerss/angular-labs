@@ -10,6 +10,9 @@ CREATE TABLE books (
     author VARCHAR(255) NOT NULL,
     category_id BIGINT NOT NULL,
     price DOUBLE NOT NULL,
+    isbn VARCHAR(20) UNIQUE,
+    stock INT NOT NULL DEFAULT 0,
+    description VARCHAR(500),
     image_url VARCHAR(500),
     CONSTRAINT fk_book_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );

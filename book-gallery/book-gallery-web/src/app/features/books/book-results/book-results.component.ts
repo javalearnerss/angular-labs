@@ -2,7 +2,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, inject, Injectable, OnInit } from '@angular/core';
 import { BooksToolbarComponent } from './books-toolbar/books-toolbar.component';
 import { BooksGridComponent } from './books-grid/books-grid.component';
-import { PaginationComponent } from './pagination/pagination.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ActivatedRoute } from '@angular/router';
 import { Book } from '../../../shared/models/book.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

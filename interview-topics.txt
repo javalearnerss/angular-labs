@@ -1,0 +1,126 @@
+ANGULAR TOPICS
+----------------------
+
+1. TypeScript
+   - Types, interfaces vs classes, generics, enums, union/intersection types
+   - any vs unknown vs never
+   - Decorators (compare to Java annotations)
+   - Optional chaining (?.), nullish coalescing (??), strict mode
+   - let/const, arrow functions, destructuring, spread
+   - async/await and Promises (compare to CompletableFuture)
+
+2. Angular core concepts
+   - Architecture: modules, components, services, directives, pipes
+   - Standalone components vs NgModules
+   - Lifecycle hooks: ngOnInit, ngOnChanges, ngOnDestroy, ngAfterViewInit
+   - Why logic goes in ngOnInit rather than the constructor
+   - Data binding: interpolation, property, event, two-way ([(ngModel)])
+   - @Input, @Output, EventEmitter, @ViewChild, @ContentChild
+   - Component communication: parent/child, sibling, service-based
+   - Structural and attribute directives
+   - New control flow (@if, @for, @switch) vs *ngIf / *ngFor
+   - trackBy / track in loops
+   - Custom pipes; pure vs impure pipes
+   - Content projection (ng-content)
+
+3. Dependency Injection (compare with Spring)
+   - @Injectable({ providedIn: 'root' })   ~ @Service / singleton bean
+   - Constructor injection / inject()       ~ @Autowired / constructor injection
+   - Injector hierarchy                     ~ ApplicationContext scopes
+   - InjectionToken                         ~ @Qualifier / interface-based injection
+   - Component-level providers              ~ prototype/request scope
+   - Expect: what is providedIn: 'root'? How do you get a new service
+     instance per component? What are injection tokens?
+
+4. Change detection and performance
+   - Default vs OnPush strategy
+   - Zone.js: what it does and why it matters
+   - Signals and zoneless change detection
+   - Lazy loading, @defer blocks
+   - AOT vs JIT
+   - Bundle size optimization, tree shaking
+
+5. Routing
+   - Route config, routerLink, ActivatedRoute
+   - Route params and query params
+   - Guards (CanActivate, CanDeactivate, CanMatch), functional guards
+   - Resolvers
+   - Lazy-loaded routes
+   - Child routes, wildcard routes
+
+6. Forms
+   - Template-driven vs Reactive forms
+   - FormControl, FormGroup, FormArray, FormBuilder
+   - Built-in and custom validators, async validators
+   - Cross-field validation
+   - Typed forms
+   - valueChanges with RxJS
+
+7. HTTP and backend integration
+   - HttpClient and how it returns Observables
+   - Interceptors: auth token, error handling, logging, loading spinner
+   - Consuming Spring Boot REST APIs: DTO typing, pagination, error responses
+   - CORS: what causes it and how to fix it on the Spring side
+     (@CrossOrigin, WebMvcConfigurer)
+   - JWT authentication flow between Angular and Spring Security
+   - Proxy config for local dev (proxy.conf.json)
+   - File upload/download
+   - Global error handling with ErrorHandler
+
+8. State management
+   - Service with BehaviorSubject
+   - Signals (signal, computed, effect)
+   - NgRx basics: actions, reducers, effects, selectors, store
+   - Knowing when NgRx is overkill
+
+9. RxJS
+   - Covered in Part 1. Usually tested through scenarios: search, API calls,
+     cleanup, error handling.
+
+10. Testing
+   - Jasmine/Karma (or Jest) basics
+   - TestBed, ComponentFixture
+   - Mocking services; HttpClientTestingModule / provideHttpClientTesting
+   - Async testing: fakeAsync, tick, waitForAsync
+   - Compare with JUnit/Mockito
+
+11. Tooling and build
+   - Angular CLI commands; what ng build --configuration production does
+   - angular.json, tsconfig.json, environment files
+   - npm vs Maven/Gradle
+   - ESLint, Prettier
+
+12. Security
+   - XSS protection and DomSanitizer
+   - CSRF and Angular's XSRF token handling
+   - Route guards are UI-only; real security lives in the backend
+   - Storing JWT: localStorage vs HttpOnly cookies
+
+13. Scenario and design questions
+   - Design a search screen with pagination, sorting and filters
+   - How do you structure a large Angular app? (feature modules, shared/core,
+     smart vs dumb components)
+   - How do you handle auth and role-based access in Angular and Spring?
+   - How would you optimize a slow list of 10,000 rows? (OnPush, trackBy,
+     virtual scroll, pagination)
+   - How do you handle global loading and error states?
+   - How do you upgrade Angular versions?
+
+14. Questions specific to a Java background
+   - How is Angular DI different from Spring DI?
+   - How is TypeScript different from Java? (structural vs nominal typing,
+     no runtime types, null/undefined)
+   - How do you share contracts between frontend and backend?
+     (OpenAPI/Swagger codegen)
+   - Why does Angular use Observables where Java would use Futures or Streams?
+
+
+PRIORITY IF TIME IS SHORT
+-------------------------
+1. Component lifecycle, @Input/@Output, DI
+2. Reactive forms and validators
+3. HttpClient, interceptors, JWT, CORS
+4. OnPush change detection and performance
+5. Routing guards and lazy loading
+6. Signals vs Observables
+7. Testing with TestBed

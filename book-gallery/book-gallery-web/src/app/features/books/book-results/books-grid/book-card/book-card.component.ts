@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { environment } from '../../../../../../environments/environments';
+
 import { CartService } from '../../../../../core/services/cart.service';
 import { Book } from '../../../../../shared/models/book.model';
+import { environment } from '../../../../../../environments/environments.developement';
 
 
 
