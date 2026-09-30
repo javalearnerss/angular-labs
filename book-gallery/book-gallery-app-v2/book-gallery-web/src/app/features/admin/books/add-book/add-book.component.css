@@ -1,0 +1,609 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+
+/* =========================================
+   Page
+   ========================================= */
+
+.add-book-page {
+  width: 100%;
+  min-height: 100%;
+
+  padding: 14px 30px 30px;
+
+  box-sizing: border-box;
+
+  background: #f5f8fc;
+}
+
+
+/* =========================================
+   Breadcrumb
+   ========================================= */
+
+.breadcrumb {
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #526b88;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  color: #7890aa;
+
+  font-size: 18px;
+}
+
+.breadcrumb .current {
+  color: #243b53;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   Main Card
+   ========================================= */
+
+.book-form-card {
+  width: 100%;
+
+  background: #ffffff;
+
+  border: 1px solid #d7e1ec;
+  border-radius: 8px;
+
+  padding: 24px 28px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   Header
+   ========================================= */
+
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 58px;
+}
+
+.header-content h1 {
+  margin: 0;
+
+  color: #102a43;
+
+  font-size: 26px;
+  line-height: 32px;
+
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 3px 0 0;
+
+  color: #526b88;
+
+  font-size: 14px;
+  line-height: 20px;
+
+  font-weight: 400;
+}
+
+
+/* =========================================
+   Back Button
+   ========================================= */
+
+.back-button {
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 0 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd8e6;
+  border-radius: 6px;
+
+  color: #243b53;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.back-button:hover {
+  background: #f5f8fc;
+
+  border-color: #aebfd2;
+}
+
+.back-icon {
+  font-size: 19px;
+
+  line-height: 1;
+}
+
+
+/* =========================================
+   Divider
+   ========================================= */
+
+.header-divider {
+  height: 1px;
+
+  margin-top: 15px;
+
+  background: #dbe4ef;
+}
+
+
+/* =========================================
+   Form Content
+   ========================================= */
+
+.form-content {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) 300px;
+
+  gap: 26px;
+
+  padding-top: 25px;
+}
+
+
+/* =========================================
+   Left Form
+   ========================================= */
+
+.form-fields {
+  min-width: 0;
+}
+
+.form-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 24px;
+
+  margin-bottom: 20px;
+}
+
+.form-group {
+  min-width: 0;
+}
+
+.form-group label,
+.cover-label,
+.preview-label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #172f4d;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  line-height: 17px;
+}
+
+.required {
+  color: #e53935;
+}
+
+
+/* =========================================
+   Inputs
+   ========================================= */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #cbd8e6;
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #172f4d;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 400;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* =========================================
+   Text Box / Dropdown
+   ========================================= */
+
+.form-group input,
+.form-group select {
+  height: 38px;
+
+  padding: 0 11px;
+}
+
+
+/* =========================================
+   Textarea
+   ========================================= */
+
+.form-group textarea {
+
+  padding: 10px 10px;
+
+  resize: vertical;
+
+  line-height: 20px;
+}
+
+
+/* =========================================
+   Placeholder
+   ========================================= */
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #7890aa;
+}
+
+
+/* =========================================
+   Focus
+   ========================================= */
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #1675df;
+
+  box-shadow: 0 0 0 3px rgba(22, 117, 223, 0.10);
+}
+
+
+/* =========================================
+   Select
+   ========================================= */
+
+.form-group select {
+  cursor: pointer;
+}
+
+
+/* =========================================
+   Price
+   ========================================= */
+
+.price-input {
+  position: relative;
+}
+
+.price-input .currency {
+  position: absolute;
+
+  left: 11px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #526b88;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  pointer-events: none;
+}
+
+.price-input input {
+  padding-left: 34px;
+}
+
+
+/* =========================================
+   Description
+   ========================================= */
+
+.description-group {
+  position: relative;
+}
+
+.character-count {
+  margin-top: 4px;
+
+  text-align: right;
+
+  color: #526b88;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   Cover Section
+   ========================================= */
+
+.cover-section {
+  padding-left: 20px;
+
+  border-left: 1px solid #dbe4ef;
+}
+
+.cover-label {
+  margin-bottom: 8px;
+}
+
+
+/* =========================================
+   Upload
+   ========================================= */
+
+.upload-box {
+  height: 205px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 18px;
+
+  background: #fbfcfe;
+
+  border: 2px dashed #bdccdc;
+  border-radius: 7px;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.upload-box:hover {
+  background: #f5f9ff;
+
+  border-color: #1675df;
+}
+
+.upload-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 9px;
+
+  color: #365a7d;
+}
+
+.upload-title {
+  color: #172f4d;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  line-height: 18px;
+}
+
+.upload-subtitle {
+  margin-top: 2px;
+
+  color: #526b88;
+
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.upload-info {
+  margin-top: 11px;
+
+  color: #7890aa;
+
+  font-size: 11px;
+  line-height: 16px;
+}
+
+
+/* =========================================
+   Preview
+   ========================================= */
+
+.preview-label {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.preview-box {
+  height: 190px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f1f5f9;
+
+  border-radius: 7px;
+}
+
+.preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 10px;
+
+  color: #6d8299;
+
+  font-size: 13px;
+}
+
+.preview-placeholder svg {
+  color: #6d8299;
+}
+
+
+/* =========================================
+   Footer
+   ========================================= */
+
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 24px;
+  padding-top: 21px;
+
+  border-top: 1px solid #dbe4ef;
+}
+
+
+/* =========================================
+   Cancel Button
+   ========================================= */
+
+.cancel-button {
+  height: 40px;
+
+  padding: 0 21px;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd8e6;
+  border-radius: 6px;
+
+  color: #243b53;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.cancel-button:hover {
+  background: #f5f8fc;
+
+  border-color: #aebfd2;
+}
+
+.error-message {
+  display: block;
+  margin-top: 5px;
+  color: #d13b3b;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.cover-preview {
+  width: 140px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #d7e1ec;
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 1000px) {
+
+  .form-content {
+    grid-template-columns: 1fr;
+  }
+
+  .cover-section {
+    padding-left: 0;
+    padding-top: 24px;
+
+    border-left: none;
+    border-top: 1px solid #dbe4ef;
+  }
+
+  .upload-box {
+    max-width: 400px;
+  }
+
+  .preview-box {
+    max-width: 400px;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .add-book-page {
+    padding: 12px 16px 20px;
+  }
+
+  .book-form-card {
+    padding: 20px;
+  }
+
+  .form-header {
+    align-items: flex-start;
+
+    gap: 15px;
+  }
+
+  .header-content h1 {
+    font-size: 23px;
+    line-height: 29px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+  }
+
+  .back-button {
+    padding: 0 12px;
+  }
+}

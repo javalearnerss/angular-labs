@@ -1,0 +1,268 @@
+<div class="add-book-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <span>Dashboard</span>
+        <span class="breadcrumb-separator">›</span>
+        <span>Books</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="current">Add New Book</span>
+    </div>
+
+    <!-- Main Card -->
+    <form #addBookForm="ngForm" (ngSubmit)="onSaveNewBook(addBookForm)">
+        <section class="book-form-card">
+
+            <!-- Header -->
+            <div class="form-header">
+
+                <div class="header-content">
+                    <h1>Add New Book</h1>
+                    <p>Add a new book to your inventory</p>
+                </div>
+
+                <button type="button" class="back-button" (click)="goToBooks()">
+                    <span class="back-icon">←</span>
+                    <span>Back to Books</span>
+                </button>
+
+            </div>
+
+            <div class="header-divider"></div>
+
+
+            <!-- Form Content -->
+            <div class="form-content">
+
+                <!-- Left Section -->
+                <div class="form-fields">
+
+                    <!-- Title / Author -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="title">
+                                Title <span class="required">*</span>
+                            </label>
+
+                            <input id="title" type="text" placeholder="Enter book title" name="title" ngModel required
+                                #title="ngModel">
+
+                            @if(title.invalid && (title.touched || addBookForm.submitted)){
+                            <div class="error-message">
+                                Title is required.
+                            </div>
+                            }
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="author">
+                                Author <span class="required">*</span>
+                            </label>
+
+                            <select id="author" name="author" ngModel required #author="ngModel">
+                                <option value="">Select an author</option>
+                                <option>Paulo Coelho</option>
+                                <option>Khaled Hosseini</option>
+                                <option>J. K. Rowling</option>
+                            </select>
+
+                            @if(author.invalid && (author.touched || addBookForm.submitted)){
+                            <div class="error-message">
+                                Author is required
+                            </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ISBN / Category -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="isbn">
+                                ISBN
+                            </label>
+
+                            <input id="isbn" type="text" placeholder="Enter ISBN (e.g. 9780062315007)" name="isbn"
+                                ngModel pattern="([0-9][ -]?){9}[0-9Xx]|([0-9][ -]?){12}[0-9]" #isbn="ngModel">
+
+
+                            @if(isbn.errors?.['pattern'] && (isbn.touched || addBookForm.submitted)){
+                            <div class="error-message">
+                                Enter a valid ISBN-10 or ISBN-13.
+                            </div>
+                            }
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">
+                                Category <span class="required">*</span>
+                            </label>
+
+                            <select id="category" name="categoryId" ngModel required #category="ngModel">
+                                <option value="">Select a category</option>
+                                @for (item of categories; track item.id) {
+                                <option [value]="item.id">{{item.name}}</option>
+                                }
+                            </select>
+
+                            @if(category.invalid && (category.touched || addBookForm.submitted)){
+                            <div class="error-message">
+                                Category is required
+                            </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Price / Stock -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="price">
+                                Price <span class="required">*</span>
+                            </label>
+
+                            <div class="price-input">
+                                <span class="currency">₹</span>
+
+                                <input id="price" type="number" placeholder="0.00" name="price" ngModel required
+                                    min="0.01" #price="ngModel">
+                            </div>
+
+                            @if(price.invalid && (price.touched || addBookForm.submitted)){
+                            <div class="error-message">
+                                @if(price.errors?.['required']) {
+                                <span>Price is required</span>
+                                }
+
+                                @if(price.errors?.['min']) {
+                                <span>Price must be greater than 0</span>
+                                }
+                            </div>
+                            }
+
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="stock">
+                                Stock <span class="required">*</span>
+                            </label>
+
+                            <input id="stock" type="number" placeholder="0" name="stock" ngModel required min="0"
+                                #stock="ngModel">
+                            @if(stock.invalid && (stock.touched || addBookForm.submitted)) {
+                            <div class="error-message">
+                                @if(stock.errors?.['required']){
+                                <span>Stock is required</span>
+                                }
+                                @if(stock.errors?.['min']) {
+                                <span>Stock should be greater than or equal to 0</span>
+                                }
+                            </div>
+                            }
+                        </div>
+
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="form-group description-group">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea id="description" maxlength="500"
+                            placeholder="Enter a short description about the book..." name="description" ngModel
+                            #description="ngModel"></textarea>
+
+                        <div class="character-count">
+                            {{description.value?.length ?? 0}} / 500
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Right Section -->
+                <div class="cover-section">
+
+                    <label class="cover-label">
+                        Book Cover
+                    </label>
+
+                    <label class="upload-box" for="coverImage">
+
+                        @if (coverImagePreview) {
+
+                        <img class="cover-preview" [src]="coverImagePreview" alt="Book cover preview">
+
+                        } @else {
+
+                        <div class="upload-icon">
+                            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+
+                                <path d="M12 16V4"></path>
+                                <path d="M7 9l5-5 5 5"></path>
+                                <path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"></path>
+
+                            </svg>
+                        </div>
+
+                        <div class="upload-title">
+                            Click to upload cover image
+                        </div>
+
+                        <div class="upload-subtitle">
+                            or choose a file
+                        </div>
+
+                        <div class="upload-info">
+                            JPG, PNG or WEBP (Max 2MB)
+                        </div>
+
+                        }
+
+                    </label>
+
+                    <input id="coverImage" type="file" accept="image/jpeg,image/png,image/webp" hidden
+                        (change)="onCoverImageSelected($event)">
+
+                </div>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="form-footer">
+
+                @if(errorMessage){
+                <div class="error-message" role="alert">{{errorMessage}}</div>
+                }
+
+                <button type="button" class="cancel-button" (click)="goToBooks()">
+                    Cancel
+                </button>
+
+                <button type="submit" class="blue-button" [disabled]="isSaving">
+                    {{isSaving ? 'Saving...' : 'Save Book'}}
+                </button>
+
+            </div>
+
+        </section>
+    </form>
+
+</div>
