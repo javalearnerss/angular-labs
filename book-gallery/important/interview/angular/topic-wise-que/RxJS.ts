@@ -1078,235 +1078,45 @@ parent.component.ts:71 Before distinctUntilChanged | searchedText: "tech" | Time
 ==================================================================================================================================
 13. [switchMap] Why is it suitable for Book Search?
 
-switchMap() is suitable for a search box because the user can type many different search terms quickly, 
-and we usually only care about the result for the latest search term.
+When the user types quickly, only the latest search term matters. switchMap cancels the previous search and keeps only the latest one, 
+so old results can never overwrite new ones.
 
-For example, imagine the user types:
+The problem: responses can arrive out of order
 
-A
-An
-Ang
-Angular
+The user types A, An, Ang, Angular, and each term starts an API call:
 
-Each search term could start an API request:
+Search		Request takes	Finishes at
+"A"			500ms			500ms (last)
+"An"		300ms			300ms
+"Ang"		200ms			200ms
+"Angular"	100ms			100ms (first)
 
-"A"       → API request 1
-"An"      → API request 2
-"Ang"     → API request 3
-"Angular" → API request 4
+The "A" response arrives last, so without switchMap the screen would end up showing results for "A" even though the user typed "Angular". That is a race condition.
 
-The problem is that these requests don't necessarily finish in the same order. For example:
-
-"A"       → takes 500ms
-"An"      → takes 300ms
-"Ang"     → takes 200ms
-"Angular" → takes 100ms
-
-We don't want an old "A" result to arrive later and replace our "Angular" results. switchMap() solves this by switching to the latest Observable 
-and unsubscribing from the previous one.
-
-For example:
-
-this.searchControl.valueChanges
-  .pipe(
-    debounceTime(300),
-    distinctUntilChanged(),
-
-    switchMap(searchText =>
-      this.bookService.searchBooks(searchText)
-    )
-  )
-  .subscribe(books => {
-    this.books = books;
-  });
-
-The important part is:
-
-switchMap(searchText =>
-  this.bookService.searchBooks(searchText)
-)
-
-Every time a new search term arrives, switchMap() subscribes to the new API Observable and stops listening to the previous one.
-
-Think of it like this:
-
-User types "Ang"
-       ↓
-API request for "Ang"
-       ↓
-User types "Angular"
-       ↓
-❌ Stop listening to "Ang"
-       ↓
-API request for "Angular"
-       ↓
-✅ Use "Angular" results
-
-So the main reason switchMap() is good for search is:
-Search results should correspond to the latest search term, not an older term the user has already moved past.
-debounceTime() + distinctUntilChanged() + switchMap()
-
-These three are commonly used together:
-
+The fix
+ts
 this.searchControl.valueChanges.pipe(
-  debounceTime(300),
-  distinctUntilChanged(),
-  switchMap(searchText =>
-    this.bookService.searchBooks(searchText)
+  debounceTime(300),          // 1. wait until the user pauses typing
+  distinctUntilChanged(),     // 2. skip if the text didn't actually change
+  switchMap(text =>           // 3. cancel the old search, start the new one
+    this.bookService.searchBooks(text)
   )
-);
+).subscribe(books => this.books = books);
 
-Their responsibilities are different:
+Each operator has one job:
 
-debounceTime(300)
-        ↓
-Wait until user stops typing
+Operator						Job
+debounceTime(300)			Fewer requests: wait for a pause in typing
+distinctUntilChanged()		No duplicate requests for the same text
+switchMap(...)				No stale results: drop the old request, use the newest
 
-distinctUntilChanged()
-        ↓
-Ignore the same search value
+How switchMap behaves, step by step
+User types "Ang"      → request for "Ang" starts
+User types "Angular"  → ❌ unsubscribe from "Ang" (its result is thrown away)
+                      → request for "Angular" starts
+"Angular" responds    → ✅ only this result reaches the screen
 
-switchMap()
-        ↓
-Cancel/stop listening to the previous search
-and switch to the latest search
-
-One important point for your current project: since you don't have a backend, you don't really need switchMap() for your local books array. 
-switchMap() becomes useful when each search term starts another Observable, such as an HTTP request.
-
-
-
-<h2>Book Search</h2>
-
-<input
-  type="text"
-  [formControl]="searchControl"
-  placeholder="Search books..."
-/>
-
-<ul>
-  <li *ngFor="let book of filteredBooks">
-    {{ book.title }} - {{ book.author }} - {{ book.category }}
-  </li>
-</ul>
-
-
-import { Component } from '@angular/core';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  tap,
-  switchMap,
-  timer,
-  map,
-  finalize
-} from 'rxjs';
-
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-
-export interface Book {
-  id: number;
-  title: string;
-  author: string;
-  category: string;
-}
-
-@Component({
-  selector: 'app-parent',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule
-  ],
-  templateUrl: './parent.component.html',
-  styleUrl: './parent.component.css'
-})
-export class ParentComponent {
-
-  searchControl = new FormControl('', {
-    nonNullable: true
-  });
-
-  books: Book[] = [
-    {
-      id: 1,
-      title: 'Angular Basics',
-      author: 'John',
-      category: 'Technology'
-    },
-    {
-      id: 2,
-      title: 'The Alchemist',
-      author: 'Paulo Coelho',
-      category: 'Fiction'
-    },
-    {
-      id: 3,
-      title: 'RxJS in Action',
-      author: 'David',
-      category: 'Technology'
-    }
-  ];
-
-  filteredBooks: Book[] = this.books;
-
-  constructor() {
-
-    this.searchControl.valueChanges
-      .pipe(
-        debounceTime(100),
-        distinctUntilChanged(),
-        switchMap(searchText => {
-          console.log(`START request | searchedText: "${searchText}" | Time: ${new Date()}`);
-
-          const search = searchText.toLowerCase();
-          return timer(3000).pipe(
-            map(() => {
-              return this.books.filter(book =>
-                book.category
-                  .toLowerCase()
-                  .startsWith(search)
-              );
-            }),
-
-            tap(result => {
-              console.log(
-                `RESPONSE received | searchedText: "${searchText}" | result:`,
-                result
-              );
-            }),
-
-            finalize(() => {
-              console.log(`CLEANUP / UNSUBSCRIBE | searchedText: "${searchText}" | Time: ${new Date()}`);
-
-            })
-
-          );
-
-        })
-
-      )
-      .subscribe((books: Book[]) => {
-        console.log(`AFTER subscribe | books:`, books);
-        this.filteredBooks = books;
-
-      });
-  }
-}
-
-
-Output : 
-START request | searchedText: "t" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "t" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:68 START request | searchedText: "te" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "te" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:68 START request | searchedText: "tec" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "tec" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:68 START request | searchedText: "tech" | Time: Wed Sep 09 2026 01:38:47 GMT+0530 (India Standard Time)
-parent.component.ts:81 RESPONSE received | searchedText: "tech" | result: (2) [{…}, {…}]
-parent.component.ts:101 AFTER subscribe | books: (2) [{…}, {…}]
-parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "tech" | Time: Wed Sep 09 2026 01:38:50 GMT+0530 (India Standard Time)
+For HTTP calls, unsubscribing also cancels the actual request in the browser.
 
 =========================================================================================================================
 14. [mergeMap] When would it be appropriate?
@@ -1314,73 +1124,137 @@ parent.component.ts:89 CLEANUP / UNSUBSCRIBE | searchedText: "tech" | Time: Wed 
 mergeMap() is appropriate when you have multiple inner Observables and you want all of them to continue running at the same time. 
 Unlike switchMap(), mergeMap() does not cancel the previous Observable when a new value arrives.
 
-For example, suppose you have multiple books and you want to load additional information for every book:
 
-from(this.books).pipe(
-  mergeMap(book =>
-    this.getBookDetails(book.id)
-  )
-).subscribe(details => {
-  console.log(details);
-});
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, from, of } from 'rxjs';
+import { catchError, map, mergeMap, timeout } from 'rxjs/operators';
+import { Book, BookWithRating, Rating } from './book.model';
 
-Imagine the books are:
+@Injectable({ providedIn: 'root' })
+export class BookService {
+  private readonly MAX_CONCURRENT_RATING_CALLS = 5;
 
-Angular
-RxJS
-Java
+  constructor(private http: HttpClient) {}
 
-mergeMap() can start all three operations:
+  getBooks(): Observable<Book[]> {
+    return this.http.get<Book[]>('/api/books');
+  }
 
-Angular → getBookDetails(1) ────────┐
-RxJS    → getBookDetails(2) ────┐  │
-Java    → getBookDetails(3) ─┐  │  │
-                              ↓  ↓  ↓
-                         All continue
+  getRating(id: number): Observable<Rating> {
+    return this.http.get<Rating>(`/api/books/${id}/rating`);
+  }
 
-Even if Angular takes 3 seconds and Java takes only 1 second, mergeMap() doesn't cancel Angular. All requests are allowed to complete.
+  /**
+   * Emits one BookWithRating per book, in the order the rating
+   * responses arrive (NOT list order).
+   */
+  getBooksWithRatings(): Observable<BookWithRating> {
+    return this.getBooks().pipe(
+      // 1) Array -> stream of single books
+      mergeMap(books => from(books)),
 
-A simple example without an API is:
+      // 2) For each book, fetch its rating. Up to N calls run in parallel.
+      mergeMap(
+        book =>
+          this.getRating(book.id).pipe(
+            timeout(5000),
+            map(rating => ({ ...book, rating }) as BookWithRating),
+            // catchError is INSIDE the inner pipe: one failed rating
+            // becomes a book with rating: null instead of killing the stream.
+            catchError(() => of({ ...book, rating: null } as BookWithRating))
+          ),
+        this.MAX_CONCURRENT_RATING_CALLS
+      )
+    );
+  }
+}
 
-import { from, of, mergeMap, delay } from 'rxjs';
 
-from([1, 2, 3]).pipe(
-  mergeMap(id =>
-    of(`Book ${id}`).pipe(
-      delay(1000)
-    )
-  )
-).subscribe(result => {
-  console.log(result);
-});
 
-Here, each number creates a new Observable, and mergeMap() subscribes to all of them concurrently.
+import { Component, inject } from '@angular/core';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { EMPTY, Observable } from 'rxjs';
+import { catchError, finalize, map, scan, startWith, tap } from 'rxjs/operators';
+import { BookService } from './book.service';
+import { BookWithRating } from './book.model';
 
-The easiest way to compare it with switchMap() is:
+@Component({
+  selector: 'app-book-gallery',
+  standalone: true,
+  imports: [AsyncPipe, DecimalPipe],
+  template: `
+    @if (error) {
+      <p class="error">Couldn't load books. Try again later.</p>
+    }
 
-switchMap()
-1 → start
-2 → cancel 1, start 2
-3 → cancel 2, start 3
-                    ↓
-                only latest
+    @if (loading) {
+      <p>Loading ratings…</p>
+    }
 
-mergeMap()
-1 → start ──────────→ complete
-2 → start ──────────→ complete
-3 → start ──────────→ complete
-        ↓
-   all continue
+    <ul class="gallery">
+      @for (book of books$ | async; track book.id) {
+        <li>
+          <h3>{{ book.title }}</h3>
+          <p>{{ book.author }}</p>
+          @if (book.rating) {
+            <p>{{ book.rating.average | number: '1.1-1' }} / 5 ({{ book.rating.votes }} votes)</p>
+          } @else {
+            <p>Rating unavailable</p>
+          }
+        </li>
+      }
+    </ul>
+  `,
+  styles: [`
+    .gallery { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 0; list-style: none; }
+    .error { color: #b00020; }
+  `]
+})
+export class BookGalleryComponent {
+  private bookService = inject(BookService);
 
-So remember:
+  loading = true;
+  error = false;
 
-switchMap() → I only care about the latest operation.
+  books$: Observable<BookWithRating[]> = this.bookService.getBooksWithRatings().pipe(
+    // Accumulate each arriving book into a growing array,
+    // so the gallery fills in as responses come back.
+    scan((acc, book) => [...acc, book], [] as BookWithRating[]),
 
-mergeMap() → I want all operations to continue.
+    // mergeMap emits in completion order, so restore a stable UI order.
+    map(list => [...list].sort((a, b) => a.title.localeCompare(b.title))),
 
-For a search box, switchMap() is usually more appropriate because you generally want only the latest search result. 
-For something like loading details for multiple books, processing multiple independent tasks, or sending multiple independent requests, 
-mergeMap() can be appropriate.
+    startWith([] as BookWithRating[]),
+
+    // Outer-level catchError: only reached if the book LIST call fails.
+    catchError(() => {
+      this.error = true;
+      return EMPTY;
+    }),
+    finalize(() => (this.loading = false))
+  );
+}
+
+
+
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+}
+
+export interface Rating {
+  bookId: number;
+  average: number; // 0-5
+  votes: number;
+}
+
+export interface BookWithRating extends Book {
+  rating: Rating | null; // null = rating failed to load
+}
+
+
 
 ===============================================================================================================================
 15. [concatMap] When would sequential Book operations be useful?
