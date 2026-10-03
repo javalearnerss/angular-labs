@@ -7,6 +7,9 @@ import { Category } from '../../../../shared/models/category.model';
 import { BookApiService } from '../../../../shared/services/book-api.service';
 import { CategoryService } from '../../../../shared/services/category.service';
 import { BOOK_SERVICE } from '../../../../shared/services/book-mock-data';
+import { AuthorService } from '../../../../shared/services/author.service';
+import { Author } from '../../../../shared/models/author.model';
+import { catchError, EMPTY, forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-add-book',
@@ -18,6 +21,7 @@ import { BOOK_SERVICE } from '../../../../shared/services/book-mock-data';
 export class AddBookComponent implements OnInit, OnDestroy {
 
   categories: Category[] = [];
+  authors: Author[] = [];
   selectedCoverImage: File | null = null;
   coverImagePreview: string | null = null;
   isSaving = false;
@@ -26,14 +30,28 @@ export class AddBookComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(BOOK_SERVICE) private readonly bookService: BookApiService,
     private readonly categoryService: CategoryService,
+    private readonly authorService: AuthorService,
     private readonly router: Router
   ) { }
 
   ngOnInit(): void {
-    this.categoryService.getAllCategories().subscribe({
-      next: categories => this.categories = categories,
-      error: () => this.errorMessage = 'Could not load book categories. Please try again.'
-    });
+
+    forkJoin({
+      categories: this.categoryService.getAllCategories(),
+      authors: this.authorService.getAllAuthors()
+    }).pipe(catchError((error) => {
+      console.log('Could not load book categories or authors. Please try again.')
+      this.errorMessage = 'Could not load book categories or authors. Please try again.'
+      return EMPTY;
+    }))
+      .subscribe({
+        next: ({ categories, authors }) => {
+          this.categories = categories;
+          this.authors = authors;
+        }
+      });
+
+
   }
 
   onSaveNewBook(form: NgForm): void {

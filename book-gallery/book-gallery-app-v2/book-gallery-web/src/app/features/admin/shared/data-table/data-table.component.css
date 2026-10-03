@@ -1,6 +1,7 @@
 :host {
   display: block;
   width: 100%;
+  box-sizing: border-box;
 }
 
 
@@ -10,13 +11,11 @@
 
 .data-table-container {
   width: 100%;
-
   background: #ffffff;
-
   border: 1px solid #dbe4ef;
   border-radius: 6px;
-
-  overflow-x: auto;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 
@@ -26,11 +25,9 @@
 
 .books-table {
   width: 100%;
-
+  table-layout: fixed;
   border-collapse: collapse;
-
   color: #172f4d;
-
   font-size: 14px;
 }
 
@@ -45,19 +42,18 @@
 
 .books-table th {
   height: 44px;
-
-  padding: 0 14px;
+  padding: 0 10px;
 
   text-align: left;
-
   white-space: nowrap;
 
   color: #526b88;
-
   font-size: 13px;
   font-weight: 600;
 
   border-bottom: 1px solid #dbe4ef;
+
+  box-sizing: border-box;
 }
 
 
@@ -67,16 +63,15 @@
 
 .books-table td {
   height: 72px;
-
-  padding: 8px 14px;
+  padding: 8px 10px;
 
   vertical-align: middle;
 
   border-bottom: 1px solid #e5eaf0;
 
-  white-space: nowrap;
-
   font-size: 14px;
+
+  box-sizing: border-box;
 }
 
 .books-table tbody tr:last-child td {
@@ -106,7 +101,6 @@
   object-fit: cover;
 
   border-radius: 3px;
-
   border: 1px solid #dbe4ef;
 }
 
@@ -120,8 +114,11 @@
 
   font-size: 14px;
   font-weight: 600;
-
   line-height: 20px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .book-isbn {
@@ -130,8 +127,24 @@
   color: #71849a;
 
   font-size: 12px;
-
   line-height: 16px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   Author
+   ========================================= */
+
+.books-table td:nth-child(4) {
+  color: #334f6d;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
@@ -141,6 +154,10 @@
 
 .books-table td:nth-child(5) {
   color: #334f6d;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
@@ -150,8 +167,8 @@
 
 .books-table td:nth-child(6) {
   color: #172f4d;
-
   font-weight: 500;
+  white-space: nowrap;
 }
 
 
@@ -161,11 +178,25 @@
 
 .books-table td:nth-child(7) {
   font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
 }
 
 
 /* =========================================
-   Status
+   Status Column
+   ========================================= */
+
+.books-table th:nth-child(8),
+.books-table td:nth-child(8) {
+  width: 16%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+
+/* =========================================
+   Status Badge
    ========================================= */
 
 .status {
@@ -174,22 +205,33 @@
   display: inline-flex;
   align-items: center;
 
+  box-sizing: border-box;
+
+  max-width: 100%;
+  height: 30px;
+
   padding: 5px 10px 5px 22px;
 
-  border-radius: 14px;
+  border-radius: 15px;
 
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
-/* Status dot */
+/* =========================================
+   Status Dot
+   ========================================= */
 
 .status::before {
   content: "";
 
   position: absolute;
-
   left: 9px;
 
   width: 7px;
@@ -199,9 +241,12 @@
 }
 
 
+/* =========================================
+   Available
+   ========================================= */
+
 .status.active {
   background: #e6f7ed;
-
   color: #13833f;
 }
 
@@ -210,9 +255,12 @@
 }
 
 
+/* =========================================
+   Discontinued
+   ========================================= */
+
 .status.inactive {
   background: #f1f3f5;
-
   color: #687789;
 }
 
@@ -221,14 +269,34 @@
 }
 
 
+/* =========================================
+   Out Of Stock
+   ========================================= */
+
 .status.out-of-stock {
   background: #fff0f0;
-
   color: #d13b3b;
+
+  min-width: 0;
+  width: 126px;
+  max-width: 100%;
 }
 
 .status.out-of-stock::before {
   background: #ef3340;
+}
+
+
+/* =========================================
+   Actions Column
+   ========================================= */
+
+.books-table th:nth-child(9),
+.books-table td:nth-child(9) {
+  width: 14%;
+
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 
@@ -240,7 +308,7 @@
 .delete-button {
   height: 34px;
 
-  padding: 0 13px;
+  padding: 0 9px;
 
   border-radius: 5px;
 
@@ -250,37 +318,39 @@
   font-weight: 500;
 
   cursor: pointer;
+
+  white-space: nowrap;
 }
 
 
-/* Edit */
+/* =========================================
+   Edit Button
+   ========================================= */
 
 .edit-button {
-  margin-right: 7px;
+  margin-right: 5px;
 
   border: 1px solid #1675df;
-
   color: #1675df;
 }
 
 .edit-button:hover {
   background: #1675df;
-
   color: #ffffff;
 }
 
 
-/* Delete */
+/* =========================================
+   Delete Button
+   ========================================= */
 
 .delete-button {
   border: 1px solid #ef4050;
-
   color: #ef4050;
 }
 
 .delete-button:hover {
   background: #ef4050;
-
   color: #ffffff;
 }
 
@@ -289,73 +359,187 @@
    Column Sizes
    ========================================= */
 
-.books-table th:first-child,
-.books-table td:first-child {
-  width: 45px;
+/* Number */
 
+.books-table th:nth-child(1),
+.books-table td:nth-child(1) {
+  width: 4%;
   text-align: center;
 }
 
 
+/* Cover */
+
 .books-table th:nth-child(2),
 .books-table td:nth-child(2) {
-  width: 70px;
+  width: 7%;
 }
 
+
+/* Title */
 
 .books-table th:nth-child(3),
 .books-table td:nth-child(3) {
-  min-width: 220px;
+  width: 21%;
 }
 
+
+/* Author */
 
 .books-table th:nth-child(4),
 .books-table td:nth-child(4) {
-  min-width: 170px;
+  width: 15%;
 }
 
+
+/* Category */
 
 .books-table th:nth-child(5),
 .books-table td:nth-child(5) {
-  min-width: 140px;
+  width: 11%;
 }
 
+
+/* Price */
 
 .books-table th:nth-child(6),
 .books-table td:nth-child(6) {
-  width: 90px;
+  width: 7%;
 }
 
+
+/* Stock */
 
 .books-table th:nth-child(7),
 .books-table td:nth-child(7) {
-  width: 90px;
+  width: 5%;
+  text-align: center;
 }
 
+
+/* Status */
 
 .books-table th:nth-child(8),
 .books-table td:nth-child(8) {
-  width: 130px;
+  width: 16%;
 }
 
 
-.books-table th:last-child,
-.books-table td:last-child {
-  width: 170px;
+/* Actions */
+
+.books-table th:nth-child(9),
+.books-table td:nth-child(9) {
+  width: 14%;
 }
 
 
 /* =========================================
-   Responsive
+   Actions Layout
+   ========================================= */
+
+.books-table td:nth-child(9) {
+  white-space: nowrap;
+}
+
+.books-table td:nth-child(9) .edit-button,
+.books-table td:nth-child(9) .delete-button {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+/* =========================================
+   Responsive - 1200px
+   ========================================= */
+
+@media (max-width: 1200px) {
+
+  .books-table {
+    font-size: 13px;
+  }
+
+  .books-table th,
+  .books-table td {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .book-title {
+    font-size: 13px;
+  }
+
+  .book-isbn {
+    font-size: 11px;
+  }
+
+  .status {
+    height: 28px;
+    font-size: 10px;
+    padding-left: 20px;
+    padding-right: 7px;
+  }
+
+  .status.out-of-stock {
+    width: 116px;
+  }
+
+  .edit-button,
+  .delete-button {
+    height: 32px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .edit-button {
+    margin-right: 3px;
+  }
+}
+
+
+/* =========================================
+   Responsive - 1000px
    ========================================= */
 
 @media (max-width: 1000px) {
 
-  .data-table-container {
-    overflow-x: auto;
+  .books-table {
+    font-size: 12px;
   }
 
-  .books-table {
-    min-width: 1100px;
+  .books-table th,
+  .books-table td {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .book-cover {
+    width: 36px;
+    height: 48px;
+  }
+
+  .book-title {
+    font-size: 12px;
+  }
+
+  .book-isbn {
+    font-size: 10px;
+  }
+
+  .status {
+    height: 26px;
+    font-size: 9px;
+    padding-left: 18px;
+    padding-right: 5px;
+  }
+
+  .status.out-of-stock {
+    width: 105px;
+  }
+
+  .edit-button,
+  .delete-button {
+    height: 30px;
+    padding: 0 5px;
+    font-size: 11px;
   }
 }

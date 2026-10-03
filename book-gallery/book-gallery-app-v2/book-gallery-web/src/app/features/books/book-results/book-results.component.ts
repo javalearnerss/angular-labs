@@ -1,13 +1,15 @@
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, inject, Injectable, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
 import { BooksToolbarComponent } from './books-toolbar/books-toolbar.component';
 import { BooksGridComponent } from './books-grid/books-grid.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ActivatedRoute } from '@angular/router';
-import { Book } from '../../../shared/models/book.model';
+import { BookWithReviewSummary } from '../../../shared/models/book.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookService } from '../../../shared/services/book.service';
 import { BOOK_SERVICE } from '../../../shared/services/book-mock-data';
+import { catchError, from, map, mergeMap, of, timeout, toArray } from 'rxjs';
+import { ReviewService } from '../../../shared/services/review.service';
 
 @Component({
   selector: 'app-book-results',
@@ -19,13 +21,13 @@ import { BOOK_SERVICE } from '../../../shared/services/book-mock-data';
   ],
   templateUrl: './book-results.component.html',
   styleUrl: './book-results.component.css',
-  changeDetection : ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookResultsComponent implements OnInit {
 
   selectedCategory: string = '';
   searchKeyword: string = '';
-  books: Book[] = [];
+  books: BookWithReviewSummary[] = [];
 
   currentPageNumber: number = 1;
   pageSize: number = 12;
@@ -37,7 +39,8 @@ export class BookResultsComponent implements OnInit {
   constructor(
     private activateRoute: ActivatedRoute,
     @Inject(BOOK_SERVICE) private bookService: BookService,
-    private cdr : ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private reviewService: ReviewService
   ) { }
 
   ngOnInit(): void {
@@ -46,38 +49,77 @@ export class BookResultsComponent implements OnInit {
         this.selectedCategory = queryParam.get('categories') ?? '';
         this.searchKeyword = queryParam.get('searchQery') ?? '';
         this.currentPageNumber = 1;
-        this.loadBooks();
+        this.loadBooksAndReviews();
       }
     });
 
 
   }
 
-  loadBooks(): void {
+  
+
+  private readonly MAX_CONCURRENT_RATING_CALLS = 5;
+
+  loadBooksAndReviews(): void {
     this.bookService.getBooks(
       this.searchKeyword,
       this.selectedCategory,
       this.currentPageNumber,
       this.pageSize
-    )
-      .pipe(
-        takeUntilDestroyed(this.destroyRef)
+    ).pipe(
+      // PageResponse -> individual books
+      mergeMap(pageResponse =>
+        from(pageResponse.books).pipe(
+
+          // Fetch ratings with limited concurrency
+          mergeMap(
+            book =>
+              this.reviewService.getBookReviewSummary(book.id).pipe(
+                timeout(5000),
+                map(reviewSummary => ({
+                  ...book,
+                  reviewSummary
+                })),
+
+                // One failed review request should not fail all books
+                catchError(() =>
+                  of({
+                    ...book,
+                    reviewSummary: null
+                  })
+                )
+              ),
+            this.MAX_CONCURRENT_RATING_CALLS
+          ),
+
+          // Convert individual books back into an array
+          toArray(),
+
+          // Rebuild the PageResponse
+          map(books => ({
+            ...pageResponse,
+            books
+          }))
+        )
       )
-      .subscribe({
-        next: (response) => {
-          this.books = response.books;
+    ).subscribe({
+      next: response => {
+        this.books = response.books;
           this.totalBooksCount = response.totalBooks;
           this.totalPages = response.totalPages;
           this.pageSize = response.pageSize;
           this.currentPageNumber = response.pageNumber;
           this.cdr.markForCheck();
-        }
-      });
+      },
+      error: error => {
+        console.error('Failed to load books', error);
+      }
+    });
   }
 
   onPageChanged(pageNumber: number) {
     this.currentPageNumber = pageNumber;
-    this.loadBooks();
+    this.loadBooksAndReviews();
   }
 
   get startBookNumber(): number {
@@ -96,4 +138,3 @@ export class BookResultsComponent implements OnInit {
   }
 
 }
-

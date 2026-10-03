@@ -1,7 +1,7 @@
 <aside class="sidebar">
 
   <!-- Brand -->
-  <div class="brand">
+  <a class="brand" routerLink="/" aria-label="Go to BookStore home">
 
     <div class="brand-icon">
       ▮▮
@@ -12,19 +12,14 @@
       <div class="brand-subtitle">Admin Panel</div>
     </div>
 
-  </div>
+  </a>
 
 
   <!-- Main Menu -->
   <nav class="menu">
 
-    <a
-      *ngFor="let item of menuItems"
-      class="menu-item"
-      [routerLink]="item.route"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
+    <a *ngFor="let item of menuItems" class="menu-item" [routerLink]="item.route" routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }">
 
       <span class="menu-icon">
         {{ item.icon }}
@@ -42,11 +37,7 @@
   <!-- Footer -->
   <div class="sidebar-footer">
 
-    <a
-      *ngFor="let item of footerItems"
-      class="menu-item"
-      [routerLink]="item.route"
-    >
+    <a *ngFor="let item of footerItems" class="menu-item" [routerLink]="item.route">
 
       <span class="menu-icon">
         {{ item.icon }}

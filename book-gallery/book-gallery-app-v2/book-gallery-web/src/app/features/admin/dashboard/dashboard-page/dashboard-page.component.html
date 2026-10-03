@@ -1,1 +1,327 @@
-<p>dashboard-page works!</p>
+<div class="dashboard-content">
+
+  <!-- Top Header -->
+  <header class="dashboard-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Welcome back, Admin! Here's what's happening with your bookstore.</p>
+    </div>
+
+    <div class="dashboard-actions">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="text"
+          placeholder="Search books, authors, orders..."
+          aria-label="Search">
+      </div>
+
+      <button class="notification-button" type="button" aria-label="Notifications">
+        ♧
+        <span class="notification-badge">1</span>
+      </button>
+
+      <div class="admin-profile">
+        <div class="admin-avatar">A</div>
+        <span>Admin</span>
+        <span class="dropdown-icon">⌄</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Date Filter -->
+  <div class="dashboard-toolbar">
+    <div></div>
+
+    <button class="date-filter" type="button">
+      <span>Jun 1, 2025 - Jun 30, 2025</span>
+      <span>⌄</span>
+    </button>
+  </div>
+
+  <!-- Summary Cards -->
+  <section class="summary-grid">
+
+    <article class="summary-card books-card">
+      <div class="card-icon">▣</div>
+
+      <div class="card-content">
+        <span class="card-label">Total Books</span>
+        <strong class="card-value">120</strong>
+
+        <span class="growth positive">
+          ↑ 12%
+        </span>
+      </div>
+    </article>
+
+    <article class="summary-card authors-card">
+      <div class="card-icon">♟</div>
+
+      <div class="card-content">
+        <span class="card-label">Total Authors</span>
+        <strong class="card-value">45</strong>
+
+        <span class="growth positive">
+          ↑ 8%
+        </span>
+      </div>
+    </article>
+
+    <article class="summary-card orders-card">
+      <div class="card-icon">🛒</div>
+
+      <div class="card-content">
+        <span class="card-label">Total Orders</span>
+        <strong class="card-value">320</strong>
+
+        <span class="growth positive">
+          ↑ 15%
+        </span>
+      </div>
+    </article>
+
+    <article class="summary-card users-card">
+      <div class="card-icon">♟</div>
+
+      <div class="card-content">
+        <span class="card-label">Total Users</span>
+        <strong class="card-value">1,245</strong>
+
+        <span class="growth positive">
+          ↑ 20%
+        </span>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- Dashboard Bottom Section -->
+  <section class="dashboard-grid">
+
+    <!-- Sales Overview -->
+    <article class="dashboard-card sales-card">
+
+      <div class="section-header">
+        <div>
+          <h2>Sales Overview</h2>
+        </div>
+
+        <button class="period-filter" type="button">
+          Last 30 Days
+          <span>⌄</span>
+        </button>
+      </div>
+
+      <div class="sales-chart">
+
+        <div class="y-axis">
+          <span>40K</span>
+          <span>30K</span>
+          <span>20K</span>
+          <span>10K</span>
+          <span>0</span>
+        </div>
+
+        <div class="chart-area">
+
+          <div class="grid-line line-1"></div>
+          <div class="grid-line line-2"></div>
+          <div class="grid-line line-3"></div>
+          <div class="grid-line line-4"></div>
+          <div class="grid-line line-5"></div>
+
+          <svg
+            class="sales-line"
+            viewBox="0 0 700 250"
+            preserveAspectRatio="none">
+
+            <defs>
+              <linearGradient
+                id="salesGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1">
+
+                <stop
+                  offset="0%"
+                  stop-color="#3b82f6"
+                  stop-opacity="0.25" />
+
+                <stop
+                  offset="100%"
+                  stop-color="#3b82f6"
+                  stop-opacity="0" />
+
+              </linearGradient>
+            </defs>
+
+            <path
+              class="chart-area-fill"
+              d="
+                M0,190
+                L25,195
+                L50,180
+                L75,145
+                L100,165
+                L125,185
+                L150,195
+                L175,175
+                L200,120
+                L225,130
+                L250,150
+                L275,160
+                L300,145
+                L325,95
+                L350,85
+                L375,65
+                L400,125
+                L425,150
+                L450,125
+                L475,95
+                L500,90
+                L525,55
+                L550,85
+                L575,115
+                L600,65
+                L625,35
+                L650,25
+                L675,10
+                L700,5
+                L700,250
+                L0,250
+                Z" />
+
+            <path
+              class="chart-line"
+              d="
+                M0,190
+                L25,195
+                L50,180
+                L75,145
+                L100,165
+                L125,185
+                L150,195
+                L175,175
+                L200,120
+                L225,130
+                L250,150
+                L275,160
+                L300,145
+                L325,95
+                L350,85
+                L375,65
+                L400,125
+                L425,150
+                L450,125
+                L475,95
+                L500,90
+                L525,55
+                L550,85
+                L575,115
+                L600,65
+                L625,35
+                L650,25
+                L675,10
+                L700,5" />
+
+          </svg>
+
+          <div class="x-axis">
+            <span>Jun 1</span>
+            <span>Jun 5</span>
+            <span>Jun 10</span>
+            <span>Jun 15</span>
+            <span>Jun 20</span>
+            <span>Jun 25</span>
+            <span>Jun 30</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+
+    <!-- Top Selling Books -->
+    <article class="dashboard-card top-books-card">
+
+      <div class="section-header">
+        <h2>Top Selling Books</h2>
+      </div>
+
+      <div class="book-list">
+
+        <div class="book-item">
+          <span class="book-rank">1</span>
+
+          <div class="book-cover">
+            <img src="assets/images/books/alchemist.jpg" alt="The Alchemist">
+          </div>
+
+          <div class="book-info">
+            <strong>The Alchemist</strong>
+            <span>46 orders</span>
+          </div>
+        </div>
+
+        <div class="book-item">
+          <span class="book-rank">2</span>
+
+          <div class="book-cover">
+            <img src="assets/images/books/kite-runner.jpg" alt="The Kite Runner">
+          </div>
+
+          <div class="book-info">
+            <strong>The Kite Runner</strong>
+            <span>38 orders</span>
+          </div>
+        </div>
+
+        <div class="book-item">
+          <span class="book-rank">3</span>
+
+          <div class="book-cover">
+            <img src="assets/images/books/1984.jpg" alt="1984">
+          </div>
+
+          <div class="book-info">
+            <strong>1984</strong>
+            <span>32 orders</span>
+          </div>
+        </div>
+
+        <div class="book-item">
+          <span class="book-rank">4</span>
+
+          <div class="book-cover">
+            <img src="assets/images/books/book-thief.jpg" alt="The Book Thief">
+          </div>
+
+          <div class="book-info">
+            <strong>The Book Thief</strong>
+            <span>28 orders</span>
+          </div>
+        </div>
+
+        <div class="book-item">
+          <span class="book-rank">5</span>
+
+          <div class="book-cover">
+            <img src="assets/images/books/great-gatsby.jpg" alt="The Great Gatsby">
+          </div>
+
+          <div class="book-info">
+            <strong>The Great Gatsby</strong>
+            <span>25 orders</span>
+          </div>
+        </div>
+
+      </div>
+
+    </article>
+
+  </section>
+
+</div>

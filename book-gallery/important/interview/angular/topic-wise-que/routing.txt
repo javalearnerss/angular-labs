@@ -36,3 +36,906 @@ app/
 │
 ├── app.routes.ts
 └── app.config.ts
+
+
+
+================================================================================================================
+
+99.  [CanActivate] How would you protect Add/Edit Book?
+
+## What is `canActivate`?
+
+`canActivate` is a **route guard**: a function that runs **before a route opens** and decides whether the user can enter. It returns:
+
+| Return value 									| Meaning |
+|---											|---		|
+| `true` 										| Allow, the page opens |
+| `false` 										| Block, the user stays where they are |
+| A redirect (`router.createUrlTree([...])`) 	| Block and send the user somewhere else |
+
+## Complete code (TypeScript only, no Signals)
+
+### 1. `auth.service.ts`
+
+```ts
+import { Injectable } from '@angular/core';
+
+export type Role = 'ADMIN' | 'LIBRARIAN' | 'CUSTOMER';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  // Plain properties. In a real app these come from your Spring Boot login/JWT.
+  isLoggedIn = false;
+  role: Role | null = null;
+
+  login(role: Role): void {
+    this.isLoggedIn = true;
+    this.role = role;
+  }
+
+  logout(): void {
+    this.isLoggedIn = false;
+    this.role = null;
+  }
+
+  hasRole(...allowed: Role[]): boolean {
+    return this.role !== null && allowed.includes(this.role);
+  }
+}
+```
+
+### 2. `auth.guard.ts`
+
+```ts
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+// Protects Add Book and Edit Book.
+// Rule: must be logged in AND be an ADMIN or LIBRARIAN.
+export const bookEditGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  // 1. Not logged in -> go to login (remember where the user wanted to go)
+  if (!auth.isLoggedIn) {
+    return router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
+  }
+
+  // 2. Logged in with the right role -> allow
+  if (auth.hasRole('ADMIN', 'LIBRARIAN')) {
+    return true;
+  }
+
+  // 3. Logged in but wrong role (e.g. CUSTOMER) -> forbidden page
+  return router.createUrlTree(['/forbidden']);
+};
+```
+
+### 3. `app.routes.ts`
+
+```ts
+import { Routes } from '@angular/router';
+import { bookEditGuard } from './auth.guard';
+import { AddBookComponent } from './add-book.component';
+import { EditBookComponent } from './edit-book.component';
+import { BookListComponent } from './book-list.component';
+import { LoginComponent } from './login.component';
+import { ForbiddenComponent } from './forbidden.component';
+
+export const routes: Routes = [
+  { path: '', redirectTo: 'books', pathMatch: 'full' },
+
+  // Public pages (no guard)
+  { path: 'books', component: BookListComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'forbidden', component: ForbiddenComponent },
+
+  // Protected pages: the guard runs before the page opens
+  { path: 'books/add', component: AddBookComponent, canActivate: [bookEditGuard] },
+  { path: 'books/:id/edit', component: EditBookComponent, canActivate: [bookEditGuard] }
+];
+```
+
+The components in the imports are your own pages. The guard doesn't depend on what is inside them.
+
+### 4. `login.component.ts` (what happens after login)
+
+```ts
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService, Role } from './auth.service';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  template: `` // your own HTML goes here
+})
+export class LoginComponent {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  login(role: Role): void {
+    this.auth.login(role);
+
+    // Go back to the page the user originally wanted (set by the guard)
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/books';
+    this.router.navigateByUrl(returnUrl);
+  }
+}
+```
+
+## What the user experiences
+
+| User 								| Result |
+|---								|---|
+| Not logged in 					| Sent to `/login`, then back to the page they wanted |
+| Logged in as CUSTOMER 			| Sent to `/forbidden` |
+| Logged in as ADMIN or LIBRARIAN 	| Page opens |
+
+## Important warning
+
+A guard only hides pages **in the browser**. Someone can still call the API directly, 
+so Spring Boot must **also** check the role on the Add/Edit endpoints.
+
+## Interview answer (30 seconds)
+
+> "`canActivate` is a route guard, a function that runs before a route opens and decides whether the user can enter. 
+It returns true to allow, or false or a redirect to block. To protect Add/Edit Book, 
+I attach a `canActivate` guard to those routes. The guard checks that the user is logged in and has the ADMIN or LIBRARIAN role. 
+If they aren't logged in, it redirects to login. If the role is wrong, it redirects to a forbidden page. 
+Since frontend checks can be bypassed, the Spring Boot API must enforce the same role check."
+
+========================================================================================================================
+
+# Q100. [CanActivateChild] When would you use it for Admin routes?
+
+## 1. What is `canActivateChild`?
+
+`canActivateChild` is a **route guard** that you put on a **parent route**. It runs **before every child route opens** and decides allow or block.
+
+**Analogy:** An office building has a main door and many rooms inside.
+
+- `canActivate` is the guard at **one door**.
+- `canActivateChild` is the guard standing **inside the building**, checking you at **every room** you enter.
+
+## 2. The problem in the Admin area
+
+The Admin area has several pages:
+
+```
+/admin/books
+/admin/users
+/admin/reports
+```
+
+**Without `canActivateChild`**, you must repeat the guard on every child:
+
+```ts
+children: [
+  { path: 'books',   component: AdminBooksComponent,   canActivate: [adminGuard] },
+  { path: 'users',   component: AdminUsersComponent,   canActivate: [adminGuard] },
+  { path: 'reports', component: AdminReportsComponent, canActivate: [adminGuard] }
+]
+```
+
+If you add a fourth page and forget the guard, that page is **unprotected**.
+
+**With `canActivateChild`**, you write it **once** on the parent:
+
+```ts
+{
+  path: 'admin',
+  component: AdminLayoutComponent,
+  canActivateChild: [adminChildGuard],   // protects ALL children
+  children: [ ...books, users, reports... ]
+}
+```
+
+A new child page is automatically protected.
+
+## 3. Why not just put `canActivate` on the `admin` parent?
+
+This is the key point. `canActivate` on the parent runs **only when the user enters `/admin` from outside**. 
+After that, moving between `/admin/books` and `/admin/users` does **not** run the parent's `canActivate` again.
+
+`canActivateChild` runs **every time the user moves to a child**. That matters when children have **different rules**, 
+for example reports for ADMIN only.
+
+## 4. Complete code (TypeScript only, no Signals)
+
+### `auth.service.ts` (same as Q99)
+
+```ts
+import { Injectable } from '@angular/core';
+
+export type Role = 'ADMIN' | 'LIBRARIAN' | 'CUSTOMER';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  isLoggedIn = false;
+  role: Role | null = null;
+
+  login(role: Role): void {
+    this.isLoggedIn = true;
+    this.role = role;
+  }
+
+  logout(): void {
+    this.isLoggedIn = false;
+    this.role = null;
+  }
+
+  hasRole(...allowed: Role[]): boolean {
+    return this.role !== null && allowed.includes(this.role);
+  }
+}
+```
+
+### `admin.guard.ts` (the guard)
+
+```ts
+import { inject } from '@angular/core';
+import { CanActivateChildFn, Router } from '@angular/router';
+import { AuthService, Role } from './auth.service';
+
+export const adminChildGuard: CanActivateChildFn = (childRoute, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  // Step 1: not logged in -> send to login
+  if (!auth.isLoggedIn) {
+    return router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
+  }
+
+  // Step 2: which roles may open THIS child page?
+  // Each child can say it in its route "data". If it says nothing,
+  // the default is ADMIN and LIBRARIAN.
+  const allowedRoles: Role[] = childRoute.data['roles'] ?? ['ADMIN', 'LIBRARIAN'];
+
+  // Step 3: right role -> allow
+  if (auth.hasRole(...allowedRoles)) {
+    return true;
+  }
+
+  // Step 4: wrong role -> forbidden page
+  return router.createUrlTree(['/forbidden']);
+};
+```
+
+### `admin-layout.component.ts` (the parent page)
+
+The parent needs a `router-outlet` so the child pages can appear inside it.
+
+```ts
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-admin-layout',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `<router-outlet />`
+})
+export class AdminLayoutComponent {}
+```
+
+### `app.routes.ts` (attach the guard to the parent)
+
+```ts
+import { Routes } from '@angular/router';
+import { adminChildGuard } from './admin.guard';
+import { AdminLayoutComponent } from './admin-layout.component';
+import { AdminBooksComponent } from './admin-books.component';
+import { AdminUsersComponent } from './admin-users.component';
+import { AdminReportsComponent } from './admin-reports.component';
+import { LoginComponent } from './login.component';
+import { ForbiddenComponent } from './forbidden.component';
+
+export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'forbidden', component: ForbiddenComponent },
+
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivateChild: [adminChildGuard],      // one guard for ALL children
+
+    children: [
+      // No "data": default rule, ADMIN or LIBRARIAN
+      { path: 'books', component: AdminBooksComponent },
+
+      // "data" says: ADMIN only
+      { path: 'users', component: AdminUsersComponent, data: { roles: ['ADMIN'] } },
+      { path: 'reports', component: AdminReportsComponent, data: { roles: ['ADMIN'] } }
+    ]
+  }
+];
+```
+
+The child components (`AdminBooksComponent` and the others) are your own pages. The guard does not depend on what is inside them.
+
+## 5. Step-by-step: a LIBRARIAN uses the Admin area
+
+```
+1. LIBRARIAN opens /admin/books
+   guard runs → logged in ✅, books allows ADMIN + LIBRARIAN ✅ → page opens
+
+2. LIBRARIAN clicks to /admin/users
+   guard runs AGAIN → users allows ADMIN only ❌ → sent to /forbidden
+
+3. LIBRARIAN goes back to /admin/books
+   guard runs AGAIN → allowed ✅ → page opens
+```
+
+The guard runs on every move between children. A guard on the parent's `canActivate` could not do step 2.
+
+## 6. What each user experiences
+
+| User          | `/admin/books` | `/admin/users` | `/admin/reports` |
+|---|---|---|---|
+| Not logged in | Login page 	 | Login page 		| Login page |
+| CUSTOMER 		| Forbidden  	 | Forbidden  		| Forbidden |
+| LIBRARIAN 	| Opens 	 	 | Forbidden  		| Forbidden |
+| ADMIN 		| Opens 		 | Opens 	 	 	| Opens |
+
+## 7. canActivate vs canActivateChild
+
+| 					| `canActivate` 				| `canActivateChild` |
+|---				|---							|---					|
+| Placed on 		| One route 					| A **parent** route |
+| Runs 				| When that route opens 		| Before **each child** route opens |
+| Best for 			| A single page (Add/Edit Book) | A whole section (Admin area) |
+| Per-child rules 	| Must add a guard to each child| One guard reads each child's `data` |
+
+## 8. When to use it
+
+Use `canActivateChild` when:
+- A parent route has **several children** that share the same protection (Admin area).
+- Children need **different roles**, and you want to keep the rule in one place.
+- You want **new child pages to be protected automatically**.
+
+Use plain `canActivate` when you only protect **one page**.
+
+## 9. Remember
+
+A guard only hides pages **in the browser**. Someone can still call the API directly, 
+so Spring Boot must **also** check roles on the admin endpoints.
+
+## 10. Interview answer (30 seconds)
+
+> "`canActivateChild` is a guard placed on a parent route. It runs before each of the parent's child routes opens. 
+For the Admin area, I put it on the `admin` route so one guard protects books, users and reports. 
+I don't need to repeat `canActivate` on each child, and any new child page is protected automatically. 
+A guard on the parent's `canActivate` only runs when entering the Admin area, 
+but `canActivateChild` runs on every move between child pages, so I can use route `data` to give each child its own allowed roles, 
+like reports for ADMIN only. Because frontend checks can be bypassed, Spring Boot must enforce the same roles on the admin APIs."
+
+Would you like #101 (`canDeactivate`) next in the same format?
+=====================================================================================================================
+
+# Q101. [CanDeactivate] How would you prevent losing unsaved Book changes?
+
+## 1. What is `canDeactivate`?
+
+`canDeactivate` is a **route guard** that runs when the user tries to **leave** a page. It asks: **"Is it OK to leave this page now?"**
+
+**Analogy:** You are typing an email and click "Close". The app asks "Discard this draft?" before closing. `canDeactivate` is that question.
+
+| Guard | Question |
+|---|---|
+| `canActivate` 		| Can the user **enter** this page? |
+| `canDeactivate` | Can the user **leave** this page? |
+
+## 2. The problem
+
+A librarian edits a book's title, then accidentally clicks another link. Without a guard, the edit is **lost silently**.
+
+## 3. The solution in 3 steps
+
+1. The Edit Book component says "I can tell you whether it's safe to leave" (`canLeave()`).
+2. A guard calls that method.
+3. The route uses the guard with `canDeactivate`.
+
+## 4. Complete code (TypeScript only, no Signals)
+
+### `unsaved-changes.guard.ts`
+
+```ts
+import { CanDeactivateFn } from '@angular/router';
+import { Observable } from 'rxjs';
+
+// Any component that wants this protection must have a canLeave() method
+export interface CanLeave {
+  canLeave: () => boolean | Observable<boolean> | Promise<boolean>;
+}
+
+// Angular passes the component being left as the first argument
+export const unsavedChangesGuard: CanDeactivateFn<CanLeave> = component => {
+  return component.canLeave();
+};
+```
+
+### `edit-book.component.ts`
+
+```ts
+import { Component, HostListener, inject } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CanLeave } from './unsaved-changes.guard';
+import { BookService } from './book.service';
+
+@Component({
+  selector: 'app-edit-book',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  templateUrl: './edit-book.component.html'   // your own HTML, with [formGroup]="form"
+})
+export class EditBookComponent implements CanLeave {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private bookService = inject(BookService);   // your existing service
+
+  form = this.fb.nonNullable.group({
+    title: ['', Validators.required],
+    author: ['', Validators.required],
+    price: [0]
+  });
+
+  save(): void {
+    if (this.form.invalid) {
+      return;
+    }
+
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    this.bookService.updateBook(id, this.form.getRawValue()).subscribe(() => {
+      // IMPORTANT: mark the form as saved BEFORE navigating,
+      // otherwise the guard will ask "unsaved changes?" right after saving.
+      this.form.markAsPristine();
+      this.router.navigate(['/books']);
+    });
+  }
+
+  // Called by the guard when the user tries to leave this page
+  canLeave(): boolean {
+    if (!this.form.dirty) {
+      return true;   // nothing changed, leave freely
+    }
+    return confirm('You have unsaved changes. Do you really want to leave?');
+  }
+
+  // The guard does NOT cover closing the tab or refreshing the browser,
+  // so this shows the browser's own warning for those cases.
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.form.dirty) {
+      event.preventDefault();
+    }
+  }
+}
+```
+
+`form.dirty` becomes `true` as soon as the user changes any field. After `markAsPristine()` it is `false` again.
+
+### `app.routes.ts`
+
+```ts
+import { Routes } from '@angular/router';
+import { bookEditGuard } from './auth.guard';
+import { unsavedChangesGuard } from './unsaved-changes.guard';
+import { EditBookComponent } from './edit-book.component';
+
+export const routes: Routes = [
+  {
+    path: 'books/:id/edit',
+    component: EditBookComponent,
+    canActivate: [bookEditGuard],              // can the user ENTER? (Q99)
+    canDeactivate: [unsavedChangesGuard]       // can the user LEAVE? (this question)
+  }
+];
+```
+
+## 5. Step-by-step: what happens
+
+```
+1. User opens Edit Book, changes the title
+   form.dirty = true
+
+2. User clicks a link to /books
+   Angular runs canDeactivate → calls canLeave()
+   dirty is true → confirm("unsaved changes...") appears
+      User clicks Cancel → stays on the page ✅ (changes kept)
+      User clicks OK     → leaves the page (changes discarded)
+
+3. User clicks Save instead
+   save succeeds → markAsPristine() → navigate to /books
+   dirty is false → canLeave() returns true → leaves with no question
+```
+
+## 6. What each case does
+
+| Situation 									| Result |
+|---											|---			|
+| Nothing changed 								| Leaves freely |
+| Changed, then clicks another link 			| Confirm question appears |
+| Changed, then clicks the browser Back button 	| Confirm question appears |
+| Changed, then saves 							| Leaves freely |
+| Changed, then refreshes or closes the tab 	| Browser's own warning (from `beforeunload`) |
+
+## 7. Common mistake
+
+Forgetting `this.form.markAsPristine()` after saving. The form is still "dirty", 
+so the user sees "You have unsaved changes" **right after saving**.
+
+## 8. Better than `confirm()`
+
+`confirm()` works for a demo. In a real app you would show your own dialog. 
+Because `canLeave()` can return an `Observable<boolean>`, 
+the guard simply waits until the user clicks Yes or No in your dialog. The guard itself does not change.
+
+## 9. Interview answer (30 seconds)
+
+> "I use a `canDeactivate` guard on the Edit Book route. It runs when the user tries to leave the page. 
+The Edit Book component has a `canLeave()` method that checks `form.dirty`. 
+If nothing changed, it returns true. If there are unsaved changes, 
+it asks the user to confirm, and returns false if they cancel so they stay on the page. 
+After a successful save I call `markAsPristine()` so the guard doesn't ask again. 
+The route guard doesn't cover closing the tab or refreshing, so I also add a `beforeunload` listener for those cases."
+
+================================================================================================================
+
+# Q102. [CanMatch] When would you use it instead of CanActivate?
+
+## 1. What is `canMatch`?
+
+`canMatch` is a **route guard** that runs **before Angular decides which route matches the URL**. 
+If it returns `false`, Angular **skips that route as if it didn't exist** and tries the next route.
+
+**Analogy:** You call a company and say "I need the dashboard."
+
+- `canActivate`: the receptionist finds the Dashboard office, then says "You're not allowed in." You are **stopped**.
+- `canMatch`: the receptionist checks who you are first, then **sends you to the right Dashboard office** for your role. 
+The other offices are not even considered.
+
+## 2. The key difference
+
+| | `canActivate` | `canMatch` |
+|---|---|---|
+| When it runs 					| **After** the route is matched 		 | **While** matching the route |
+| If `false` 					| User is **blocked** (redirect or stay) | Route is **skipped**, next route is tried |
+| Same path, many routes? 		| No, the first match wins 				 | **Yes**, the first route whose guard passes wins |
+| Lazy-loaded feature 			| Code may still be downloaded 			 | Code is **never downloaded** if `false` |
+
+## 3. When I would use `canMatch` instead of `canActivate`
+
+1. **Same URL, different page per role.** `/dashboard` shows one page to ADMIN, another to LIBRARIAN, another to CUSTOMER.
+2. **Lazy-loaded Admin feature.** Customers should not even download the Admin code.
+3. **Hide that a page exists.** A CUSTOMER visiting `/admin` gets "Not found" instead of "Forbidden", so they can't tell the page exists.
+
+If you only want to **block** a page and show a message, `canActivate` is the right choice (like Q99).
+
+## 4. Complete code (TypeScript only, no Signals)
+
+Uses the same `AuthService` as Q99.
+
+### `role-match.guard.ts`
+
+```ts
+import { inject } from '@angular/core';
+import { CanMatchFn } from '@angular/router';
+import { AuthService, Role } from './auth.service';
+
+// A small "guard factory": give it roles, it returns a guard.
+// Returns true -> this route can match
+// Returns false -> Angular skips this route and tries the next one
+export const hasRole = (...roles: Role[]): CanMatchFn => () => {
+  const auth = inject(AuthService);
+  return auth.isLoggedIn && auth.hasRole(...roles);
+};
+```
+
+### `app.routes.ts`
+
+```ts
+import { Routes } from '@angular/router';
+import { hasRole } from './role-match.guard';
+import { AdminDashboardComponent } from './admin-dashboard.component';
+import { LibrarianDashboardComponent } from './librarian-dashboard.component';
+import { CustomerDashboardComponent } from './customer-dashboard.component';
+import { LoginComponent } from './login.component';
+import { NotFoundComponent } from './not-found.component';
+
+export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+
+  // EXAMPLE 1: same path "dashboard", three routes.
+  // Angular tries them from top to bottom. The first canMatch that passes wins.
+  { path: 'dashboard', canMatch: [hasRole('ADMIN')],     component: AdminDashboardComponent },
+  { path: 'dashboard', canMatch: [hasRole('LIBRARIAN')], component: LibrarianDashboardComponent },
+  { path: 'dashboard', canMatch: [hasRole('CUSTOMER')],  component: CustomerDashboardComponent },
+
+  // EXAMPLE 2: lazy-loaded Admin feature.
+  // If canMatch is false, the admin code is never downloaded.
+  {
+    path: 'admin',
+    canMatch: [hasRole('ADMIN')],
+    loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+  },
+
+  // Anything that did not match above ends up here
+  { path: '**', component: NotFoundComponent }
+];
+```
+
+### `admin/admin.routes.ts` (the lazy-loaded feature)
+
+```ts
+import { Routes } from '@angular/router';
+import { AdminBooksComponent } from './admin-books.component';
+import { AdminUsersComponent } from './admin-users.component';
+
+export const ADMIN_ROUTES: Routes = [
+  { path: 'books', component: AdminBooksComponent },
+  { path: 'users', component: AdminUsersComponent }
+];
+```
+
+## 5. Step-by-step: what happens
+
+**User opens `/dashboard`:**
+
+| User 			| Route 1 (ADMIN) 	| Route 2 (LIBRARIAN) 	| Route 3 (CUSTOMER) 	| Result |
+|---			|---				|---					|---					|---				|
+| ADMIN 		| ✅ matches 		| 						| 						| Admin dashboard |
+| LIBRARIAN 	| ❌ skipped 		| ✅ matches 			| 						| Librarian dashboard |
+| CUSTOMER 		| ❌ skipped 		| ❌ skipped 			| ✅ matches 			| Customer dashboard |
+| Not logged in | ❌ 				| ❌ 					| ❌ 					| Falls to `**`: Not Found |
+
+**User opens `/admin`:**
+
+```
+ADMIN    → canMatch true  → Admin code is downloaded → page opens
+CUSTOMER → canMatch false → route skipped → Admin code NOT downloaded → Not Found
+```
+
+## 6. Why not `canActivate` here?
+
+With `canActivate`, you could not have three routes on the same `/dashboard` path. 
+Angular would match the **first** one and stop, so a CUSTOMER would be blocked from the Admin dashboard instead of being shown their own.
+
+For the lazy-loaded Admin feature, `canMatch` also **prevents the download** of code the user should never see. 
+`canMatch` replaces the old `canLoad` guard, which is now deprecated.
+
+## 7. Use both together
+
+They are not rivals. A common setup is `canMatch` to pick the route, then `canActivate` for extra checks:
+
+```ts
+{
+  path: 'admin',
+  canMatch: [hasRole('ADMIN')],           // is this route even for this user?
+  canActivate: [someOtherGuard],          // extra check after matching
+  loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+}
+```
+
+## 8. Remember
+
+Hiding code in the browser is not security. Spring Boot must still check roles on the admin APIs.
+
+## 9. Interview answer (30 seconds)
+
+> "`canActivate` runs after a route is matched and blocks the user if the check fails. `canMatch` runs during matching, 
+and if it returns false, Angular skips that route and tries the next one. I use `canMatch` 
+when the same URL should show different pages by role, like a `/dashboard` for ADMIN, LIBRARIAN and CUSTOMER. 
+I also use it on lazy-loaded features like Admin, so users without the role never download that code, 
+and they get Not Found instead of Forbidden. It replaces the old `canLoad`. 
+I still use `canActivate` when I just want to block a page and redirect to login or a forbidden page."
+
+Would you like #219 (Auth Guard for `/admin`) next, or a summary table of all five guards?
+
+
+========================================================================================================================
+# Q103. [Route Resolver] When would you resolve Book Details before navigation?
+
+## 1. What is a route resolver?
+
+A resolver is a function that **loads data before the page opens**. Angular waits for the data to arrive, and only then shows the page.
+
+**Analogy:** A restaurant brings your food **before** you sit down, so you never stare at an empty table. 
+A resolver fetches the book **before** the Book Details page appears.
+
+## 2. The problem without a resolver
+
+You load the book in `ngOnInit`:
+
+```
+1. User clicks a book
+2. Book Details page opens immediately (empty)
+3. API call runs...
+4. Data arrives, page fills in
+```
+
+The user sees an **empty page or flicker**. If the book doesn't exist (404), they first see the empty page and **then** an error.
+
+## 3. The solution with a resolver
+
+```
+1. User clicks a book
+2. Angular runs the resolver (API call), the user stays on the old page
+3. Data arrives
+4. Book Details page opens already filled ✅
+```
+
+If the book doesn't exist, the user is sent to a Not Found page and **never sees an empty Book Details page**.
+
+## 4. When I would use it for Book Details
+
+- The page **cannot show anything useful** without the book.
+- You want to handle **404 before** the page opens.
+- You want the component code simple: it just reads the data and never worries about loading.
+
+## 5. Complete code (TypeScript only, no Signals)
+
+### `book.model.ts`
+
+```ts
+export interface Book {
+  id: number;
+  title: string;
+  author: string;
+  price: number;
+}
+```
+
+### `book.service.ts`
+
+```ts
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Book } from './book.model';
+
+@Injectable({ providedIn: 'root' })
+export class BookService {
+  private http = inject(HttpClient);
+
+  getBook(id: number): Observable<Book> {
+    return this.http.get<Book>(`/api/books/${id}`);
+  }
+}
+```
+
+### `book.resolver.ts` (the resolver)
+
+```ts
+import { inject } from '@angular/core';
+import { ResolveFn, Router } from '@angular/router';
+import { EMPTY, catchError } from 'rxjs';
+import { Book } from './book.model';
+import { BookService } from './book.service';
+
+export const bookResolver: ResolveFn<Book> = route => {
+  const bookService = inject(BookService);
+  const router = inject(Router);
+
+  // Read :id from the URL (/books/5 -> 5)
+  const id = Number(route.paramMap.get('id'));
+
+  return bookService.getBook(id).pipe(
+    catchError(() => {
+      // Book not found or API failed -> go to Not Found page
+      router.navigate(['/not-found']);
+      return EMPTY;   // EMPTY cancels the original navigation
+    })
+  );
+};
+```
+
+### `app.routes.ts` (attach it with `resolve`)
+
+```ts
+import { Routes } from '@angular/router';
+import { bookResolver } from './book.resolver';
+import { BookDetailsComponent } from './book-details.component';
+import { NotFoundComponent } from './not-found.component';
+
+export const routes: Routes = [
+  {
+    path: 'books/:id',
+    component: BookDetailsComponent,
+    resolve: { book: bookResolver }     // "book" is the key the component reads
+  },
+  { path: 'not-found', component: NotFoundComponent }
+];
+```
+
+### `book-details.component.ts` (reads the resolved data)
+
+```ts
+import { Component, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { Book } from './book.model';
+
+@Component({
+  selector: 'app-book-details',
+  standalone: true,
+  template: `` // your own HTML goes here
+})
+export class BookDetailsComponent {
+  private route = inject(ActivatedRoute);
+
+  book!: Book;
+
+  constructor() {
+    // The book is ALREADY loaded when this component is created.
+    // No loading flag, no API call, no null checks.
+    this.route.data.pipe(takeUntilDestroyed()).subscribe(data => {
+      this.book = data['book'];
+    });
+  }
+}
+```
+
+## 6. Step-by-step: what happens
+
+**Book exists (`/books/5`):**
+
+```
+1. User clicks book 5
+2. Resolver calls GET /api/books/5
+3. Book arrives → Angular opens BookDetailsComponent
+4. Component reads data['book'] → page shows the full book immediately
+```
+
+**Book does not exist (`/books/999`):**
+
+```
+1. User clicks book 999
+2. Resolver calls GET /api/books/999 → 404 error
+3. catchError → router.navigate(['/not-found'])
+4. Not Found page opens. Book Details never appeared.
+```
+
+## 7. Resolver vs loading in `ngOnInit`
+
+| | Resolver | Load in `ngOnInit` |
+|---|---|---|
+| Page opens 			| **After** data arrives 				| **Before** data arrives |
+| Empty page or flicker | No | Yes (unless you add a spinner) 	|
+| 404 handling 			| Before the page shows 				| After the page shows |
+| Component code 		| Simple, just reads data 				| Needs loading and error state |
+| While waiting 		| User stays on the **old page** 		| User sees the new page with a spinner |
+
+## 8. When NOT to use a resolver
+
+If the API is **slow**, the user clicks and **nothing seems to happen** until the data arrives, 
+because they stay on the old page. For slow calls, 
+it is better to open the page and show a spinner (`ngOnInit` approach), or show a global loading bar using router events.
+
+Use a resolver when the call is **fast and the page needs the data to make sense**, like a single Book Details call.
+
+## 9. One detail to remember
+
+The same component is reused when the URL changes from `/books/1` to `/books/2`. 
+That is why the component **subscribes to `route.data`** instead of reading `route.snapshot.data` once. 
+The subscription updates `book` each time the resolver finishes.
+
+## 10. Interview answer (30 seconds)
+
+> "A route resolver is a function that loads data before a route activates. 
+Angular waits for it to finish, then opens the component with the data already available. 
+For Book Details I would use a resolver so the page never appears empty or flickers, 
+and so a missing book (404) can be handled before the page shows, by redirecting to a Not Found page. 
+The component simply reads the data from `route.data`. I avoid resolvers for slow APIs, 
+because the user stays on the old page with no feedback. In that case I load the data in the component and show a spinner."
+
+Would you like #104 (Route Data) next?

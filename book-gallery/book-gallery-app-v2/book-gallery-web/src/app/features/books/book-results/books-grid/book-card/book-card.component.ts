@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 
 import { CartService } from '../../../../../core/services/cart.service';
-import { Book } from '../../../../../shared/models/book.model';
+import { BookWithReviewSummary } from '../../../../../shared/models/book.model';
 import { environment } from '../../../../../../environments/environments.developement';
 
 
@@ -9,13 +10,13 @@ import { environment } from '../../../../../../environments/environments.develop
 @Component({
   selector: 'app-book-card',
   standalone: true,
-  imports: [],
+  imports: [DecimalPipe],
   templateUrl: './book-card.component.html',
   styleUrl: './book-card.component.css'
 })
 export class BookCardComponent {
 
-  @Input() book!: Book;
+  @Input() book!: BookWithReviewSummary;
 
   serverUrl : string = environment.serverUrl;
 

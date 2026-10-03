@@ -18,8 +18,17 @@
 
     <!-- Rating -->
     <div class="book-rating">
-      <span class="stars">★★★★★</span>
-      <span class="rating-value">5</span>
+      @if (book.reviewSummary) {
+        <span class="stars">★★★★★</span>
+        <span class="rating-value">
+          {{ book.reviewSummary.averageRating | number:'1.1-1' }}
+        </span>
+        <span class="review-count">
+          ({{ book.reviewSummary.reviewCount }})
+        </span>
+      } @else {
+        <span class="no-rating">No ratings yet</span>
+      }
     </div>
 
     <!-- Price -->
@@ -29,18 +38,18 @@
 
     <!-- Add to Cart -->
     @if (quantity === 0) {
-    <button class="add-to-cart" (click)="addToCart()">
-      <span class="cart-icon">🛒</span>
-      <span>Add to Cart</span>
-    </button>
+      <button class="add-to-cart" (click)="addToCart()">
+        <span class="cart-icon">🛒</span>
+        <span>Add to Cart</span>
+      </button>
     } @else {
-    <div class="quantity-control">
-      <button (click)="decreaseQuantity()">−</button>
+      <div class="quantity-control">
+        <button (click)="decreaseQuantity()">−</button>
 
-      <span>{{ quantity }}</span>
+        <span>{{ quantity }}</span>
 
-      <button (click)="increaseQuantity()">+</button>
-    </div>
+        <button (click)="increaseQuantity()">+</button>
+      </div>
     }
 
   </div>

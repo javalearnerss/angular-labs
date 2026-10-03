@@ -37,7 +37,8 @@ export class HeaderComponent {
     { label: 'Home', route: '/home' },
     { label: 'Books', route: '/books' },
     { label: 'Authors', route: '/authors' },
-    { label: 'About', route: '/about' }
+    { label: 'About', route: '/about' },
+    { label: 'Admin', route: '/admin' }
   ];
 
   constructor() {

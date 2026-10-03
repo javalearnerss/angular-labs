@@ -32,7 +32,7 @@ export class BooksPageComponent implements OnInit {
 
   totalPages = 0;
   currentPageNumber = 1;
-  pageSize = 15;
+  pageSize = 5;
   categories : Category[] = [];
   
   private searchCriteria: AdminBookSearchCriteria = {

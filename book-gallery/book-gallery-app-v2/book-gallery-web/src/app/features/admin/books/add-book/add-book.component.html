@@ -63,9 +63,9 @@
 
                             <select id="author" name="author" ngModel required #author="ngModel">
                                 <option value="">Select an author</option>
-                                <option>Paulo Coelho</option>
-                                <option>Khaled Hosseini</option>
-                                <option>J. K. Rowling</option>
+                                @for (author of authors; track author.id) {
+                                <option value="author.id">{{author.name}}</option>
+                                }
                             </select>
 
                             @if(author.invalid && (author.touched || addBookForm.submitted)){

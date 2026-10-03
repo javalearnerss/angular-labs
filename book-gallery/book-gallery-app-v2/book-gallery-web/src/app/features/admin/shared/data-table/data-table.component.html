@@ -19,64 +19,57 @@
     <tbody>
 
 
-  <tr *ngFor="let book of books">
+      <tr *ngFor="let book of books; let i = index">
 
-    <td>
-      {{ book.id }}
-    </td>
+        <td>
+          {{ (currentPageNumber - 1) * pageSize + i + 1 }}
+        </td>
 
-    <td>
-      <img
-        [src]="book.coverImage"
-        [alt]="book.title"
-        class="book-cover"
-      />
-    </td>
+        <td>
+          <img [src]="book.coverImage" [alt]="book.title" class="book-cover" />
+        </td>
 
-    <td>
-      <div class="book-title">
-        {{ book.title }}
-      </div>
+        <td>
+          <div class="book-title">
+            {{ book.title }}
+          </div>
 
-      <div class="book-isbn">
-        ISBN: {{ book.isbn }}
-      </div>
-    </td>
+          <div class="book-isbn">
+            ISBN: {{ book.isbn }}
+          </div>
+        </td>
 
-    <td>
-      {{ book.author }}
-    </td>
+        <td>
+          {{ book.author }}
+        </td>
 
-    <td>
-      {{ book.category }}
-    </td>
+        <td>
+          {{ book.category }}
+        </td>
 
-    <td>
-      ₹{{ book.price }}
-    </td>
+        <td>
+          ₹{{ book.price }}
+        </td>
 
-    <td>
-      {{ book.stock }}
-    </td>
+        <td>
+          {{ book.stock }}
+        </td>
 
-    <td>
-      <span
-        class="status"
-        [class.active]="book.status === 'AVAILABLE'"
-        [class.inactive]="book.status === 'DISCONTINUED'"
-        [class.out-of-stock]="book.status === 'OUT_OF_STOCK'">
-        {{ book.status }}
-      </span>
-    </td>
+        <td>
+          <span class="status" [class.active]="book.status === 'AVAILABLE'"
+            [class.inactive]="book.status === 'DISCONTINUED'" [class.out-of-stock]="book.status === 'OUT_OF_STOCK'">
+            {{ book.status }}
+          </span>
+        </td>
 
-    <td>
-      <button class="edit-button" [routerLink]="['/admin/books', book.id, 'edit-book']">Edit</button>
-      <button class="delete-button">Delete</button>
-    </td>
+        <td>
+          <button class="edit-button" [routerLink]="['/admin/books', book.id, 'edit-book']">Edit</button>
+          <button class="delete-button">Delete</button>
+        </td>
 
-  </tr>
+      </tr>
 
-</tbody>
+    </tbody>
 
 
   </table>

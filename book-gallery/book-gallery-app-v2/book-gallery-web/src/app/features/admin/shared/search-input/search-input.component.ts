@@ -26,6 +26,8 @@ export class SearchInputComponent implements OnInit {
 
   errorMessage: string | null = null;
 
+  pageSize = 5;
+
   @Output() searchBooks = new EventEmitter<PageResponse>();
   @Output() searchCriteriaChange = new EventEmitter<AdminBookSearchCriteria>();
   @Output() searchFailed = new EventEmitter<string>();
@@ -76,7 +78,7 @@ export class SearchInputComponent implements OnInit {
         };
         this.errorMessage = null;
         this.searchCriteriaChange.emit(criteria);
-        return this.bookService.searchAdminBooks(criteria, 1, 15).pipe(
+        return this.bookService.searchAdminBooks(criteria, 1,this.pageSize ).pipe(
           catchError(() => {
             const message = 'Could not search books. Please try again.';
             this.errorMessage = message;

@@ -21,4 +21,6 @@ export enum BookStatus {
 })
 export class DataTableComponent {
   @Input() books: Book[] = [];
+  @Input() currentPageNumber = 1;
+  @Input() pageSize = 5;
 }

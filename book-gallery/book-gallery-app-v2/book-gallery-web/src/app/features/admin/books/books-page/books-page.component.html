@@ -21,7 +21,7 @@
     } @else if(errorMessage){
     <p role="alert">{{errorMessage}}</p>
     } @else {
-    <app-data-table [books]="books"></app-data-table>
+    <app-data-table [books]="books" [currentPageNumber]="currentPageNumber" [pageSize]="pageSize" ></app-data-table>
     }
 
     <!-- Pagination -->
