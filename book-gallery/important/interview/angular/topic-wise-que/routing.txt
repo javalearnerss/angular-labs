@@ -189,6 +189,40 @@ I attach a `canActivate` guard to those routes. The guard checks that the user i
 If they aren't logged in, it redirects to login. If the role is wrong, it redirects to a forbidden page. 
 Since frontend checks can be bypassed, the Spring Boot API must enforce the same role check."
 
+
+How to pass roles from outside means from the route.
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const roleGuard = (...roles: string[]): CanActivateFn => {
+  return (route, state) => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+
+    if (!auth.isLoggedIn) {
+      return router.createUrlTree(['/login'], {
+        queryParams: { returnUrl: state.url }
+      });
+    }
+
+    if (auth.hasRole(...roles)) {
+      return true;
+    }
+
+    return router.createUrlTree(['/forbidden']);
+  };
+};
+
+
+{ path: 'books/add', component: AddBookComponent,
+  canActivate: [roleGuard('ADMIN', 'LIBRARIAN')] },
+
+{ path: 'reports', component: ReportsComponent,
+  canActivate: [roleGuard('ADMIN')] },
+  
+  
+
 ========================================================================================================================
 
 # Q100. [CanActivateChild] When would you use it for Admin routes?

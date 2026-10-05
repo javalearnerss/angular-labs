@@ -1,3 +1,38 @@
+INSERT INTO users (
+    username,
+    password,
+    email,
+    role,
+    enabled,
+    account_non_locked,
+    account_non_expired,
+    credentials_non_expired,
+    failed_login_attempts
+)
+VALUES
+(
+    'admin',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', -- Password@123
+    'admin@bookgallery.com',
+    'ADMIN',
+    TRUE,
+    TRUE,
+    TRUE,
+    TRUE,
+    0
+),
+(
+    'user',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', -- Password@123
+    'john@bookgallery.com',
+    'USER',
+    TRUE,
+    TRUE,
+    TRUE,
+    TRUE,
+    0
+);
+
 INSERT INTO categories (name) VALUES ('Fiction');
 INSERT INTO categories (name) VALUES ('Non-Fiction');
 INSERT INTO categories (name) VALUES ('Science');

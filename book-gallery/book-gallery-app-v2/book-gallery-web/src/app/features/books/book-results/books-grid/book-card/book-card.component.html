@@ -8,27 +8,53 @@
   <!-- Book Details -->
   <div class="book-details">
 
+    <!-- Book Title -->
     <h3 class="book-title">
       {{ book.title }}
     </h3>
 
+    <!-- Book Author -->
     <p class="book-author">
       {{ book.author }}
     </p>
 
     <!-- Rating -->
     <div class="book-rating">
-      @if (book.reviewSummary) {
-        <span class="stars">★★★★★</span>
+
+      @if (book.reviewSummary && book.reviewSummary.reviewCount > 0) {
+
+        <div
+          class="stars"
+          [attr.aria-label]="book.reviewSummary.averageRating + ' out of 5 stars'">
+
+          <!-- Background Stars -->
+          <span class="stars-background">★★★★★</span>
+
+          <!-- Filled Stars -->
+          <span
+            class="stars-filled"
+            [style.width.%]="(book.reviewSummary.averageRating / 5) * 100">
+            ★★★★★
+          </span>
+
+        </div>
+
         <span class="rating-value">
           {{ book.reviewSummary.averageRating | number:'1.1-1' }}
         </span>
+
         <span class="review-count">
           ({{ book.reviewSummary.reviewCount }})
         </span>
+
       } @else {
-        <span class="no-rating">No ratings yet</span>
+
+        <span class="no-rating">
+          No ratings yet
+        </span>
+
       }
+
     </div>
 
     <!-- Price -->
@@ -38,18 +64,41 @@
 
     <!-- Add to Cart -->
     @if (quantity === 0) {
-      <button class="add-to-cart" (click)="addToCart()">
+
+      <button
+        class="add-to-cart"
+        type="button"
+        (click)="addToCart()">
+
         <span class="cart-icon">🛒</span>
         <span>Add to Cart</span>
+
       </button>
+
     } @else {
+
       <div class="quantity-control">
-        <button (click)="decreaseQuantity()">−</button>
 
-        <span>{{ quantity }}</span>
+        <button
+          type="button"
+          aria-label="Decrease quantity"
+          (click)="decreaseQuantity()">
+          −
+        </button>
 
-        <button (click)="increaseQuantity()">+</button>
+        <span>
+          {{ quantity }}
+        </span>
+
+        <button
+          type="button"
+          aria-label="Increase quantity"
+          (click)="increaseQuantity()">
+          +
+        </button>
+
       </div>
+
     }
 
   </div>
