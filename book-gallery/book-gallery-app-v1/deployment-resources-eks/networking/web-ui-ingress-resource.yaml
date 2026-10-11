@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: book-store-web-ingress
+  namespace: book-gallery-dev
+  annotations:
+    alb.ingress.kubernetes.io/group.name: book-gallery-group   # Same ALB
+    
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+spec:
+  ingressClassName: alb
+  rules:
+    - host: javalearners.in
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: book-gallery-web   # Your Angular service
+                port:
+                  number: 80

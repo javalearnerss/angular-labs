@@ -43,9 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/books", "/api/books/**", "/api/book/title",
-                                "/api/categories", "/api/authors/**", "/api/reviews/**").permitAll()
+                        .requestMatchers("/**")
+                                .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

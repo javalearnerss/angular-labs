@@ -1,0 +1,80 @@
+
+Step 1: Attach IAM Policy to Nodes
+
+    Your worker nodes must have permission to push logs.
+    Attach policy: CloudWatchAgentServerPolicy
+
+    Step-by-Step: Attach IAM Policy to Node Role
+        🔹 Step 1: Find Your Node IAM Role
+
+            Go to:
+
+            AWS Console → Amazon EKS
+            Click your cluster
+            Go to Compute → Node Group
+
+            You’ll see something like:
+
+            Node group: eks-node-group
+            Node IAM Role: eksctl-my-cluster-nodegroup-NodeInstanceRole-abc123
+
+            👉 Click that IAM role
+
+        🔹 Step 2: Open IAM Role
+
+            Now you’re inside:
+
+            👉 AWS Identity and Access Management
+
+            Click → Permissions tab
+            Click → Add permissions
+            Click → Attach policies
+
+        🔹 Step 3: Attach Policy
+
+            Search:
+
+            CloudWatchAgentServerPolicy
+
+            👉 Select it
+            👉 Click Attach policy
+
+        🔹 Step 4: Done ✅
+
+            No restart needed
+            No redeploy needed
+
+            👉 Nodes automatically get permission
+
+            What This Policy Actually Allows
+
+            It gives permission like:
+
+            {
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            }
+
+Step 2 : Deploy Fluent Bit (AWS Official)
+    AWS provides ready manifests.
+
+    kubectl apply -f https://raw.githubusercontent.com/aws/aws-for-fluent-bit/main/configs/eks/cluster-info.yaml
+
+    kubectl apply -f https://raw.githubusercontent.com/aws/aws-for-fluent-bit/main/configs/eks/fluent-bit.yaml
+
+Step 3: Verify Pods
+    
+    kubectl get pods -n amazon-cloudwatch
+
+    You should see:
+
+    fluent-bit-xxxxx   Running
+    🔹 Step 4: Check CloudWatch Logs
+
+    Go to:
+
+    Amazon CloudWatch
+    Click → Logs → Log groups
+
+    You’ll see: /aws/containerinsights/<cluster-name>/application

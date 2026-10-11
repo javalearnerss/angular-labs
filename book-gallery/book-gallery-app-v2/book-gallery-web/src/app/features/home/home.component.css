@@ -1,0 +1,12 @@
+.home-page {
+  min-height: 100vh;
+  padding-bottom: 48px;
+  background: #fbfaf7;
+}
+
+.home-page app-hero-banner,
+.home-page app-category-menu,
+.home-page app-best-sellers,
+.home-page app-recommendations {
+  display: block;
+}

@@ -1,0 +1,237 @@
+
+As I am going to use Kubernates Ingress Controller, so there are some installatons required in eks cluster.
+
+
+
+
+Create Role required by aws load balancer controller
+
+✅ STEP 1: Create IAM Policy (Console)
+Go to:
+AWS Console → IAM → Policies
+Click Create policy
+Select:
+JSON tab
+Paste this (official policy):
+
+👉 (short version — full is large, but use full in real setup)
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:*",
+        "ec2:Describe*",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateTags",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "iam:CreateServiceLinkedRole"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+Click:
+Next → Name it:
+AWSLoadBalancerControllerIAMPolicy
+Create policy
+✅ STEP 2: Get OIDC Provider (IMPORTANT)
+Go to:
+EKS → Your cluster → trading-dev-aws
+Click:
+Configuration → Authentication
+
+👉 Copy:
+
+OIDC provider URL
+
+Example:
+
+https://oidc.eks.ap-south-1.amazonaws.com/id/XXXX
+✅ STEP 3: Create IAM Role
+Go to:
+IAM → Roles → Create role
+Select:
+
+👉 Web identity
+
+If Oidc option is not shown then execute command : eksctl utils associate-iam-oidc-provider --region ap-south-1 --cluster amit-modi --approve
+
+Configure:
+Identity provider → Select your OIDC provider
+Audience → sts.amazonaws.com
+Next → Permissions
+
+Attach:
+
+AWSLoadBalancerControllerIAMPolicy
+Next → Name role:
+AmazonEKSLoadBalancerControllerRole
+
+👉 Create role
+
+✅ STEP 4: Update Trust Policy (VERY IMPORTANT)
+
+Open your role → Trust relationships → Edit
+
+Replace with:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/<OIDC_PROVIDER>"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "<OIDC_PROVIDER>:sub": "system:serviceaccount:trading-dev-aws:aws-load-balancer-controller"
+        }
+      }
+    }
+  ]
+}
+Replace:
+<ACCOUNT_ID>
+<OIDC_PROVIDER>
+
+
+==============================================================================================================
+
+Note : Before creating AWS Load Balancer Controller, deploy all the apps.
+
+******************** Set UP Ingress for EKS Cluster ********************
+
+Step 1: Install AWS Load Balancer Controller
+
+    This is what creates ALB automatically from Ingress.
+    👉 Required IAM + Helm install
+    helm repo add eks https://aws.github.io/eks-charts
+    helm repo update
+
+    service account requires a IAM role, how this role will be create all steps are mentioned below
+
+    If Service account is already created:
+    helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n trading-dev-aws --set clusterName=amit-modi --set region=ap-south-1 --set vpcId=vpc-0bc089f3686711d3d --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+    
+    If service account is not created:
+    helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n trading-dev-aws --set clusterName=amit-modi --set region=ap-south-1 --set vpcId=vpc-0bc089f3686711d3d --set serviceAccount.create=true --set serviceAccount.name=aws-load-balancer-controller --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::336042380202:role/AmazonEKSLoadBalancerControllerRole
+
+
+    If we want to upgrade its props , we can use below command.
+
+    helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller -n trading-dev-aws --set clusterName=amit-modi 
+    --set region=ap-south-1 --set vpcId=vpc-0bc089f3686711d3d --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+
+
+    This controller integrates Kubernetes with: Elastic Load Balancing
+
+    Once it is installed, create ingress resource
+
+    How to delete controller : helm uninstall aws-load-balancer-controller -n trading-dev-aws
+
+    How to check logs : 
+        1. kubectl logs -n trading-dev-aws deployment/aws-load-balancer-controller
+        2. kubectl describe pod aws-load-balancer-controller-5644467675-mswrj -n trading-dev-aws
+        kubectl logs -n trading-dev deployment/aws-load-balancer-controller
+
+    Restart controller Pods : kubectl delete pod -n trading-dev-aws -l app.kubernetes.io/name=aws-load-balancer-controller
+
+Step 2: Create Ingress Resource (Routing Rules)
+        This is where routing happens 👇
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: refdata-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+  rules:
+    - host: javalearners.in
+      http:
+        paths:
+          - path: /reference
+            pathType: Prefix
+            backend:
+              service:
+                name: refdata-provider-service-aws
+                port:
+                  number: 8080
+
+    kubectl apply -f ingress.yaml   #   Present in trade-booking folder
+
+    kubectl get ingress
+
+Step 3: Configure DNS for javalearners.in
+
+    Now connect your domain to ALB.
+
+    If using AWS DNS, Use Amazon Route 53
+
+    Create Hosted Zone for javalearners.in, Add A record (Alias) → ALB DNS
+
+    *********************************************************
+    When you buy domain in Route 53:
+        ✅ Hosted Zone is automatically created
+        ✅ Nameservers are already configured
+        ❌ No GoDaddy / external DNS steps
+        👉 You directly add records
+
+    Step 1: Open Hosted Zone
+        Go to Amazon Route 53 → Hosted Zones → javalearners.in
+
+        👉 You should see:
+            NS record ✅
+            SOA record ✅
+        ✔️ This means your DNS is already active and ready to use.
+
+    Step 2: Get ALB DNS (From Kubernetes)
+        Run: kubectl get ingress
+
+        Example output:
+
+        NAME           ADDRESS
+        test-ingress   k8s-myapp-123456.ap-south-1.elb.amazonaws.com
+
+        👉 Copy this value (VERY IMPORTANT)
+
+    Step 3: Create A Record (Alias → ALB)
+      Now inside Hosted Zone: Click Create Record
+
+      Fill Details:
+      🔹 Record Name
+
+          For root domain: (leave blank)
+          👉 This means: javalearners.in
+
+      🔹 Record Type
+          A – IPv4 address
+      
+      🔹 Enable Alias
+          Alias = ON
+      
+      🔹 Choose ALB
+          Click dropdown under Route traffic to
+          Select: Application and Classic Load Balancer
+
+          Then select your ALB: k8s-myapp-123456.ap-south-1.elb.amazonaws.com
+      
+      🔹 Routing Policy
+          Simple Routing
+
+      👉 Click Create Record
+
+       What This Does (Important Concept)
+        You just created: javalearners.in → ALB → Kubernetes Ingress → Service → Pods
+
+    *********************************************************
+
+================================================================================================================
+
+===================
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n trading-dev-aws --set clusterName=amit-modi --set serviceAccount.create=true --set serviceAccount.name=aws-load-balancer-controller --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::336042380202:role/AmazonEKSLoadBalancerControllerRole

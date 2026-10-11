@@ -1,388 +1,151 @@
-/* =========================
-   Hero Banner
-   ========================= */
-
 .hero-banner {
   position: relative;
-  width: 100%;
-  height: 360px;
+  display: flex;
+  max-width: 1280px;
+  min-height: 350px;
+  align-items: center;
   overflow: hidden;
-
-  border-radius: 6px;
-  background: #eaf4ff;
+  margin: 30px auto 0;
+  border: 1px solid #eae4d9;
+  border-radius: 18px;
+  background: #e9f1eb;
+  box-shadow: 0 14px 36px rgba(49, 61, 46, .08);
 }
-
-
-/* =========================
-   Hero Image
-   ========================= */
 
 .hero-image {
   position: absolute;
   inset: 0;
-
   width: 100%;
   height: 100%;
-
-  z-index: 1;
-}
-
-.hero-image img {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
   object-fit: cover;
-  object-position: center;
+  object-position: center 57%;
 }
-
-
-/* =========================
-   Overlay
-   ========================= */
 
 .hero-banner::after {
-  content: "";
-
   position: absolute;
   inset: 0;
-
-  z-index: 2;
-
-  background: linear-gradient(
-    90deg,
-    rgba(234, 244, 255, 0.98) 0%,
-    rgba(234, 244, 255, 0.96) 30%,
-    rgba(234, 244, 255, 0.75) 45%,
-    rgba(234, 244, 255, 0.20) 65%,
-    rgba(234, 244, 255, 0) 100%
-  );
-
-  pointer-events: none;
+  background: linear-gradient(90deg, rgba(247, 246, 235, .97) 0%, rgba(247, 246, 235, .91) 31%, rgba(247, 246, 235, .54) 49%, rgba(247, 246, 235, 0) 73%);
+  content: "";
 }
-
-
-/* =========================
-   Hero Content
-   ========================= */
 
 .hero-content {
-  position: absolute;
-
-  z-index: 3;
-
-  left: 10%;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  width: 430px;
+  position: relative;
+  z-index: 1;
+  width: min(490px, 52%);
+  padding: 48px 0 48px clamp(28px, 6.4vw, 84px);
 }
 
-.hero-subtitle {
-  margin: 0 0 12px;
-
-  font-size: 12px;
+.hero-eyebrow {
+  color: #657657;
+  font-size: 10px;
   font-weight: 700;
-
-  letter-spacing: 0.8px;
-
-  color: #2864bd;
+  letter-spacing: 1.8px;
 }
 
 .hero-content h1 {
-  margin: 0;
-
-  font-size: 44px;
-  line-height: 1.05;
-
-  font-weight: 700;
+  margin: 16px 0 12px;
+  color: #26392e;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(40px, 5vw, 62px);
+  font-weight: 600;
   letter-spacing: -1.5px;
-
-  color: #07152f;
+  line-height: 1.04;
 }
 
-.hero-content h1 span {
-  display: block;
-
-  color: #0865db;
+.hero-content h1 em {
+  color: #8b6742;
+  font-weight: 600;
 }
 
-.hero-description {
-  margin: 16px 0 20px;
-
-  font-size: 14px;
-  line-height: 1.6;
-
-  color: #30445f;
+.hero-content p {
+  max-width: 370px;
+  margin: 0 0 22px;
+  color: #5c665b;
+  font-size: 13px;
+  line-height: 1.8;
 }
-
-
-/* =========================
-   Shop Button
-   ========================= */
 
 .shop-button {
   display: inline-flex;
-
+  min-height: 44px;
   align-items: center;
-  justify-content: center;
-
-  gap: 10px;
-
-  height: 42px;
-
-  padding: 0 22px;
-
-  border: none;
+  gap: 22px;
+  padding: 0 18px;
   border-radius: 6px;
-
-  background: #0967df;
-
-  color: white;
-
-  font-size: 13px;
+  background: #334c3b;
+  color: #fff;
+  font-size: 12px;
   font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.shop-button span {
-  font-size: 18px;
-
-  transition: transform 0.2s ease;
+  text-decoration: none;
+  transition: background .2s ease, transform .2s ease;
 }
 
 .shop-button:hover {
-  background: #0755bb;
-
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  background: #263c2e;
 }
 
-.shop-button:hover span {
-  transform: translateX(3px);
+.shop-button span {
+  font-size: 17px;
 }
 
-
-/* =========================
-   Arrows
-   ========================= */
-
-.hero-arrow {
+.hero-note {
   position: absolute;
-
-  z-index: 5;
-
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  width: 38px;
-  height: 38px;
-
-  padding: 0;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-
-  border-radius: 50%;
-
-  background: rgba(55, 85, 120, 0.45);
-
-  color: white;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  z-index: 1;
+  right: 24px;
+  bottom: 17px;
+  color: rgba(53, 67, 51, .7);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 11px;
+  font-style: italic;
 }
 
-.hero-arrow span {
-  font-size: 28px;
-
-  line-height: 1;
-
-  margin-top: -3px;
-}
-
-.hero-arrow:hover {
-  background: rgba(35, 65, 100, 0.75);
-
-  transform: translateY(-50%) scale(1.05);
-}
-
-.hero-arrow-left {
-  left: 22px;
-}
-
-.hero-arrow-right {
-  right: 22px;
-}
-
-
-/* =========================
-   Indicators
-   ========================= */
-
-.hero-indicators {
-  position: absolute;
-
-  z-index: 5;
-
-  bottom: 14px;
-
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  padding: 6px 10px;
-
-  border-radius: 20px;
-
-  background: rgba(255, 255, 255, 0.75);
-}
-
-.indicator {
-  width: 8px;
-  height: 8px;
-
-  padding: 0;
-
-  border: none;
-
-  border-radius: 50%;
-
-  background: #c5ccd7;
-
-  cursor: pointer;
-}
-
-.indicator.active {
-  width: 9px;
-  height: 9px;
-
-  background: #1769dd;
-}
-
-
-/* =========================
-   1000px
-   ========================= */
-
-@media (max-width: 1000px) {
-
+@media (max-width: 1340px) {
   .hero-banner {
-    height: 330px;
-  }
-
-  .hero-content {
-    left: 8%;
-    width: 390px;
-  }
-
-  .hero-content h1 {
-    font-size: 38px;
-  }
-
-  .hero-image img {
-    object-position: 60% center;
+    margin-right: 28px;
+    margin-left: 28px;
   }
 }
 
-
-/* =========================
-   750px
-   ========================= */
-
-@media (max-width: 750px) {
-
+@media (max-width: 700px) {
   .hero-banner {
-    height: 300px;
+    min-height: 335px;
+    margin: 16px 14px 0;
+    border-radius: 13px;
   }
 
-  .hero-content {
-    left: 8%;
-    width: 340px;
-  }
-
-  .hero-content h1 {
-    font-size: 32px;
-  }
-
-  .hero-description {
-    font-size: 12px;
-  }
-
-  .hero-image img {
-    object-position: 65% center;
+  .hero-image {
+    opacity: .42;
+    object-position: 66% center;
   }
 
   .hero-banner::after {
-    background: linear-gradient(
-      90deg,
-      rgba(234, 244, 255, 0.98) 0%,
-      rgba(234, 244, 255, 0.90) 45%,
-      rgba(234, 244, 255, 0.35) 75%,
-      rgba(234, 244, 255, 0) 100%
-    );
-  }
-}
-
-
-/* =========================
-   500px
-   ========================= */
-
-@media (max-width: 500px) {
-
-  .hero-banner {
-    height: 280px;
+    background: linear-gradient(90deg, rgba(247, 246, 235, .97) 0%, rgba(247, 246, 235, .94) 65%, rgba(247, 246, 235, .78) 100%);
   }
 
   .hero-content {
-    left: 28px;
-
-    width: calc(100% - 56px);
+    width: 92%;
+    padding: 35px 0 40px 22px;
   }
 
   .hero-content h1 {
-    font-size: 28px;
+    font-size: clamp(33px, 8.8vw, 44px);
   }
 
-  .hero-description {
-    font-size: 11px;
+  .hero-content p {
+    max-width: 285px;
+    font-size: 12px;
   }
 
-  .hero-description br {
-    display: none;
+  .hero-note {
+    right: 12px;
+    bottom: 10px;
+    font-size: 9px;
   }
+}
 
-  .hero-arrow {
-    width: 30px;
-    height: 30px;
-  }
-
-  .hero-arrow-left {
-    left: 8px;
-  }
-
-  .hero-arrow-right {
-    right: 8px;
+@media (prefers-reduced-motion: reduce) {
+  .shop-button {
+    transition: none;
   }
 }

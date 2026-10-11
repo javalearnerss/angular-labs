@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: book-store-web-ingress
+  namespace: book-gallery-dev
+  annotations:
+    alb.ingress.kubernetes.io/group.name: book-gallery-group
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:ap-south-1:336042380202:certificate/1a044d3d-f7ab-4ce0-a21e-c1357d1d67c3"
+
+spec:
+  ingressClassName: alb
+  rules:
+    - host: javalearners.in
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: book-gallery-web
+                port:
+                  number: 80

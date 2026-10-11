@@ -12,7 +12,7 @@ INSERT INTO users (
 VALUES
 (
     'admin',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', -- Password@123
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',-- Password@123
     'admin@bookgallery.com',
     'ADMIN',
     TRUE,
@@ -22,10 +22,32 @@ VALUES
     0
 ),
 (
-    'user',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', -- Password@123
+    'john',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
     'john@bookgallery.com',
     'USER',
+    TRUE,
+    TRUE,
+    TRUE,
+    TRUE,
+    0
+),
+(
+    'author',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    'author@bookgallery.com',
+    'AUTHOR',
+    TRUE,
+    TRUE,
+    TRUE,
+    TRUE,
+    0
+),
+(
+    'editor',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    'editor@bookgallery.com',
+    'EDITOR',
     TRUE,
     TRUE,
     TRUE,

@@ -5,18 +5,30 @@
     <thead>
       <tr>
         <th class="number-column">#</th>
-        <th class="cover-column">Cover</th>
-        <th class="title-column">Title</th>
-        <th>Author</th>
-        <th>Category</th>
-        <th>Price</th>
-        <th>Stock</th>
-        <th>Status</th>
-        <th class="actions-column">Actions</th>
+
+        @for (col of columns; track col.header) {
+        <th>{{col.header}}</th>
+        }
+
+
       </tr>
     </thead>
 
     <tbody>
+
+
+      
+      @for (book of books; track $index) {
+        <tr>
+      <td>
+        {{ (currentPageNumber - 1) * pageSize + $index + 1 }}
+      </td>
+      @for (column of columns; track column.field) {
+      <td>{{ getCellValue(book, column) }}</td>
+      }
+      </tr>
+      }
+
 
 
       <tr *ngFor="let book of books; let i = index">

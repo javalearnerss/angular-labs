@@ -1,260 +1,94 @@
-<section class="recommended-section">
-
-  <!-- Header -->
+<section class="recommended-section" aria-labelledby="recommended-title">
   <div class="recommended-header">
+    <div>
+      <span class="section-eyebrow">A FEW MORE YOU MIGHT LOVE</span>
+      <h2 id="recommended-title">Worth a closer look</h2>
+    </div>
+    <a class="recommended-view-all" routerLink="/books">See the full collection <span aria-hidden="true">→</span></a>
+  </div>
 
-    <h2>Recommended for You</h2>
-
-    <a href="#" class="recommended-view-all">
-      View All
-      <span>→</span>
+  <div class="recommended-track">
+    <a class="recommended-card" routerLink="/books">
+      <div class="recommended-cover cover-alchemist">
+        <span class="cover-small">A FABLE ABOUT FOLLOWING</span>
+        <strong>THE<br />ALCHEMIST</strong>
+        <span class="cover-symbol">✦</span>
+        <span class="cover-author">PAULO COELHO</span>
+      </div>
+      <div class="recommended-info">
+        <h3>The Alchemist</h3>
+        <p>Paulo Coelho</p>
+        <span class="recommended-rating"><span>★★★★★</span> 4.5</span>
+      </div>
     </a>
 
+    <a class="recommended-card" routerLink="/books">
+      <div class="recommended-cover cover-richdad">
+        <span class="cover-small">WHAT THE RICH TEACH</span>
+        <strong>RICH DAD<br />POOR DAD</strong>
+        <span class="cover-symbol">◒</span>
+        <span class="cover-author">ROBERT T. KIYOSAKI</span>
+      </div>
+      <div class="recommended-info">
+        <h3>Rich Dad Poor Dad</h3>
+        <p>Robert K. Kiyosaki</p>
+        <span class="recommended-rating"><span>★★★★★</span> 4.6</span>
+      </div>
+    </a>
+
+    <a class="recommended-card" routerLink="/books">
+      <div class="recommended-cover cover-think">
+        <span class="cover-small">THE LANDMARK BESTSELLER</span>
+        <strong>THINK<br />&amp; GROW<br />RICH</strong>
+        <span class="cover-author">NAPOLEON HILL</span>
+      </div>
+      <div class="recommended-info">
+        <h3>Think and Grow Rich</h3>
+        <p>Napoleon Hill</p>
+        <span class="recommended-rating"><span>★★★★★</span> 4.6</span>
+      </div>
+    </a>
+
+    <a class="recommended-card" routerLink="/books">
+      <div class="recommended-cover cover-morning">
+        <span class="cover-small">OWN YOUR MORNING</span>
+        <strong>THE<br />5 AM<br />CLUB</strong>
+        <span class="cover-symbol">☼</span>
+        <span class="cover-author">ROBIN SHARMA</span>
+      </div>
+      <div class="recommended-info">
+        <h3>The 5 AM Club</h3>
+        <p>Robin Sharma</p>
+        <span class="recommended-rating"><span>★★★★★</span> 4.4</span>
+      </div>
+    </a>
+
+    <a class="recommended-card" routerLink="/books">
+      <div class="recommended-cover cover-zero">
+        <span class="cover-small">NOTES ON STARTUPS</span>
+        <strong>ZERO<br />TO ONE</strong>
+        <span class="cover-symbol">01</span>
+        <span class="cover-author">PETER THIEL</span>
+      </div>
+      <div class="recommended-info">
+        <h3>Zero to One</h3>
+        <p>Peter Thiel</p>
+        <span class="recommended-rating"><span>★★★★★</span> 4.3</span>
+      </div>
+    </a>
+
+    <a class="recommended-card" routerLink="/books">
+      <div class="recommended-cover cover-dune">
+        <span class="cover-small">THE DESERT PLANET</span>
+        <strong>DUNE</strong>
+        <span class="cover-symbol">☾</span>
+        <span class="cover-author">FRANK HERBERT</span>
+      </div>
+      <div class="recommended-info">
+        <h3>Dune</h3>
+        <p>Frank Herbert</p>
+        <span class="recommended-rating"><span>★★★★★</span> 4.5</span>
+      </div>
+    </a>
   </div>
-
-
-  <!-- Slider -->
-  <div class="recommended-slider">
-
-    <button
-      class="recommended-arrow recommended-arrow-left"
-      aria-label="Previous books">
-      ‹
-    </button>
-
-
-    <div class="recommended-track">
-
-      <!-- The Alchemist -->
-      <article class="recommended-card">
-
-        <div class="recommended-cover">
-          <img
-            src="images/books/the-alchemist.jpg"
-            alt="The Alchemist">
-        </div>
-
-        <div class="recommended-info">
-
-          <h3 class="recommended-title">
-            The Alchemist
-          </h3>
-
-          <p class="recommended-author">
-            Paulo Coelho
-          </p>
-
-          <div class="recommended-rating">
-            <span class="recommended-stars">
-              ★★★★★
-            </span>
-
-            <span class="recommended-rating-value">
-              4.5
-            </span>
-          </div>
-
-        </div>
-
-      </article>
-
-
-      <!-- Rich Dad Poor Dad -->
-      <article class="recommended-card">
-
-        <div class="recommended-cover">
-          <img
-            src="images/books/rich-dad-poor-dad.jpg"
-            alt="Rich Dad Poor Dad">
-        </div>
-
-        <div class="recommended-info">
-
-          <h3 class="recommended-title">
-            Rich Dad Poor Dad
-          </h3>
-
-          <p class="recommended-author">
-            Robert K. Kiyosaki
-          </p>
-
-          <div class="recommended-rating">
-            <span class="recommended-stars">
-              ★★★★★
-            </span>
-
-            <span class="recommended-rating-value">
-              4.6
-            </span>
-          </div>
-
-        </div>
-
-      </article>
-
-
-      <!-- Think and Grow Rich -->
-      <article class="recommended-card">
-
-        <div class="recommended-cover">
-          <img
-            src="images/books/think-and-grow-rich.jpg"
-            alt="Think and Grow Rich">
-        </div>
-
-        <div class="recommended-info">
-
-          <h3 class="recommended-title">
-            Think and Grow Rich
-          </h3>
-
-          <p class="recommended-author">
-            Napoleon Hill
-          </p>
-
-          <div class="recommended-rating">
-            <span class="recommended-stars">
-              ★★★★★
-            </span>
-
-            <span class="recommended-rating-value">
-              4.6
-            </span>
-          </div>
-
-        </div>
-
-      </article>
-
-
-      <!-- The 5 AM Club -->
-      <article class="recommended-card">
-
-        <div class="recommended-cover">
-          <img
-            src="images/books/the-5-am-club.jpg"
-            alt="The 5 AM Club">
-        </div>
-
-        <div class="recommended-info">
-
-          <h3 class="recommended-title">
-            The 5 AM Club
-          </h3>
-
-          <p class="recommended-author">
-            Robin Sharma
-          </p>
-
-          <div class="recommended-rating">
-            <span class="recommended-stars">
-              ★★★★★
-            </span>
-
-            <span class="recommended-rating-value">
-              4.4
-            </span>
-          </div>
-
-        </div>
-
-      </article>
-
-
-      <!-- Zero to One -->
-      <article class="recommended-card">
-
-        <div class="recommended-cover">
-          <img
-            src="images/books/zero-to-one.jpg"
-            alt="Zero to One">
-        </div>
-
-        <div class="recommended-info">
-
-          <h3 class="recommended-title">
-            Zero to One
-          </h3>
-
-          <p class="recommended-author">
-            Peter Thiel
-          </p>
-
-          <div class="recommended-rating">
-            <span class="recommended-stars">
-              ★★★★★
-            </span>
-
-            <span class="recommended-rating-value">
-              4.3
-            </span>
-          </div>
-
-        </div>
-
-      </article>
-
-
-      <!-- Dune -->
-      <article class="recommended-card">
-
-        <div class="recommended-cover">
-          <img
-            src="images/books/dune.jpg"
-            alt="Dune">
-        </div>
-
-        <div class="recommended-info">
-
-          <h3 class="recommended-title">
-            Dune
-          </h3>
-
-          <p class="recommended-author">
-            Frank Herbert
-          </p>
-
-          <div class="recommended-rating">
-            <span class="recommended-stars">
-              ★★★★★
-            </span>
-
-            <span class="recommended-rating-value">
-              4.5
-            </span>
-          </div>
-
-        </div>
-
-      </article>
-
-
-      <!-- Promotional Card -->
-      <aside class="recommended-promo">
-
-        <div class="recommended-promo-quote">
-          “
-        </div>
-
-        <h3>
-          A room without books is a body without a soul.
-        </h3>
-
-        <p>
-          — Marcus Tullius Cicero
-        </p>
-
-      </aside>
-
-    </div>
-
-
-    <button
-      class="recommended-arrow recommended-arrow-right"
-      aria-label="Next books">
-      ›
-    </button>
-
-  </div>
-
 </section>

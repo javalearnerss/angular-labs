@@ -138,13 +138,5 @@ export class BookResultsComponent implements OnInit {
   }
 
 
-  loadBookResultsWithReview(){
-    this.bookService.getBooks(
-      this.searchKeyword,
-      this.selectedCategory,
-      this.currentPageNumber,
-      this.pageSize
-    )
-  }
 
 }

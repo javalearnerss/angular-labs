@@ -17,6 +17,386 @@
 
 
 ========================================================================================================
+94.  [Route Parameters] How would you implement /books/:id?
+
+Route parameters are dynamic parts of a URL. In /books/:id, the :id is a placeholder, so /books/42 gives id = '42'.
+
+**Three steps:** define the route with `:id`, read the id in the component, then load the book.
+
+**1. Define the route**
+
+```typescript
+{ path: 'books/:id', component: BookDetailComponent }
+```
+
+`:id` is a placeholder. For `/books/42`, the id is `'42'` (always a string).
+
+**2. Read the id and load the book**
+
+```typescript
+export class BookDetailComponent implements OnInit {
+  book?: Book;
+
+  constructor(
+    private route: ActivatedRoute,
+    private bookService: BookService
+  ) {}
+
+  ngOnInit() {
+    this.route.paramMap
+      .pipe(
+        map(params => Number(params.get('id'))),
+        switchMap(id => this.bookService.getBook(id))
+      )
+      .subscribe(book => this.book = book);
+  }
+}
+```
+
+**3. Navigate to it**
+
+```typescript
+this.router.navigate(['/books', book.id]);   // goes to /books/42
+```
+
+**Why `paramMap` and not `snapshot`?**
+
+- `snapshot.paramMap.get('id')` reads the id once, when the component is created.
+- If the user goes from `/books/1` to `/books/2`, Angular **reuses the same component**, so the snapshot stays at 1.
+- `paramMap` is an Observable that emits again on every change, so the page always shows the right book.
+- `switchMap` cancels the old request if the id changes before it finishes.
+
+**Things to mention in an interview**
+
+- **Params are strings.** Convert with `Number()`.
+- **Invalid id:** if the book is not found, redirect with `router.navigate(['/not-found'])`.
+- **Alternative:** a resolver can load the book before the page opens, as in the earlier design.
+
+**Short answer**
+
+"I define `books/:id`, inject `ActivatedRoute`, and subscribe to `paramMap` instead of using the snapshot, because Angular reuses the component when only the id changes. I use `switchMap` to load the book for each id, and navigate with `router.navigate(['/books', id])`."
+
+
+============================================================================================================================
+
+95.  [Query Parameters] How would you implement /books?category=java?
+
+**What are query parameters?**
+
+Query parameters are optional key-value pairs added to the end of a URL after a `?`. They describe *how* to show a page (filter, sort, page number), not *which* page to show.
+
+```
+/books?category=java&page=2&sort=title
+  |      |             |        |
+ path   key=value   key=value  key=value
+```
+
+- The path (`/books`) decides which component loads.
+- The query params (`category`, `page`, `sort`) are extra settings the component can read.
+- Separate pairs with `&`.
+- Values are always strings.
+
+**Why use them?**
+
+- They are optional: `/books` and `/books?category=java` both work.
+- The filter lives in the URL, so users can bookmark it, share it, and the browser Back button restores it.
+- Refreshing the page keeps the filter.
+
+**How to use them: 3 operations**
+
+**1. Set them (navigate with params)**
+
+```typescript
+this.router.navigate(['/books'], {
+  queryParams: { category: 'java', page: 1 }
+});
+// URL becomes /books?category=java&page=1
+```
+
+**2. Read them**
+
+```typescript
+this.route.queryParamMap.subscribe(params => {
+  const category = params.get('category');       // 'java' or null
+  const page = Number(params.get('page') ?? 1);  // 1 by default
+});
+```
+
+**3. Change one and keep the rest**
+
+```typescript
+this.router.navigate([], {
+  queryParams: { page: 2 },
+  queryParamsHandling: 'merge'
+});
+// /books?category=java&page=1  becomes  /books?category=java&page=2
+```
+
+Without `merge`, the new params replace all the old ones, and `category` would be lost.
+
+**Remove a param** by setting it to `null`:
+
+```typescript
+this.router.navigate([], {
+  queryParams: { category: null },
+  queryParamsHandling: 'merge'
+});
+// /books?category=java&page=2  becomes  /books?page=2
+```
+
+**Full example: category filter**
+
+```typescript
+export class BookGalleryComponent implements OnInit {
+  books: Book[] = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private bookService: BookService
+  ) {}
+
+  ngOnInit() {
+    // runs every time the query params change
+    this.route.queryParamMap
+      .pipe(
+        map(params => params.get('category')),
+        switchMap(category => this.bookService.getBooks(category))
+      )
+      .subscribe(books => this.books = books);
+  }
+
+  selectCategory(category: string) {
+    this.router.navigate([], {
+      queryParams: { category, page: 1 },
+      queryParamsHandling: 'merge'
+    });
+  }
+}
+```
+
+**Flow:**
+1. User clicks "Java", so `selectCategory('java')` runs.
+2. The URL changes to `/books?category=java&page=1`.
+3. `queryParamMap` emits the new params.
+4. `switchMap` fetches Java books and the list updates.
+
+**Route params vs query params**
+
+| | Route param | Query param |
+|---|---|---|
+| Example | `/books/42` | `/books?category=java` |
+| Purpose | identifies the resource | filters or options |
+| Required? | yes | no |
+| Defined in routes? | yes (`:id`) | no |
+| Read with | `paramMap` | `queryParamMap` |
+
+**Short answer**
+
+"Query parameters are optional key-value pairs after the `?` in a URL, used for filters, sorting and pagination. 
+They don't affect route matching. I set them with `router.navigate` and `queryParams`, read them from `route.queryParamMap`, 
+and use `queryParamsHandling: 'merge'` to change one without losing the others. Because they live in the URL, 
+the filtered view is bookmarkable, shareable and survives a refresh."
+
+
+
+=================================================================================================================================
+96.  [Multiple Query Parameters] How would you represent search, filter and sorting in the URL?
+
+**Idea:** put each control in its own query parameter, so the whole state of the page is in the URL.
+
+```
+/books?search=spring&category=java&sort=price&order=asc&page=2
+```
+
+| Param | Purpose |
+|---|---|
+| `search` | text typed by the user |
+| `category` | filter |
+| `sort` | field to sort by |
+| `order` | `asc` or `desc` |
+| `page` | pagination |
+
+**Set them**
+
+```typescript
+applyFilters() {
+  this.router.navigate(['/books'], {
+    queryParams: {
+      search: 'spring',
+      category: 'java',
+      sort: 'price',
+      order: 'asc',
+      page: 1
+    }
+  });
+}
+```
+
+**Change only one**
+
+```typescript
+changeSort(sort: string) {
+  this.router.navigate([], {
+    queryParams: { sort, page: 1 },
+    queryParamsHandling: 'merge'   // keeps search and category
+  });
+}
+```
+
+**Read all of them and load books**
+
+```typescript
+ngOnInit() {
+  this.route.queryParamMap
+    .pipe(
+      map(params => ({
+        search: params.get('search') ?? '',
+        category: params.get('category'),
+        sort: params.get('sort') ?? 'title',
+        order: params.get('order') ?? 'asc',
+        page: Number(params.get('page') ?? 1)
+      })),
+      switchMap(filters => this.bookService.getBooks(filters))
+    )
+    .subscribe(books => this.books = books);
+}
+```
+
+**Key points**
+
+- **One source of truth:** the URL holds the state. Components read it and never keep a separate copy.
+- **Defaults:** use `??` so a missing param still works (`/books` loads page 1, sorted by title).
+- **Reset the page:** when search or a filter changes, set `page: 1`, otherwise you may land on an empty page.
+- **Use `merge`:** so changing one param keeps the others.
+- **Clean URLs:** set a param to `null` to remove it, e.g. clearing the search box.
+- **Debounce search:** wait ~300 ms before updating the URL so each keystroke doesn't create a history entry.
+- **Benefit:** the view is bookmarkable, shareable, survives refresh, and Back restores the previous filters.
+
+**Short answer**
+
+"I put search, filter, sort and page in separate query parameters like `/books?search=spring&category=java&sort=price&order=asc&page=2`. 
+I update them with `router.navigate` using `queryParamsHandling: 'merge'`, read them from `queryParamMap` with defaults, 
+and use `switchMap` to fetch the results. I reset `page` to 1 when filters change. Because the state lives in the URL, it is shareable, 
+bookmarkable and survives a refresh."
+
+===============================================================================================================
+97.  [Child Routes] When would Book Details need child routes?
+
+**Goal:** a book detail page with three tabs, each with its own URL. The book header stays on screen and only the section below it changes.
+
+```
+/books/42            → Overview (default tab)
+/books/42/reviews    → Reviews tab
+/books/42/authors    → Authors tab
+```
+
+**1. Routes**
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  { path: 'books', component: BookGalleryComponent },
+  {
+    path: 'books/:id',
+    component: BookDetailComponent,          // parent
+    children: [
+      { path: '', component: BookOverviewComponent },       // /books/42
+      { path: 'reviews', component: BookReviewsComponent }, // /books/42/reviews
+      { path: 'authors', component: BookAuthorsComponent }  // /books/42/authors
+    ]
+  }
+];
+```
+
+The child paths are relative to the parent. The empty path `''` is the default tab.
+
+**2. Parent component: loads the book once**
+
+```typescript
+export class BookDetailComponent implements OnInit {
+  book?: Book;
+
+  constructor(
+    private route: ActivatedRoute,
+    private bookService: BookService
+  ) {}
+
+  ngOnInit() {
+    this.route.paramMap
+      .pipe(
+        map(params => Number(params.get('id'))),
+        switchMap(id => this.bookService.getBook(id))
+      )
+      .subscribe(book => this.book = book);
+  }
+}
+```
+
+The parent's template has two things:
+- The book header (title, cover, price) and tab links to `reviews` and `authors`.
+- A `<router-outlet>`, which is the slot where the active child component appears.
+
+**3. Child components: read the parent's id**
+
+A child's own route has no `:id`, because it belongs to the parent. So the child reads it from `route.parent`.
+
+```typescript
+export class BookReviewsComponent implements OnInit {
+  reviews: Review[] = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private reviewService: ReviewService
+  ) {}
+
+  ngOnInit() {
+    this.route.parent!.paramMap
+      .pipe(
+        map(params => Number(params.get('id'))),
+        switchMap(id => this.reviewService.getReviews(id))
+      )
+      .subscribe(reviews => this.reviews = reviews);
+  }
+}
+```
+
+`BookOverviewComponent` and `BookAuthorsComponent` follow the same pattern with their own services.
+
+**4. Navigating between tabs**
+
+```typescript
+// from inside any child or the parent
+this.router.navigate(['reviews'], { relativeTo: this.route });
+// or with an absolute path
+this.router.navigate(['/books', 42, 'reviews']);
+```
+
+**How it flows**
+
+1. The user opens `/books/42/reviews`.
+2. The router matches the parent `books/:id` and the child `reviews`.
+3. `BookDetailComponent` loads and fetches book 42.
+4. `BookReviewsComponent` appears inside the parent's `<router-outlet>`.
+5. The user clicks the Authors tab. The URL becomes `/books/42/authors`.
+6. Only the child changes. The parent and its book data stay, so there is no reload and no extra book request.
+
+**Why this design is good**
+
+- **One load:** the book is fetched once, not once per tab.
+- **Shared layout:** the header and tabs live in one place.
+- **Real URLs:** each tab is bookmarkable and Back works.
+- **Lazy loading:** you can lazy load a child with `loadComponent: () => import(...)`.
+
+**Short answer**
+
+"I make `books/:id` the parent with the header, tab links and a `router-outlet`. 
+The overview, reviews and authors tabs are child routes, with overview as the empty-path default. 
+The parent loads the book once, and children read the id from `route.parent.paramMap`. 
+Each tab gets its own URL, and switching tabs only swaps the child."
+
+======================================================================================================================================
+
 98. [Lazy Loading] How would you lazy-load the Book feature?
 
 app/
@@ -36,6 +416,124 @@ app/
 │
 ├── app.routes.ts
 └── app.config.ts
+
+
+**Lazy loading** means the browser downloads a feature's code only when the user first visits its route, instead of putting everything in the initial bundle. The first page loads faster.
+
+**Folder structure**
+
+```
+src/app/
+  app.routes.ts
+  books/
+    books.routes.ts
+    book-gallery.component.ts
+    book-detail.component.ts
+    book.service.ts
+```
+
+**1. Main routes: use `loadChildren`**
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  { path: '', redirectTo: 'books', pathMatch: 'full' },
+  {
+    path: 'books',
+    loadChildren: () =>
+      import('./books/books.routes').then(m => m.BOOK_ROUTES)
+  },
+  { path: '**', component: NotFoundComponent }
+];
+```
+
+No Book component is imported at the top of this file. The `import()` call is what tells the build to put the Book code in a separate file (a chunk).
+
+**2. Feature routes: paths are relative to `books`**
+
+```typescript
+// books/books.routes.ts
+export const BOOK_ROUTES: Routes = [
+  { path: '', component: BookGalleryComponent },          // /books
+  {
+    path: ':id',
+    component: BookDetailComponent,                       // /books/42
+    children: [
+      { path: '', component: BookOverviewComponent },
+      { path: 'reviews', component: BookReviewsComponent }
+    ]
+  }
+];
+```
+
+Because the parent path is already `books`, the feature uses `''` and `':id'`, not `'books'` and `'books/:id'`.
+
+**3. Feature-only service**
+
+```typescript
+// books/book.service.ts
+@Injectable()
+export class BookService { /* ... */ }
+```
+
+To keep the service inside the lazy chunk, provide it in the feature routes:
+
+```typescript
+export const BOOK_ROUTES: Routes = [
+  {
+    path: '',
+    providers: [BookService],     // created only when this feature loads
+    children: [
+      { path: '', component: BookGalleryComponent },
+      { path: ':id', component: BookDetailComponent }
+    ]
+  }
+];
+```
+
+**4. Lazy load a single component**
+
+For one standalone component, use `loadComponent`:
+
+```typescript
+{
+  path: 'about',
+  loadComponent: () =>
+    import('./about/about.component').then(m => m.AboutComponent)
+}
+```
+
+**5. Preload in the background (optional)**
+
+```typescript
+// app.config.ts
+provideRouter(routes, withPreloading(PreloadAllModules))
+```
+
+The app loads fast first, then downloads the lazy chunks while the user is idle. The next visit to `/books` is then instant.
+
+**How it flows**
+
+1. User opens `/`. Only the main bundle downloads.
+2. User clicks to `/books`. The router sees `loadChildren` and downloads the Book chunk.
+3. The router reads `BOOK_ROUTES` and shows `BookGalleryComponent`.
+4. Later visits to `/books` reuse the already loaded chunk.
+
+**Key points**
+
+- **Don't import lazy components in `app.routes.ts`.** A normal `import` at the top puts them back in the main bundle and defeats lazy loading.
+- **Good candidates:** admin area, rarely used features, large features.
+- **Not for:** the home page or anything needed immediately.
+- **Guards:** use `canMatch` to stop the chunk from downloading at all for unauthorized users, instead of `canActivate`, which still downloads it.
+- **Check it works:** run `ng build` and look for separate chunk files in the output.
+
+**Short answer**
+
+"I move the Book feature into its own `books.routes.ts` 
+and load it with `loadChildren: () => import('./books/books.routes').then(m => m.BOOK_ROUTES)`. 
+The feature's paths are relative to `books`. This splits Book code into a separate chunk that downloads only on the first visit to `/books`, 
+which shrinks the initial bundle. 
+I can add `PreloadAllModules` to fetch it in the background, and use `canMatch` for guarded features."
 
 
 
@@ -973,3 +1471,236 @@ The component simply reads the data from `route.data`. I avoid resolvers for slo
 because the user stays on the old page with no feedback. In that case I load the data in the component and show a spinner."
 
 Would you like #104 (Route Data) next?
+
+
+==============================================================================================================================
+104. [Route Data] How would you pass metadata to Admin routes?
+
+**Route data** is a static object attached to a route with the `data` property. Use it for fixed metadata such as page title, 
+required role, or breadcrumb label. 
+It does not change per visit, which is different from route params.
+
+**1. Add `data` to the admin routes**
+
+```typescript
+// admin/admin.routes.ts
+export const ADMIN_ROUTES: Routes = [
+  {
+    path: 'books/new',
+    component: BookFormComponent,
+    data: { title: 'Add Book', roles: ['ADMIN'], breadcrumb: 'New Book' }
+  },
+  {
+    path: 'books/:id/edit',
+    component: BookFormComponent,
+    data: { title: 'Edit Book', roles: ['ADMIN', 'EDITOR'], breadcrumb: 'Edit Book' }
+  }
+];
+```
+
+**2. Read it in a component**
+
+```typescript
+export class BookFormComponent implements OnInit {
+  title = '';
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.route.data.subscribe(data => this.title = data['title']);
+  }
+}
+```
+
+**3. Read it in a guard (the most common use)**
+
+The guard checks the roles listed in the route's data, so one guard works for every route.
+
+```typescript
+export const roleGuard: CanActivateFn = (route) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const allowed: string[] = route.data['roles'] ?? [];
+
+  return allowed.includes(auth.role())
+    ? true
+    : router.createUrlTree(['/books']);
+};
+```
+
+Attach it once to the parent:
+
+```typescript
+{
+  path: 'admin',
+  canActivate: [roleGuard],
+  data: { roles: ['ADMIN'] },
+  loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+}
+```
+
+**4. Page title without code**
+
+Angular has a built-in `title` property on routes:
+
+```typescript
+{ path: 'books/new', component: BookFormComponent, title: 'Add Book' }
+```
+
+It sets the browser tab title automatically.
+
+**Key points**
+
+- **Static only:** `data` is fixed at build time. For values loaded from an API, use a `resolve`.
+- **Inheritance:** child routes inherit parent `data` only when the parent has an empty path or a componentless route, or when you set `paramsInheritanceStrategy: 'always'`.
+- **Typed access:** `data['roles']` is untyped, so define an interface or constants for the keys to avoid typos.
+
+**Short answer**
+
+"I attach metadata with the `data` property on the route, for example `data: { roles: ['ADMIN'], title: 'Add Book' }`. 
+A guard reads it from `route.data` to decide access, and components read it from `ActivatedRoute.data`. It is for static values; 
+for dynamic values I use a resolver."
+
+=============================================================================================================
+105. [Route-level Providers] Why might BookGallery need them?
+**Route-level providers** are services declared in a route's `providers` array. Angular creates them when the route is first activated, in an injector that belongs to that route and its children, not in the app-wide root injector.
+
+```typescript
+{
+  path: 'books',
+  providers: [BookService, BookFilterStore],
+  children: [
+    { path: '', component: BookGalleryComponent },
+    { path: ':id', component: BookDetailComponent }
+  ]
+}
+```
+
+**Why BookGallery might need them**
+
+1. **Scoped state.** A `BookFilterStore` holding search, category and sort should exist only while the user is in the Books area. With route-level providers, the state lives with the feature and is cleaned up when the route's injector is destroyed (for lazy routes, it stays for the app's life, but it is still isolated from other features).
+
+2. **Lazy loading.** Services provided on a lazy route are bundled into that route's chunk. The root bundle stays small, and the service is created only when the user first visits `/books`.
+
+3. **Sharing within the feature only.** The gallery, the detail page and their children all get the same `BookService` instance. Unrelated features such as Admin cannot accidentally depend on it.
+
+4. **Different configuration per area.** The same class can behave differently in different routes.
+
+```typescript
+{
+  path: 'books',
+  providers: [{ provide: PAGE_SIZE, useValue: 12 }]
+},
+{
+  path: 'admin',
+  providers: [{ provide: PAGE_SIZE, useValue: 50 }]
+}
+```
+
+5. **Easier testing and replacement.** You can swap a service for one route (a mock or a different implementation) without touching the rest of the app.
+
+**Compare with `providedIn: 'root'`**
+
+| | `providedIn: 'root'` | Route-level `providers` |
+|---|---|---|
+| Instance | one for the whole app | one per route injector |
+| Created | when first injected | when the route is first activated |
+| In bundle | main (or where used) | the lazy route's chunk |
+| Best for | app-wide services (auth, http wrappers) | feature-specific services and state |
+
+**Short answer**
+
+"BookGallery may need route-level providers so services like `BookService` or a filter store are scoped to the Books feature. 
+They are created only when the route is first activated, live in the lazy chunk, are shared by the gallery and detail pages, 
+and stay isolated from other features. I would keep truly global services, like auth, as `providedIn: 'root'`."
+
+=============================================================================================================================
+106. [Router Events] How would you track navigation/loading?
+
+
+
+==================================================================================================================
+107. [Preloading] When would you preload the Books feature?
+
+**Preloading** means downloading a lazy-loaded chunk in the background, after the app has started, before the user clicks to it. The first page stays fast, and later navigation feels instant.
+
+**When to preload the Books feature**
+
+- **It is the main feature.** Almost every visitor goes from the home page to `/books`, so downloading it early costs little and saves a wait.
+- **The chunk is large.** A big chunk causes a visible delay on the first click.
+- **Users are on good connections.** Preloading uses bandwidth, so it suits Wi-Fi or desktop more than slow mobile data.
+- **The user is likely to go there next**, such as a login page where Books is always the next stop.
+
+**When not to preload**
+
+- Rarely used areas like Admin. Most users never need them.
+- Very small chunks, where lazy loading already feels instant.
+- Slow or metered connections.
+
+**1. Preload everything**
+
+```typescript
+// app.config.ts
+provideRouter(routes, withPreloading(PreloadAllModules))
+```
+
+The app loads first. Then every lazy chunk downloads in the background.
+
+**2. Preload only chosen routes (custom strategy)**
+
+Mark the route:
+
+```typescript
+{
+  path: 'books',
+  data: { preload: true },
+  loadChildren: () => import('./books/books.routes').then(m => m.BOOK_ROUTES)
+},
+{
+  path: 'admin',
+  loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+}
+```
+
+Write the strategy:
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class SelectivePreloadStrategy implements PreloadingStrategy {
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    return route.data?.['preload'] ? load() : of(null);
+  }
+}
+```
+
+Register it:
+
+```typescript
+provideRouter(routes, withPreloading(SelectivePreloadStrategy))
+```
+
+Now Books downloads in the background and Admin only downloads when visited.
+
+**How it flows**
+
+1. The user opens the app. Only the main bundle downloads.
+2. After the first navigation finishes, the router preloads `books`.
+3. The user clicks to `/books`. The chunk is already there, so it opens instantly.
+
+**Key points**
+
+- **Preloading starts after the initial navigation**, so it never slows the first page.
+- **`canMatch` guards** can skip preloading for users who can't access a route.
+- **Default is no preloading.** Lazy chunks download only on first visit.
+
+**Short answer**
+
+"I would preload Books because it is the main feature most users open next, 
+so downloading it in the background makes the first click instant without slowing the first page. 
+I'd use `PreloadAllModules` for a small app, or a custom strategy with `data: { preload: true }` 
+so only Books is preloaded and rarely used areas like Admin stay lazy."
+
+
+=====================================================================================
+
+

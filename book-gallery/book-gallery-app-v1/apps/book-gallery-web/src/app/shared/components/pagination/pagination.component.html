@@ -1,0 +1,29 @@
+<div class="pagination">
+
+  <!-- Previous -->
+  <button
+    class="page-btn arrow"
+    [disabled]="currentPageNumber === 1"
+    (click)="previousPage()">
+    ←
+  </button>
+
+  <!-- Page numbers -->
+  @for (page of pages; track page) {
+    <button
+      class="page-btn"
+      [class.active]="currentPageNumber === page"
+      (click)="goToPage(page)">
+      {{ page }}
+    </button>
+  }
+
+  <!-- Next -->
+  <button
+    class="page-btn arrow"
+    [disabled]="currentPageNumber === totalPages"
+    (click)="nextPage()">
+    →
+  </button>
+
+</div>

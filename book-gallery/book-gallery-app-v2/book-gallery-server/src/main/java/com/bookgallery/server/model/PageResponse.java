@@ -17,12 +17,12 @@ public class PageResponse<T> {
     private long totalBooks;
     private int totalPages;
 
-    public PageResponse(List<T> content, int page, int size, long totalElements) {
-        this.books = content;
-        this.pageNumber = page;
-        this.pageSize = size;
-        this.totalBooks = totalElements;
-        this.totalPages = (int) Math.ceil((double) totalElements / size);
+    public PageResponse(List<T> books, int pageNumber, int pageSize, long totalBooks) {
+        this.books = books;
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.totalBooks = totalBooks;
+        this.totalPages = (int) Math.ceil((double) totalBooks / pageSize);
     }
 
 }

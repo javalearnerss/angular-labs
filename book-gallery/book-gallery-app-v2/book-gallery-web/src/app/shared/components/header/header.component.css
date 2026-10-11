@@ -1,18 +1,36 @@
-/* =========================
+/* =========================================================
    Header
-   ========================= */
+   ========================================================= */
 
 .header {
+  /* Keep the header at a fixed height. */
   height: 68px;
+
+  /* Make the header span the complete available width. */
   width: 100%;
+
+  /* Arrange all header sections horizontally. */
   display: flex;
+
+  /* Vertically center all header content. */
   align-items: center;
+
+  /* Keep horizontal spacing responsive. */
   padding: 0 clamp(16px, 3vw, 48px);
+
+  /* Use a clean white background. */
   background: #ffffff;
+
+  /* Separate the header from the page content. */
   border-bottom: 1px solid #e8ebf2;
+
+  /* Include padding and border in the element dimensions. */
   box-sizing: border-box;
+
+  /* Default spacing between header sections. */
   gap: 24px;
 
+  /* Use the application's primary font stack. */
   font-family:
     Inter,
     -apple-system,
@@ -22,372 +40,748 @@
 }
 
 
-/* =========================
+/* =========================================================
    Logo
-   ========================= */
+   ========================================================= */
 
 .logo {
+  /* Arrange the icon and text horizontally. */
   display: flex;
+
+  /* Vertically align the logo contents. */
   align-items: center;
+
+  /* Prevent the logo from shrinking. */
   flex-shrink: 0;
+
+  /* Indicate that the logo can be clicked. */
   cursor: pointer;
 }
 
+
+/* Container for the book icon. */
 .logo-icon {
+  /* Allow the book pages to be positioned relative to this container. */
   position: relative;
+
+  /* Set the logo icon width. */
   width: 32px;
+
+  /* Set the logo icon height. */
   height: 30px;
+
+  /* Separate the icon from the application name. */
   margin-right: 10px;
 }
 
+
+/* Shared styling for both book pages. */
 .book-left,
 .book-right {
+  /* Position both pages independently inside the logo. */
   position: absolute;
+
+  /* Set the width of each book page. */
   width: 13px;
+
+  /* Set the height of each book page. */
   height: 21px;
+
+  /* Position the pages vertically. */
   top: 4px;
+
+  /* Use the BookStore primary blue. */
   background: #2149c6;
+
+  /* Slightly round the page corners. */
   border-radius: 2px 2px 1px 1px;
 }
 
+
+/* Position and angle the left book page. */
 .book-left {
   left: 2px;
   transform: skewY(-8deg);
 }
 
+
+/* Position and angle the right book page. */
 .book-right {
   right: 2px;
   transform: skewY(8deg);
 }
 
+
+/* Add a small page-detail line to each book page. */
 .book-left::after,
 .book-right::after {
+  /* Required for the pseudo-element to render. */
   content: "";
+
+  /* Position the page-detail line. */
   position: absolute;
+
+  /* Position the line near the top of the page. */
   top: 3px;
+
+  /* Position the line horizontally. */
   left: 3px;
+
+  /* Set the line width. */
   width: 7px;
+
+  /* Set the line height. */
   height: 1px;
+
+  /* Use white for the page detail. */
   background: #ffffff;
+
+  /* Make the line subtle. */
   opacity: 0.7;
 }
 
+
+/* Application name. */
 .logo-text {
+  /* Set the application name size. */
   font-size: 22px;
+
+  /* Make the application name prominent. */
   font-weight: 700;
+
+  /* Use dark text for the main brand name. */
   color: #111827;
+
+  /* Slightly tighten the letter spacing. */
   letter-spacing: -0.5px;
 }
 
+
+/* Highlight the "Store" part of the name. */
 .logo-text span {
   color: #2852cc;
 }
 
 
-/* =========================
+/* =========================================================
    Navigation
-   ========================= */
+   ========================================================= */
 
 .navigation {
+  /* Display navigation items horizontally. */
   display: flex;
+
+  /* Vertically center navigation items. */
   align-items: center;
+
+  /* Match the header height. */
   height: 100%;
+
+  /* Use responsive spacing between navigation items. */
   gap: clamp(18px, 2.5vw, 34px);
+
+  /* Prevent navigation labels from wrapping. */
   white-space: nowrap;
+
+  /* Prevent the navigation from shrinking. */
   flex-shrink: 0;
 }
 
+
+/* Individual navigation links. */
 .navigation a {
+  /* Position the active indicator relative to the link. */
   position: relative;
+
+  /* Match the header height. */
   height: 100%;
+
+  /* Vertically center the label. */
   display: flex;
+
+  /* Vertically center the label. */
   align-items: center;
 
+  /* Remove the default anchor underline. */
   text-decoration: none;
+
+  /* Use dark navigation text. */
   color: #161b2d;
+
+  /* Set the navigation font size. */
   font-size: 13px;
+
+  /* Give navigation labels moderate emphasis. */
   font-weight: 600;
 
+  /* Animate color changes. */
   transition: color 0.2s ease;
 }
 
+
+/* Highlight navigation links on hover. */
 .navigation a:hover {
   color: #2149c6;
 }
 
+
+/* Highlight the currently active route. */
 .navigation a.active {
   color: #1747ce;
 }
 
+
+/* Add the blue active-route indicator. */
 .navigation a.active::after {
+  /* Create the indicator. */
   content: "";
+
+  /* Position the indicator at the bottom of the header. */
   position: absolute;
+
+  /* Stretch the indicator across the link. */
   bottom: 0;
   left: 0;
   right: 0;
+
+  /* Set the indicator thickness. */
   height: 2px;
+
+  /* Use the primary blue. */
   background: #2852d5;
+
+  /* Slightly round the top corners. */
   border-radius: 2px 2px 0 0;
 }
 
 
-/* =========================
+/* =========================================================
    Search
-   ========================= */
+   ========================================================= */
 
 .search-container {
+  /* Set the search field height. */
   height: 38px;
+
+  /* Allow the search field to consume available space. */
   flex: 1;
+
+  /* Keep the search field within the header width. */
   width: 100%;
+
+  /* Prevent the search field from becoming too large. */
   max-width: 420px;
+
+  /* Prevent the search field from becoming unusably small. */
   min-width: 180px;
 
+  /* Push the search field toward the right when space is available. */
   margin-left: auto;
 
+  /* Arrange search icon, input, and button horizontally. */
   display: flex;
+
+  /* Vertically center the search contents. */
   align-items: center;
 
+  /* Give the search box a subtle border. */
   border: 1px solid #d8ddea;
+
+  /* Round the search field corners. */
   border-radius: 12px;
+
+  /* Use a white background. */
   background: #ffffff;
 
+  /* Animate focus styling. */
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 
+
+/* Highlight the search field when its input receives focus. */
 .search-container:focus-within {
+  /* Change the border to the primary blue. */
   border-color: #5575d9;
+
+  /* Add a subtle focus ring. */
   box-shadow: 0 0 0 3px rgba(40, 82, 204, 0.08);
 }
 
+
+/* Search icon container. */
 .search-icon {
+  /* Center the search icon. */
   display: flex;
+
+  /* Horizontally center the icon. */
   align-items: center;
   justify-content: center;
 
+  /* Add spacing from the left edge. */
   margin-left: 12px;
+
+  /* Use a muted icon color. */
   color: #68728a;
 }
 
+
+/* Search input. */
 .search-container input {
+  /* Consume the remaining available width. */
   flex: 1;
+
+  /* Allow the input to shrink when required. */
   min-width: 0;
+
+  /* Match the search container height. */
   height: 100%;
 
+  /* Remove the browser border. */
   border: none;
+
+  /* Remove the browser focus outline. */
   outline: none;
 
+  /* Add horizontal spacing around the text. */
   padding: 0 8px;
 
+  /* Set the input font size. */
   font-size: 12px;
+
+  /* Use the application's primary text color. */
   color: #1b2235;
+
+  /* Keep the search background transparent. */
   background: transparent;
 }
 
+
+/* Search input placeholder. */
 .search-container input::placeholder {
   color: #727b90;
 }
 
+
+/* Search submit button. */
 .search-button {
+  /* Reserve space for the search icon. */
   width: 40px;
+
+  /* Match the search container height. */
   height: 100%;
 
+  /* Center the icon. */
   display: flex;
+
   align-items: center;
   justify-content: center;
 
+  /* Remove the default button border. */
   border: none;
+
+  /* Keep the background transparent. */
   background: transparent;
 
+  /* Use dark icon color. */
   color: #17233f;
+
+  /* Indicate that the button is interactive. */
   cursor: pointer;
 }
 
+
+/* Highlight the search icon when hovered. */
 .search-button:hover {
   color: #2149c6;
 }
 
 
-/* =========================
+/* =========================================================
    Header Actions
-   ========================= */
+   ========================================================= */
 
 .header-actions {
+  /* Arrange action buttons horizontally. */
   display: flex;
+
+  /* Vertically center the icons. */
   align-items: center;
+
+  /* Keep consistent spacing between action buttons. */
   gap: 18px;
+
+  /* Prevent action buttons from shrinking. */
   flex-shrink: 0;
 }
 
+
+/* Common styling for cart, wishlist, and notification buttons. */
 .icon-button {
+  /* Position badges relative to the button. */
   position: relative;
 
+  /* Set the button width. */
   width: 26px;
+
+  /* Set the button height. */
   height: 32px;
+
+  /* Remove default button padding. */
   padding: 0;
 
+  /* Center the SVG icon. */
   display: flex;
+
   align-items: center;
   justify-content: center;
 
+  /* Remove the browser button border. */
   border: none;
+
+  /* Keep the button background transparent. */
   background: transparent;
 
+  /* Use dark icons. */
   color: #10182d;
+
+  /* Indicate that the button is interactive. */
   cursor: pointer;
 }
 
+
+/* Set the size of action icons. */
 .icon-button svg {
   width: 22px;
   height: 22px;
 }
 
+
+/* Highlight action icons on hover. */
 .icon-button:hover {
   color: #2149c6;
 }
 
 
-/* =========================
+/* =========================================================
    Badge
-   ========================= */
+   ========================================================= */
 
 .badge {
+  /* Position the badge relative to its icon button. */
   position: absolute;
+
+  /* Move the badge slightly above the icon. */
   top: -5px;
+
+  /* Move the badge slightly to the right. */
   right: -7px;
 
+  /* Set the minimum badge width. */
   min-width: 15px;
+
+  /* Set the badge height. */
   height: 15px;
+
+  /* Add horizontal spacing for multi-digit values. */
   padding: 0 3px;
 
+  /* Center the badge content. */
   display: flex;
+
   align-items: center;
   justify-content: center;
 
+  /* Include padding in the badge dimensions. */
   box-sizing: border-box;
+
+  /* Make the badge circular. */
   border-radius: 50%;
 
+  /* Use the application blue. */
   background: #2550c9;
+
+  /* Use white badge text. */
   color: #ffffff;
 
+  /* Keep the badge text compact. */
   font-size: 9px;
+
+  /* Make the count easy to read. */
   font-weight: 700;
+
+  /* Normalize the line height. */
   line-height: 1;
 }
 
 
-/* =========================
+/* =========================================================
    User Menu
-   ========================= */
+   ========================================================= */
 
 .user-menu {
+  /* Arrange avatar, name, and dropdown horizontally. */
   display: flex;
+
+  /* Vertically center user information. */
   align-items: center;
+
+  /* Add spacing between user elements. */
   gap: 9px;
 
+  /* Indicate that the menu is interactive. */
   cursor: pointer;
+
+  /* Prevent the user name from wrapping. */
   white-space: nowrap;
+
+  /* Prevent the user section from shrinking. */
   flex-shrink: 0;
 }
 
+
+/* User avatar. */
 .user-avatar {
+  /* Set avatar width. */
   width: 36px;
+
+  /* Set avatar height. */
   height: 36px;
 
+  /* Make the image circular. */
   border-radius: 50%;
+
+  /* Prevent the image from being distorted. */
   object-fit: cover;
 
+  /* Add a subtle border. */
   border: 1px solid #e2e5ec;
 }
 
+
+/* Logged-in user name. */
 .user-name {
+  /* Set the user name size. */
   font-size: 13px;
+
+  /* Give the user name moderate emphasis. */
   font-weight: 600;
+
+  /* Use dark text. */
   color: #171c2c;
 }
 
+
+/* User dropdown arrow. */
 .dropdown-icon {
+  /* Use dark color for the arrow. */
   color: #111827;
+
+  /* Add a small amount of spacing. */
   margin-left: 1px;
 }
 
 
-/* =========================
-   Responsive
-   ========================= */
+/* =========================================================
+   Login Button
+   ========================================================= */
+
+.login-button {
+  /* Set the button height to align with the user avatar. */
+  height: 36px;
+
+  /* Add horizontal space around the Login text. */
+  padding: 0 20px;
+
+  /* Center the button text. */
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  /* Use the primary application blue as the border. */
+  border: 1px solid #2852cc;
+
+  /* Slightly round the button corners. */
+  border-radius: 8px;
+
+  /* Use the primary application blue as the background. */
+  background: #2852cc;
+
+  /* Use white text for strong contrast. */
+  color: #ffffff;
+
+  /* Match the rest of the header typography. */
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  /* Set the Login text size. */
+  font-size: 13px;
+
+  /* Give the Login text moderate emphasis. */
+  font-weight: 600;
+
+  /* Indicate that the button is interactive. */
+  cursor: pointer;
+
+  /* Animate hover, focus, and pressed states. */
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* Login button hover state. */
+.login-button:hover {
+  /* Use a slightly darker blue. */
+  background: #2149c6;
+
+  /* Keep the border consistent with the background. */
+  border-color: #2149c6;
+
+  /* Add a subtle elevation effect. */
+  box-shadow: 0 3px 8px rgba(33, 73, 198, 0.18);
+}
+
+
+/* Login button keyboard-focus state. */
+.login-button:focus-visible {
+  /* Remove the browser's default outline. */
+  outline: none;
+
+  /* Add an accessible custom focus ring. */
+  box-shadow: 0 0 0 3px rgba(40, 82, 204, 0.18);
+}
+
+
+/* Login button pressed state. */
+.login-button:active {
+  /* Give a subtle physical button effect. */
+  transform: translateY(1px);
+}
+
+
+/* =========================================================
+   Responsive - 1200px
+   ========================================================= */
 
 @media (max-width: 1200px) {
+
+  /* Reduce overall header spacing. */
   .header {
     gap: 18px;
   }
 
+  /* Reduce navigation spacing. */
   .navigation {
     gap: 18px;
   }
 
+  /* Reduce search width. */
   .search-container {
     max-width: 300px;
   }
 
+  /* Reduce spacing between header actions. */
   .header-actions {
     gap: 14px;
   }
 }
 
 
+/* =========================================================
+   Responsive - 1000px
+   ========================================================= */
+
 @media (max-width: 1000px) {
+
+  /* Reduce navigation spacing further. */
   .navigation {
     gap: 14px;
   }
 
+  /* Reduce navigation font size. */
   .navigation a {
     font-size: 12px;
   }
 
+  /* Reduce search width. */
   .search-container {
     max-width: 250px;
   }
 
+  /* Hide the user name when horizontal space becomes limited. */
   .user-name {
     display: none;
   }
 }
 
 
+/* =========================================================
+   Responsive - 800px
+   ========================================================= */
+
 @media (max-width: 800px) {
+
+  /* Reduce header spacing on smaller screens. */
   .header {
     padding: 0 16px;
     gap: 14px;
   }
 
+  /* Hide the desktop navigation. */
   .navigation {
     display: none;
   }
 
+  /* Allow the search field to consume available width. */
   .search-container {
     max-width: none;
   }
 }
 
 
+/* =========================================================
+   Responsive - 550px
+   ========================================================= */
+
 @media (max-width: 550px) {
+
+  /* Reduce spacing between mobile header elements. */
   .header {
     gap: 10px;
   }
 
+  /* Hide the text portion of the logo. */
   .logo-text {
     display: none;
   }
 
+  /* Reduce spacing between action icons. */
   .header-actions {
     gap: 8px;
   }
 
+  /* Hide the logged-in user menu on very small screens. */
   .user-menu {
     display: none;
   }
 
+  /* Keep Login visible while making it more compact. */
+  .login-button {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+
+  /* Keep the search field usable on small screens. */
   .search-container {
     min-width: 120px;
   }

@@ -1,0 +1,17 @@
+
+
+1. Display only last three folders in path in cmd
+
+    function prompt {
+        $path = (Get-Location).Path -split '\\'
+        $shortPath = $path[-4..-1] -join '\'
+        "PS $shortPath> "
+    }
+
+--------------------------------------------------------------
+
+2. Rollout deployment after config map is updated
+    kubectl rollout restart deployment book-gallery-web -n book-gallery-dev
+
+3. Inspect a pod
+    kubectl exec -it book-gallery-web-7c7c775c77-98bhs -n book-gallery-dev -- sh

@@ -1,0 +1,179 @@
+# API version for Kubernetes Deployment resources.
+apiVersion: apps/v1
+
+# Defines a Deployment that manages the backend application Pods.
+kind: Deployment
+
+metadata:
+  # Name of the backend Deployment.
+  name: book-gallery-server
+
+  # Namespace where the backend application runs.
+  namespace: book-gallery-dev
+
+  # Labels used to identify and organize this Deployment.
+  labels:
+    app: book-gallery-server
+    version: v1
+
+spec:
+  # Number of backend Pod replicas to maintain.
+  replicas: 1
+
+  # Rolling update strategy for application upgrades.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Keep all existing replicas available during an update.
+      maxUnavailable: 0
+
+      # Allow one additional Pod during the rolling update.
+      maxSurge: 1
+
+  # Identifies the Pods managed by this Deployment.
+  selector:
+    matchLabels:
+      app: book-gallery-server
+      version: v1
+
+  # Template used to create backend Pods.
+  template:
+    metadata:
+      # Labels must match the Deployment selector.
+      labels:
+        app: book-gallery-server
+        version: v1
+
+    spec:
+      # Allow up to 30 seconds for graceful application shutdown.
+      terminationGracePeriodSeconds: 30
+
+      # Security settings applied to the Pod containers.
+      securityContext:
+        # Prevent the container from running as root.
+        runAsNonRoot: true
+
+        # Run the container process using user ID 1000.
+        runAsUser: 1000
+
+      containers:
+        # Backend application container definition.
+        - name: book-gallery-server-container
+
+          # Existing backend image stored in Amazon ECR.
+          image: 336042380202.dkr.ecr.ap-south-1.amazonaws.com/dev/book-gallery-server:v1
+
+          # Always check the registry for the image when starting the container.
+          imagePullPolicy: Always
+
+          # Port on which the application listens inside the container.
+          ports:
+            - name: http
+              containerPort: 8080
+
+          # Environment variables explicitly configured for the container.
+          env:
+            # Service identifier for application monitoring and logging.
+            - name: SERVICE_NAME
+              value: "book-gallery-server"
+
+            # Read the database username from the Kubernetes Secret.
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  # Name of the Secret containing database credentials.
+                  name: book-gallery-db-secret
+
+                  # Key containing the database username.
+                  key: SPRING_DATASOURCE_USERNAME
+
+            # Read the database password from the Kubernetes Secret.
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  # Reuse the same Secret for the database password.
+                  name: book-gallery-db-secret
+
+                  # Key containing the database password.
+                  key: SPRING_DATASOURCE_PASSWORD
+
+          # Load non-sensitive environment variables from the ConfigMap.
+          envFrom:
+            - configMapRef:
+                # ConfigMap containing the port, JDBC URL, CORS origin,
+                # and upload directory configuration.
+                name: book-gallery-server-config-map
+
+          # Define CPU and memory reservations and limits.
+          resources:
+            requests:
+              # Minimum memory requested for scheduling.
+              memory: "256Mi"
+
+              # Minimum CPU requested for scheduling.
+              cpu: "250m"
+
+            limits:
+              # Maximum memory allowed for the container.
+              memory: "512Mi"
+
+              # Maximum CPU allowed for the container.
+              cpu: "500m"
+
+          # Determines whether the Pod is ready to receive traffic.
+          readinessProbe:
+            httpGet:
+              # Spring Boot Actuator readiness endpoint.
+              path: /actuator/health/readiness
+              port: 8080
+              scheme: HTTP
+
+            # Wait before performing the first readiness check.
+            initialDelaySeconds: 30
+
+            # Check readiness every five seconds.
+            periodSeconds: 5
+
+            # Wait up to five seconds for the probe response.
+            timeoutSeconds: 5
+
+            # Mark the Pod not ready after five consecutive failures.
+            failureThreshold: 5
+
+          # Detects whether the application process is healthy.
+          livenessProbe:
+            httpGet:
+              # Spring Boot Actuator liveness endpoint.
+              path: /actuator/health/liveness
+              port: 8080
+              scheme: HTTP
+
+            # Wait before performing the first liveness check.
+            initialDelaySeconds: 30
+
+            # Check liveness every five seconds.
+            periodSeconds: 5
+
+            # Wait up to five seconds for the probe response.
+            timeoutSeconds: 5
+
+            # Restart the container after five consecutive failures.
+            failureThreshold: 5
+
+          # Allows the application additional time to finish starting.
+          # Liveness and readiness probes are held back until startup succeeds.
+          startupProbe:
+            httpGet:
+              # General Spring Boot Actuator health endpoint.
+              path: /actuator/health
+              port: 8080
+              scheme: HTTP
+
+            # Wait before the first startup check.
+            initialDelaySeconds: 30
+
+            # Check startup every ten seconds.
+            periodSeconds: 10
+
+            # Fail startup after ten consecutive unsuccessful checks.
+            failureThreshold: 10

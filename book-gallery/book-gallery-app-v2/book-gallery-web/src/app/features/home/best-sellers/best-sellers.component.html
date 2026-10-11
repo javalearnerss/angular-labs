@@ -1,163 +1,93 @@
-<section class="bestseller-section">
-
+<section class="bestseller-section" aria-labelledby="bestseller-title">
   <div class="section-header">
-    <h2>Bestsellers</h2>
+    <div>
+      <span class="section-eyebrow">READERS KEEP COMING BACK</span>
+      <h2 id="bestseller-title">The reader favorites</h2>
+    </div>
+    <a class="view-all" routerLink="/books">Browse all books <span aria-hidden="true">→</span></a>
+  </div>
 
-    <a href="#" class="view-all">
-      View All <span>→</span>
+  <div class="book-list">
+    <a class="book-card" routerLink="/books">
+      <div class="book-cover cover-atomic">
+        <span class="cover-mark" aria-hidden="true">✳</span>
+        <span class="cover-kicker">TINY CHANGES</span>
+        <strong>ATOMIC<br />HABITS</strong>
+        <span class="cover-author">JAMES CLEAR</span>
+      </div>
+      <div class="book-info">
+        <h3>Atomic Habits</h3>
+        <p>James Clear</p>
+        <div class="book-meta"><span class="rating">★★★★★</span><span>4.6</span><strong>₹599</strong></div>
+      </div>
+    </a>
+
+    <a class="book-card" routerLink="/books">
+      <div class="book-cover cover-psychology">
+        <span class="cover-kicker">TIMELESS LESSONS ON</span>
+        <strong>THE<br />PSYCHOLOGY<br />OF MONEY</strong>
+        <span class="cover-author">MORGAN HOUSEL</span>
+      </div>
+      <div class="book-info">
+        <h3>The Psychology of Money</h3>
+        <p>Morgan Housel</p>
+        <div class="book-meta"><span class="rating">★★★★★</span><span>4.5</span><strong>₹499</strong></div>
+      </div>
+    </a>
+
+    <a class="book-card" routerLink="/books">
+      <div class="book-cover cover-ikigai">
+        <span class="cover-kicker">THE JAPANESE SECRET</span>
+        <strong>IKIGAI</strong>
+        <span class="cover-flower" aria-hidden="true">✿</span>
+        <span class="cover-author">GARCÍA & MIRALLES</span>
+      </div>
+      <div class="book-info">
+        <h3>Ikigai</h3>
+        <p>Héctor García</p>
+        <div class="book-meta"><span class="rating">★★★★★</span><span>4.4</span><strong>₹450</strong></div>
+      </div>
+    </a>
+
+    <a class="book-card" routerLink="/books">
+      <div class="book-cover cover-deep-work">
+        <span class="cover-kicker">RULES FOR FOCUSED SUCCESS</span>
+        <strong>DEEP<br />WORK</strong>
+        <span class="cover-author">CAL NEWPORT</span>
+      </div>
+      <div class="book-info">
+        <h3>Deep Work</h3>
+        <p>Cal Newport</p>
+        <div class="book-meta"><span class="rating">★★★★★</span><span>4.6</span><strong>₹550</strong></div>
+      </div>
+    </a>
+
+    <a class="book-card" routerLink="/books">
+      <div class="book-cover cover-sapiens">
+        <span class="cover-kicker">A BRIEF HISTORY OF</span>
+        <strong>SAPIENS</strong>
+        <span class="cover-art-line" aria-hidden="true"></span>
+        <span class="cover-author">YUVAL NOAH HARARI</span>
+      </div>
+      <div class="book-info">
+        <h3>Sapiens</h3>
+        <p>Yuval Noah Harari</p>
+        <div class="book-meta"><span class="rating">★★★★★</span><span>4.6</span><strong>₹599</strong></div>
+      </div>
+    </a>
+
+    <a class="book-card" routerLink="/books">
+      <div class="book-cover cover-alchemist">
+        <span class="cover-kicker">A FABLE ABOUT FOLLOWING</span>
+        <strong>THE<br />ALCHEMIST</strong>
+        <span class="cover-art-line" aria-hidden="true"></span>
+        <span class="cover-author">PAULO COELHO</span>
+      </div>
+      <div class="book-info">
+        <h3>The Alchemist</h3>
+        <p>Paulo Coelho</p>
+        <div class="book-meta"><span class="rating">★★★★★</span><span>4.5</span><strong>₹399</strong></div>
+      </div>
     </a>
   </div>
-
-  <div class="bestseller-layout">
-
-    <!-- Books -->
-    <div class="books-slider">
-
-      <button class="slider-arrow left">‹</button>
-
-      <div class="book-list">
-
-        <div class="book-card">
-          <div class="book-image">
-            <img src="images/books/atomic-habits.jpg" alt="Atomic Habits">
-          </div>
-
-          <div class="book-info">
-            <h3>Atomic Habits</h3>
-            <p>James Clear</p>
-
-            <div class="rating">★★★★★ <span>4.6</span></div>
-
-            <div class="book-bottom">
-              <strong>₹599</strong>
-              <button>🛒</button>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="book-card">
-          <div class="book-image">
-            <img src="images/books/psychology-of-money.jpg"
-                 alt="The Psychology of Money">
-          </div>
-
-          <div class="book-info">
-            <h3>The Psychology of Money</h3>
-            <p>Morgan Housel</p>
-
-            <div class="rating">★★★★★ <span>4.5</span></div>
-
-            <div class="book-bottom">
-              <strong>₹499</strong>
-              <button>🛒</button>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="book-card">
-          <div class="book-image">
-            <img src="images/books/ikigai.jpg" alt="Ikigai">
-          </div>
-
-          <div class="book-info">
-            <h3>Ikigai</h3>
-            <p>Hector Garcia</p>
-
-            <div class="rating">★★★★★ <span>4.4</span></div>
-
-            <div class="book-bottom">
-              <strong>₹450</strong>
-              <button>🛒</button>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="book-card">
-          <div class="book-image">
-            <img src="images/books/dopamine-detox.jpg" alt="Dopamine Detox">
-          </div>
-
-          <div class="book-info">
-            <h3>Dopamine Detox</h3>
-            <p>Thibaut Meurisse</p>
-
-            <div class="rating">★★★★★ <span>4.3</span></div>
-
-            <div class="book-bottom">
-              <strong>₹399</strong>
-              <button>🛒</button>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="book-card">
-          <div class="book-image">
-            <img src="images/books/deep-work.jpg" alt="Deep Work">
-          </div>
-
-          <div class="book-info">
-            <h3>Deep Work</h3>
-            <p>Cal Newport</p>
-
-            <div class="rating">★★★★★ <span>4.6</span></div>
-
-            <div class="book-bottom">
-              <strong>₹550</strong>
-              <button>🛒</button>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="book-card">
-          <div class="book-image">
-            <img src="images/books/sapiens.jpg" alt="Sapiens">
-          </div>
-
-          <div class="book-info">
-            <h3>Sapiens</h3>
-            <p>Yuval Noah Harari</p>
-
-            <div class="rating">★★★★★ <span>4.6</span></div>
-
-            <div class="book-bottom">
-              <strong>₹599</strong>
-              <button>🛒</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <button class="slider-arrow right">›</button>
-
-    </div>
-
-
-    <!-- New Arrivals -->
-    <div class="new-arrivals">
-
-      <div class="arrival-content">
-        <span class="arrival-label">NEW</span>
-
-        <h2>New<br>Arrivals</h2>
-
-        <p>
-          Fresh stories.<br>
-          New perspectives.
-        </p>
-
-        <button>
-          Explore Now →
-        </button>
-      </div>
-
-    </div>
-
-  </div>
-
 </section>

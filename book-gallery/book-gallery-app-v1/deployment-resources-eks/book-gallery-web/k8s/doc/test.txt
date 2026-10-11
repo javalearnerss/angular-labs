@@ -1,0 +1,5 @@
+
+Run a temporary pod
+kubectl run test-pod --rm -it --image=busybox -n trading-dev -- /bin/sh
+
+wget -qO- http://trade-monitor-ui:80/

@@ -1,0 +1,41 @@
+<div class="category-filter">
+
+  <div class="filter-header">
+    <h3 class="filter-title">
+      Categories
+    </h3>
+
+    @if (selectedCategories.length > 0) {
+      <button
+        type="button"
+        class="clear-filter"
+        (click)="clearFilters()">
+        Clear All
+      </button>
+    }
+  </div>
+
+  <div class="category-list">
+
+    @for (category of categories; track category.id) {
+
+      <label class="category-item">
+
+        <input
+          #checkbox
+          type="checkbox"
+          [checked]="selectedCategories.includes(category.name)"
+          (change)="onCategoryChange(category, checkbox.checked)"
+        />
+
+        <span class="category-name">
+          {{ category.name }}
+        </span>
+
+      </label>
+
+    }
+
+  </div>
+
+</div>

@@ -1,27 +1,148 @@
 .book-card {
   width: 100%;
-  border: 1px solid #dbe3f0;
-  border-radius: 6px;
+  border: 1px solid #e9e5dc;
+  border-radius: 8px;
   background: #ffffff;
   overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
 
-/* =========================npm start
-   Book Cover
-   ========================= */
+.book-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(46, 54, 42, .1);
+}
 
 .book-cover {
+  position: relative;
+  display: flex;
   width: 100%;
   aspect-ratio: 2 / 3;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  background: #ffffff;
+  padding: 20px 15px;
+  color: #f3dfad;
+  text-align: center;
+  isolation: isolate;
 }
 
-.book-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+.book-cover::before {
+  position: absolute;
+  z-index: -1;
+  inset: 8px;
+  border: 1px solid rgba(255, 255, 255, .3);
+  content: "";
+}
+
+.book-cover::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 8px;
+  width: 2px;
+  background: rgba(255, 255, 255, .25);
+  content: "";
+}
+
+.cover-category,
+.cover-ornament,
+.cover-title,
+.cover-rule,
+.cover-author {
+  position: relative;
+  z-index: 1;
+}
+
+.cover-category {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cover-ornament {
+  margin: 13px 0 6px;
+  color: rgba(255, 241, 203, .82);
+  font-size: clamp(25px, 4vw, 42px);
+  line-height: 1;
+}
+
+.cover-title {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  margin: 7px 0 12px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(16px, 2.2vw, 26px);
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.cover-rule {
+  width: 42%;
+  height: 1px;
+  background: currentColor;
+  opacity: .65;
+}
+
+.cover-author {
+  max-width: 100%;
+  margin-top: 12px;
+  overflow: hidden;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cover-forest {
+  background: linear-gradient(145deg, #71856d, #344e43);
+  color: #f3dfad;
+}
+
+.cover-ochre {
+  background: linear-gradient(145deg, #d6bd8b, #a17b4f);
+  color: #3d4032;
+}
+
+.cover-ocean {
+  background: linear-gradient(145deg, #7192a1, #365967);
+  color: #f6e8bf;
+}
+
+.cover-midnight {
+  background: linear-gradient(145deg, #52647c, #25364c);
+  color: #e8d3a7;
+}
+
+.cover-clay {
+  background: linear-gradient(145deg, #c78c6b, #7f5143);
+  color: #fff0d7;
+}
+
+.cover-plum {
+  background: linear-gradient(145deg, #9b8193, #59485d);
+  color: #f7e7c9;
+}
+
+.cover-sage {
+  background: linear-gradient(145deg, #a8ac84, #626a4f);
+  color: #fff3d4;
+}
+
+.cover-coral {
+  background: linear-gradient(145deg, #e0a18a, #a75f56);
+  color: #fff2dc;
 }
 
 /* =========================
@@ -29,7 +150,7 @@
    ========================= */
 
 .book-details {
-  padding: 12px;
+  padding: 13px;
 }
 
 .book-title {
@@ -39,7 +160,7 @@
   font-weight: 700;
   line-height: 1.3;
 
-  color: #101828;
+  color: #313b32;
 
   white-space: nowrap;
   overflow: hidden;
@@ -50,7 +171,7 @@
   margin: 0 0 8px;
 
   font-size: 12px;
-  color: #64748b;
+  color: #85877f;
 
   white-space: nowrap;
   overflow: hidden;
@@ -106,13 +227,13 @@
 /* Empty stars */
 
 .stars-background {
-  color: #d6dbe3;
+  color: #e5e2dc;
 }
 
 /* Filled stars */
 
 .stars-filled {
-  color: #f59e0b;
+  color: #b78043;
 
   overflow: hidden;
 
@@ -125,7 +246,7 @@
   font-size: 11px;
   font-weight: 500;
 
-  color: #64748b;
+  color: #7b7e75;
 
   white-space: nowrap;
 }
@@ -134,7 +255,7 @@
 
 .review-count {
   font-size: 11px;
-  color: #64748b;
+  color: #85877f;
 
   white-space: nowrap;
 }
@@ -143,7 +264,7 @@
 
 .no-rating {
   font-size: 11px;
-  color: #94a3b8;
+  color: #989a91;
 }
 
 /* =========================
@@ -156,7 +277,7 @@
   font-size: 14px;
   font-weight: 700;
 
-  color: #101828;
+  color: #313b32;
 }
 
 /* =========================
@@ -173,11 +294,11 @@
 
   gap: 6px;
 
-  border: 1px solid #4c6fff;
+  border: 1px solid #76856e;
   border-radius: 5px;
 
   background: #ffffff;
-  color: #1554d1;
+  color: #4e6549;
 
   font-size: 12px;
   font-weight: 500;
@@ -186,7 +307,7 @@
 }
 
 .add-to-cart:hover {
-  background: #f0f5ff;
+  background: #f3f5ef;
 }
 
 .cart-icon {
@@ -205,7 +326,7 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid #d9ded5;
   border-radius: 6px;
 
   overflow: hidden;
@@ -219,7 +340,7 @@
 
   border: none;
 
-  background: #f8fafc;
+  background: #f5f6f2;
 
   font-size: 18px;
 
@@ -231,7 +352,7 @@
 }
 
 .quantity-control button:hover {
-  background: #e5e7eb;
+  background: #e9ece5;
 }
 
 .quantity-control span {
@@ -242,5 +363,21 @@
   font-size: 15px;
   font-weight: 600;
 
-  color: #101828;
+  color: #313b32;
+}
+
+@media (max-width: 520px) {
+  .book-details {
+    padding: 10px;
+  }
+
+  .cover-category,
+  .cover-author {
+    font-size: 7px;
+    letter-spacing: .8px;
+  }
+
+  .cover-title {
+    font-size: clamp(15px, 4.5vw, 21px);
+  }
 }

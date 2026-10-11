@@ -14,11 +14,12 @@ import { BOOK_SERVICE } from '../../../../shared/services/book-mock-data';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { Category } from '../../../../shared/models/category.model';
 import { AdminBookSearchCriteria, BookService } from '../../../../shared/services/book.service';
+import { TableColumnComponent } from '../../shared/components/table-column/table-column.component';
 
 @Component({
   selector: 'app-books-page',
   standalone: true,
-  imports: [PageHeaderComponent, SearchInputComponent, DataTableComponent, PaginationComponent],
+  imports: [PageHeaderComponent, SearchInputComponent, DataTableComponent, PaginationComponent, TableColumnComponent],
   templateUrl: './books-page.component.html',
   styleUrl: './books-page.component.css'
 })

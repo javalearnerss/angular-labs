@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 
 @Component({
@@ -8,37 +8,34 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.css']
 })
-export class PaginationComponent {
+export class PaginationComponent implements OnChanges {
 
   @Input() currentPageNumber!: number;
   @Input() totalPages!: number;
-
   @Output() pageChanged = new EventEmitter<number>();
 
-  get pages(): number[] {
+  pages: number[] = [];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['totalPages'] || changes['currentPageNumber']) {
+      this.pages = this.buildPages();
+    }
+  }
+
+  private buildPages(): number[] {
     const maxVisiblePages = 5;
 
     if (this.totalPages <= maxVisiblePages) {
-      return Array.from(
-        { length: this.totalPages },
-        (_, index) => index + 1
-      );
+      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
     }
 
-    let startPage = this.currentPageNumber - 2;
-
-    if (startPage < 1) {
-      startPage = 1;
-    }
+    let startPage = Math.max(1, this.currentPageNumber - 2);
 
     if (startPage + maxVisiblePages - 1 > this.totalPages) {
       startPage = this.totalPages - maxVisiblePages + 1;
     }
 
-    return Array.from(
-      { length: maxVisiblePages },
-      (_, index) => startPage + index
-    );
+    return Array.from({ length: maxVisiblePages }, (_, i) => startPage + i);
   }
 
   goToPage(page: number): void {

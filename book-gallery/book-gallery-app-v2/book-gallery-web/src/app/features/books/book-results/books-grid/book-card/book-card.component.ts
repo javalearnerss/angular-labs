@@ -3,8 +3,6 @@ import { DecimalPipe } from '@angular/common';
 
 import { CartService } from '../../../../../core/services/cart.service';
 import { BookWithReviewSummary } from '../../../../../shared/models/book.model';
-import { environment } from '../../../../../../environments/environments.developement';
-
 
 
 @Component({
@@ -18,9 +16,32 @@ export class BookCardComponent {
 
   @Input() book!: BookWithReviewSummary;
 
-  serverUrl : string = environment.serverUrl;
+  get coverTheme(): string {
+    const category = this.book.category?.toLowerCase() ?? '';
+    const themes: Record<string, string> = {
+      fiction: 'cover-forest',
+      'non-fiction': 'cover-ochre',
+      science: 'cover-ocean',
+      technology: 'cover-midnight',
+      business: 'cover-clay',
+      biography: 'cover-plum',
+      'self help': 'cover-sage',
+      children: 'cover-coral'
+    };
+
+    return themes[category] ?? this.getDefaultCoverTheme();
+  }
 
   constructor(private cartService: CartService) { }
+
+  private getDefaultCoverTheme(): string {
+    const title = this.book.title ?? '';
+    const hash = Array.from(title).reduce((value, character) => (
+      (value * 31 + character.charCodeAt(0)) >>> 0
+    ), 0);
+    const themes = ['cover-forest', 'cover-ochre', 'cover-ocean', 'cover-midnight', 'cover-clay', 'cover-plum'];
+    return themes[hash % themes.length];
+  }
 
   addToCart(): void {
     this.cartService.addToCart(this.book);

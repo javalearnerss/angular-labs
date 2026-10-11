@@ -1,0 +1,12 @@
+.book-filters {
+  width: 220px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+  border: 1px solid #e4e9f2;
+  border-radius: 8px;
+
+  overflow: hidden;
+}

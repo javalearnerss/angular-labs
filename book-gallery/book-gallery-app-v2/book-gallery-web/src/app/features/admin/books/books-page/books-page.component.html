@@ -21,7 +21,17 @@
     } @else if(errorMessage){
     <p role="alert">{{errorMessage}}</p>
     } @else {
-    <app-data-table [books]="books" [currentPageNumber]="currentPageNumber" [pageSize]="pageSize" ></app-data-table>
+    <app-data-table [books]="books" [currentPageNumber]="currentPageNumber" [pageSize]="pageSize" >
+        <app-table-column header="Image" field="image"></app-table-column>
+        <app-table-column header="Title" field="title"></app-table-column>
+        <app-table-column header="Author" field="author"></app-table-column>
+        <app-table-column header="Category" field="category"></app-table-column>
+        <app-table-column header="Price" field="price"></app-table-column>
+        <app-table-column header="Stock" field="stock"></app-table-column>
+        <app-table-column header="Status" field="status"></app-table-column>
+        <app-table-column header="Actions" field="actions"><button class="edit-button" >Edit</button>
+          <button class="delete-button">Delete</button></app-table-column>
+    </app-data-table>
     }
 
     <!-- Pagination -->

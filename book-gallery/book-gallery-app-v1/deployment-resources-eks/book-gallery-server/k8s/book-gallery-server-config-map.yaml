@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: book-gallery-server-config-map
+  namespace: book-gallery-dev
+data:
+  SERVER_PORT: "8080"
+  SPRING_DATASOURCE_URL: "jdbc:mysql://bookstore.codc2v4wblsw.ap-south-1.rds.amazonaws.com:3306/bookstore"
+  APP_CORS_ALLOWED_ORIGIN: "http://javalearners.in"

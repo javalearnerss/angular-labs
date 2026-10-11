@@ -1,0 +1,394 @@
+/* =========================
+   Header
+   ========================= */
+
+.header {
+  height: 68px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(16px, 3vw, 48px);
+  background: #ffffff;
+  border-bottom: 1px solid #e8ebf2;
+  box-sizing: border-box;
+  gap: 24px;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* =========================
+   Logo
+   ========================= */
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.logo-icon {
+  position: relative;
+  width: 32px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.book-left,
+.book-right {
+  position: absolute;
+  width: 13px;
+  height: 21px;
+  top: 4px;
+  background: #2149c6;
+  border-radius: 2px 2px 1px 1px;
+}
+
+.book-left {
+  left: 2px;
+  transform: skewY(-8deg);
+}
+
+.book-right {
+  right: 2px;
+  transform: skewY(8deg);
+}
+
+.book-left::after,
+.book-right::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 7px;
+  height: 1px;
+  background: #ffffff;
+  opacity: 0.7;
+}
+
+.logo-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.5px;
+}
+
+.logo-text span {
+  color: #2852cc;
+}
+
+
+/* =========================
+   Navigation
+   ========================= */
+
+.navigation {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: clamp(18px, 2.5vw, 34px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.navigation a {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  text-decoration: none;
+  color: #161b2d;
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: color 0.2s ease;
+}
+
+.navigation a:hover {
+  color: #2149c6;
+}
+
+.navigation a.active {
+  color: #1747ce;
+}
+
+.navigation a.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2852d5;
+  border-radius: 2px 2px 0 0;
+}
+
+
+/* =========================
+   Search
+   ========================= */
+
+.search-container {
+  height: 38px;
+  flex: 1;
+  width: 100%;
+  max-width: 420px;
+  min-width: 180px;
+
+  margin-left: auto;
+
+  display: flex;
+  align-items: center;
+
+  border: 1px solid #d8ddea;
+  border-radius: 12px;
+  background: #ffffff;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.search-container:focus-within {
+  border-color: #5575d9;
+  box-shadow: 0 0 0 3px rgba(40, 82, 204, 0.08);
+}
+
+.search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 12px;
+  color: #68728a;
+}
+
+.search-container input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+
+  border: none;
+  outline: none;
+
+  padding: 0 8px;
+
+  font-size: 12px;
+  color: #1b2235;
+  background: transparent;
+}
+
+.search-container input::placeholder {
+  color: #727b90;
+}
+
+.search-button {
+  width: 40px;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  background: transparent;
+
+  color: #17233f;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  color: #2149c6;
+}
+
+
+/* =========================
+   Header Actions
+   ========================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.icon-button {
+  position: relative;
+
+  width: 26px;
+  height: 32px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  background: transparent;
+
+  color: #10182d;
+  cursor: pointer;
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.icon-button:hover {
+  color: #2149c6;
+}
+
+
+/* =========================
+   Badge
+   ========================= */
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+  border-radius: 50%;
+
+  background: #2550c9;
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+
+/* =========================
+   User Menu
+   ========================= */
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 1px solid #e2e5ec;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #171c2c;
+}
+
+.dropdown-icon {
+  color: #111827;
+  margin-left: 1px;
+}
+
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 1200px) {
+  .header {
+    gap: 18px;
+  }
+
+  .navigation {
+    gap: 18px;
+  }
+
+  .search-container {
+    max-width: 300px;
+  }
+
+  .header-actions {
+    gap: 14px;
+  }
+}
+
+
+@media (max-width: 1000px) {
+  .navigation {
+    gap: 14px;
+  }
+
+  .navigation a {
+    font-size: 12px;
+  }
+
+  .search-container {
+    max-width: 250px;
+  }
+
+  .user-name {
+    display: none;
+  }
+}
+
+
+@media (max-width: 800px) {
+  .header {
+    padding: 0 16px;
+    gap: 14px;
+  }
+
+  .navigation {
+    display: none;
+  }
+
+  .search-container {
+    max-width: none;
+  }
+}
+
+
+@media (max-width: 550px) {
+  .header {
+    gap: 10px;
+  }
+
+  .logo-text {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .user-menu {
+    display: none;
+  }
+
+  .search-container {
+    min-width: 120px;
+  }
+}

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-gallery-server
+  namespace: book-gallery-dev
+  labels:
+    app: book-gallery-server
+    version: v1
+spec:
+  type: ClusterIP
+  selector:
+    app: book-gallery-server
+    version: v1
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

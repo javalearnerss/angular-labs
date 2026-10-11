@@ -1,8 +1,10 @@
 <div class="book-card">
 
-  <!-- Book Cover -->
-  <div class="book-cover">
-    <img [src]="serverUrl + book.coverImage" [alt]="book.title" />
+  <div class="book-cover" [class]="coverTheme" role="img" [attr.aria-label]="'Illustrated cover for ' + book.title">
+    <span class="cover-category">{{ book.category || 'A GOOD READ' }}</span>
+    <h2 class="cover-title">{{ book.title }}</h2>
+    <span class="cover-rule" aria-hidden="true"></span>
+    <span class="cover-author">{{ book.author }}</span>
   </div>
 
   <!-- Book Details -->
